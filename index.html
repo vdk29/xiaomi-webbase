@@ -1,68 +1,125 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Xiaomi WebBase</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
+
 
 <body>
 
+
+    <!-- HEADER -->
+
     <header class="header">
-        <div class="container">
 
-            <div class="logo">
-                Xiaomi WebBase
-            </div>
+        <div class="container header-container">
 
-            <div class="subtitle">
-                Внутренняя база магазина
+            <div>
+
+                <div class="logo">
+                    Xiaomi WebBase
+                </div>
+
+                <div class="subtitle">
+                    Внутренняя база магазина
+                </div>
+
             </div>
 
         </div>
+
     </header>
 
 
+    <!-- MAIN -->
+
     <main class="main">
+
         <div class="container">
+
+
+            <!-- SEARCH -->
 
             <section class="search-section">
 
-                <h1>Поиск товара</h1>
+                <h1>
+                    Поиск товара
+                </h1>
+
 
                 <div class="search-box">
+
                     <input
                         type="text"
                         id="searchInput"
                         placeholder="Введите название товара..."
+                        autocomplete="off"
                     >
+
 
                     <button id="searchButton">
                         Найти
                     </button>
+
                 </div>
 
             </section>
 
 
+            <!-- CATEGORIES -->
+
             <section class="categories">
 
-                <h2>Категории</h2>
+                <h2>
+                    Категории
+                </h2>
+
 
                 <div class="category-list">
 
-                    <button class="category-button">
+                    <button
+                        class="category-button active"
+                        data-category="Все"
+                    >
+                        Все товары
+                    </button>
+
+
+                    <button
+                        class="category-button"
+                        data-category="Смартфоны"
+                    >
                         Смартфоны
                     </button>
 
-                    <button class="category-button">
+
+                    <button
+                        class="category-button"
+                        data-category="Планшеты"
+                    >
                         Планшеты
                     </button>
 
-                    <button class="category-button">
+
+                    <button
+                        class="category-button"
+                        data-category="Аксессуары"
+                    >
                         Аксессуары
                     </button>
 
@@ -71,25 +128,38 @@
             </section>
 
 
+            <!-- PRODUCTS -->
+
             <section class="products">
 
                 <div class="section-title">
-                    <h2>Товары</h2>
+
+                    <h2>
+                        Товары
+                    </h2>
+
                 </div>
 
-                <div id="productsList" class="products-list">
 
-                    <!-- Товары появятся здесь -->
+                <div
+                    id="productsList"
+                    class="products-list"
+                >
+
+                    <!-- Товары загружаются через JS -->
 
                 </div>
 
             </section>
 
+
         </div>
+
     </main>
 
 
     <script src="app.js"></script>
 
 </body>
+
 </html>
