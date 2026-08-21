@@ -2,6 +2,7 @@ const products = [
     {
         id: 1,
         name: "Redmi Note 15",
+        category: "Смартфоны",
         memory: "8 / 256 GB",
         color: "Чёрный",
         display: 1,
@@ -10,6 +11,7 @@ const products = [
     {
         id: 2,
         name: "Xiaomi 15",
+        category: "Смартфоны",
         memory: "12 / 256 GB",
         color: "Белый",
         display: 1,
@@ -18,6 +20,7 @@ const products = [
     {
         id: 3,
         name: "Redmi Pad 2",
+        category: "Планшеты",
         memory: "8 / 256 GB",
         color: "Серый",
         display: 0,
@@ -27,6 +30,8 @@ const products = [
 
 
 const productsList = document.getElementById("productsList");
+const searchInput = document.getElementById("searchInput");
+const searchButton = document.getElementById("searchButton");
 
 
 function renderProducts(productsToRender) {
@@ -36,9 +41,10 @@ function renderProducts(productsToRender) {
     if (productsToRender.length === 0) {
 
         productsList.innerHTML = `
-            <p style="color: #777;">
-                Товары не найдены
-            </p>
+            <div class="empty-result">
+                <strong>Ничего не найдено</strong>
+                <p>Попробуйте изменить запрос</p>
+            </div>
         `;
 
         return;
@@ -97,5 +103,65 @@ function renderProducts(productsToRender) {
     });
 }
 
+
+/* ПОИСК */
+
+function searchProducts() {
+
+    const query =
+        searchInput.value
+            .trim()
+            .toLowerCase();
+
+
+    if (query === "") {
+
+        renderProducts(products);
+
+        return;
+    }
+
+
+    const results = products.filter(product => {
+
+        const searchText = `
+            ${product.name}
+            ${product.category}
+            ${product.memory}
+            ${product.color}
+        `.toLowerCase();
+
+
+        return searchText.includes(query);
+
+    });
+
+
+    renderProducts(results);
+}
+
+
+/* КНОПКА ПОИСКА */
+
+searchButton.addEventListener("click", searchProducts);
+
+
+/* ПОИСК ПРИ НАЖАТИИ ENTER */
+
+searchInput.addEventListener("keydown", event => {
+
+    if (event.key === "Enter") {
+        searchProducts();
+    }
+
+});
+
+
+/* ПОИСК В РЕАЛЬНОМ ВРЕМЕНИ */
+
+searchInput.addEventListener("input", searchProducts);
+
+
+/* ПЕРВОНАЧАЛЬНЫЙ ВЫВОД */
 
 renderProducts(products);
