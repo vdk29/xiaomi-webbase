@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Xiaomi WebBase</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="container">
+
+            <div class="logo">
+                Xiaomi WebBase
+            </div>
+
+            <div class="subtitle">
+                Внутренняя база магазина
+            </div>
+
+        </div>
+    </header>
+
+
+    <main class="main">
+        <div class="container">
+
+            <section class="search-section">
+
+                <h1>Поиск товара</h1>
+
+                <div class="search-box">
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Введите название товара..."
+                    >
+
+                    <button id="searchButton">
+                        Найти
+                    </button>
+                </div>
+
+            </section>
+
+
+            <section class="categories">
+
+                <h2>Категории</h2>
+
+                <div class="category-list">
+
+                    <button class="category-button">
+                        Смартфоны
+                    </button>
+
+                    <button class="category-button">
+                        Планшеты
+                    </button>
+
+                    <button class="category-button">
+                        Аксессуары
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <section class="products">
+
+                <div class="section-title">
+                    <h2>Товары</h2>
+                </div>
+
+                <div id="productsList" class="products-list">
+
+                    <!-- Товары появятся здесь -->
+
+                </div>
+
+            </section>
+
+        </div>
+    </main>
+
+
+    <script src="app.js"></script>
+
+</body>
+</html>
