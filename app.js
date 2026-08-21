@@ -77,20 +77,24 @@ const products = [
 
 
 // ========================================
-// ЭЛЕМЕНТЫ СТРАНИЦЫ
+// ELEMENTS
 // ========================================
 
-const productsList = document.getElementById("productsList");
+const productsList =
+    document.getElementById("productsList");
 
-const searchInput = document.getElementById("searchInput");
+const searchInput =
+    document.getElementById("searchInput");
 
-const searchButton = document.getElementById("searchButton");
+const searchButton =
+    document.getElementById("searchButton");
 
-const productDetails = document.getElementById("productDetails");
+const productDetails =
+    document.getElementById("productDetails");
 
 
 // ========================================
-// СОХРАНЕНИЕ ТОВАРОВ
+// LOCAL STORAGE
 // ========================================
 
 function saveProducts() {
@@ -103,14 +107,12 @@ function saveProducts() {
 }
 
 
-// ========================================
-// ЗАГРУЗКА ТОВАРОВ
-// ========================================
-
 function loadProducts() {
 
     const savedProducts =
-        localStorage.getItem("xiaomiWebBaseProducts");
+        localStorage.getItem(
+            "xiaomiWebBaseProducts"
+        );
 
 
     if (!savedProducts) {
@@ -135,7 +137,7 @@ function loadProducts() {
     } catch (error) {
 
         console.error(
-            "Не удалось загрузить товары:",
+            "Ошибка загрузки товаров:",
             error
         );
 
@@ -145,7 +147,7 @@ function loadProducts() {
 
 
 // ========================================
-// ОТОБРАЖЕНИЕ ТОВАРОВ
+// PRODUCT LIST
 // ========================================
 
 function renderProducts(productsToRender) {
@@ -177,6 +179,7 @@ function renderProducts(productsToRender) {
         `;
 
         return;
+
     }
 
 
@@ -191,7 +194,8 @@ function renderProducts(productsToRender) {
             document.createElement("div");
 
 
-        card.className = "product-card";
+        card.className =
+            "product-card";
 
 
         card.innerHTML = `
@@ -207,7 +211,9 @@ function renderProducts(productsToRender) {
 
 
             <div class="product-info">
-                ${product.memory} · ${product.color}
+                ${product.memory}
+                ·
+                ${product.color}
             </div>
 
 
@@ -256,14 +262,15 @@ function renderProducts(productsToRender) {
         `;
 
 
-        // Открытие товара
+        card.addEventListener(
+            "click",
+            () => {
 
-        card.addEventListener("click", () => {
+                window.location.href =
+                    `product.html?id=${product.id}`;
 
-            window.location.href =
-                `product.html?id=${product.id}`;
-
-        });
+            }
+        );
 
 
         productsList.appendChild(card);
@@ -274,7 +281,7 @@ function renderProducts(productsToRender) {
 
 
 // ========================================
-// ПОИСК
+// SEARCH
 // ========================================
 
 function searchProducts() {
@@ -290,9 +297,6 @@ function searchProducts() {
             .toLowerCase();
 
 
-    // Если поиск пустой —
-    // показываем все товары
-
     if (query === "") {
 
         renderProducts(products);
@@ -304,7 +308,6 @@ function searchProducts() {
 
     const results =
         products.filter(product => {
-
 
             const searchText = `
 
@@ -329,10 +332,6 @@ function searchProducts() {
 }
 
 
-// ========================================
-// КНОПКА ПОИСКА
-// ========================================
-
 if (searchButton) {
 
     searchButton.addEventListener(
@@ -342,10 +341,6 @@ if (searchButton) {
 
 }
 
-
-// ========================================
-// ENTER В ПОИСКЕ
-// ========================================
 
 if (searchInput) {
 
@@ -365,10 +360,6 @@ if (searchInput) {
 }
 
 
-// ========================================
-// ПОИСК В РЕАЛЬНОМ ВРЕМЕНИ
-// ========================================
-
 if (searchInput) {
 
     searchInput.addEventListener(
@@ -380,7 +371,7 @@ if (searchInput) {
 
 
 // ========================================
-// СТРАНИЦА ТОВАРА
+// PRODUCT PAGE
 // ========================================
 
 function renderProductPage() {
@@ -406,8 +397,6 @@ function renderProductPage() {
         );
 
 
-    // Если товар не найден
-
     if (!product) {
 
         productDetails.innerHTML = `
@@ -431,12 +420,21 @@ function renderProductPage() {
     }
 
 
+    renderProduct(product);
+
+}
+
+
+// ========================================
+// RENDER PRODUCT
+// ========================================
+
+function renderProduct(product) {
+
     const total =
         Number(product.display || 0) +
         Number(product.warehouse || 0);
 
-
-    // Характеристики
 
     let specsHTML = "";
 
@@ -470,11 +468,9 @@ function renderProductPage() {
     } else {
 
         specsHTML = `
-
             <p>
                 Характеристики пока не добавлены.
             </p>
-
         `;
 
     }
@@ -486,9 +482,7 @@ function renderProductPage() {
 
 
             <div class="product-page-image">
-
                 Фото товара
-
             </div>
 
 
@@ -496,23 +490,17 @@ function renderProductPage() {
 
 
                 <div class="product-category">
-
                     ${product.category}
-
                 </div>
 
 
                 <h1>
-
                     ${product.name}
-
                 </h1>
 
 
                 <div class="product-memory">
-
                     ${product.memory}
-
                 </div>
 
 
@@ -526,7 +514,7 @@ function renderProductPage() {
                 </div>
 
 
-                <!-- НАЛИЧИЕ -->
+                <!-- STOCK -->
 
                 <div class="product-stock">
 
@@ -535,28 +523,78 @@ function renderProductPage() {
                     </h2>
 
 
-                    <div class="stock-big-row">
+                    <div class="stock-control">
 
                         <span>
                             Витрина
                         </span>
 
-                        <strong>
-                            ${product.display}
-                        </strong>
+
+                        <div class="quantity-control">
+
+                            <button
+                                class="quantity-button"
+                                data-type="display"
+                                data-action="minus"
+                            >
+                                −
+                            </button>
+
+
+                            <strong
+                                id="displayQuantity"
+                            >
+                                ${product.display}
+                            </strong>
+
+
+                            <button
+                                class="quantity-button"
+                                data-type="display"
+                                data-action="plus"
+                            >
+                                +
+                            </button>
+
+                        </div>
 
                     </div>
 
 
-                    <div class="stock-big-row">
+                    <div class="stock-control">
 
                         <span>
                             Склад
                         </span>
 
-                        <strong>
-                            ${product.warehouse}
-                        </strong>
+
+                        <div class="quantity-control">
+
+                            <button
+                                class="quantity-button"
+                                data-type="warehouse"
+                                data-action="minus"
+                            >
+                                −
+                            </button>
+
+
+                            <strong
+                                id="warehouseQuantity"
+                            >
+                                ${product.warehouse}
+                            </strong>
+
+
+                            <button
+                                class="quantity-button"
+                                data-type="warehouse"
+                                data-action="plus"
+                            >
+                                +
+                            </button>
+
+                        </div>
 
                     </div>
 
@@ -567,7 +605,7 @@ function renderProductPage() {
                             Всего
                         </span>
 
-                        <strong>
+                        <strong id="totalQuantity">
                             ${total}
                         </strong>
 
@@ -576,7 +614,7 @@ function renderProductPage() {
                 </div>
 
 
-                <!-- КРАТКО -->
+                <!-- DESCRIPTION -->
 
                 <div class="product-description">
 
@@ -586,18 +624,16 @@ function renderProductPage() {
 
 
                     <p>
-
                         ${
                             product.description ||
                             "Описание пока не добавлено."
                         }
-
                     </p>
 
                 </div>
 
 
-                <!-- ХАРАКТЕРИСТИКИ -->
+                <!-- SPECS -->
 
                 <div class="product-specs">
 
@@ -611,7 +647,7 @@ function renderProductPage() {
                 </div>
 
 
-                <!-- ПОДСКАЗКА -->
+                <!-- TIP -->
 
                 <div class="product-tip">
 
@@ -621,12 +657,10 @@ function renderProductPage() {
 
 
                     <p>
-
                         ${
                             product.tip ||
                             "Подсказка пока не добавлена."
                         }
-
                     </p>
 
                 </div>
@@ -639,22 +673,81 @@ function renderProductPage() {
     `;
 
 
-    // Меняем название вкладки
-
     document.title =
         `${product.name} — Xiaomi WebBase`;
+
+
+    setupQuantityButtons(product);
 
 }
 
 
 // ========================================
-// ЗАПУСК
+// QUANTITY BUTTONS
+// ========================================
+
+function setupQuantityButtons(product) {
+
+    const buttons =
+        document.querySelectorAll(
+            ".quantity-button"
+        );
+
+
+    buttons.forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                const type =
+                    button.dataset.type;
+
+
+                const action =
+                    button.dataset.action;
+
+
+                if (action === "plus") {
+
+                    product[type] =
+                        Number(product[type]) + 1;
+
+                }
+
+
+                if (action === "minus") {
+
+                    if (
+                        Number(product[type]) > 0
+                    ) {
+
+                        product[type] =
+                            Number(product[type]) - 1;
+
+                    }
+
+                }
+
+
+                saveProducts();
+
+                renderProduct(product);
+
+            }
+        );
+
+    });
+
+}
+
+
+// ========================================
+// START
 // ========================================
 
 loadProducts();
 
-
-// Главная страница
 
 if (productsList) {
 
@@ -662,8 +755,6 @@ if (productsList) {
 
 }
 
-
-// Страница товара
 
 if (productDetails) {
 
