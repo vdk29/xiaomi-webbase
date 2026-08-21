@@ -92,6 +92,9 @@ const searchButton =
 const productDetails =
     document.getElementById("productDetails");
 
+const categoryButtons =
+    document.querySelectorAll(".category-button");
+
 
 // ========================================
 // LOCAL STORAGE
@@ -332,6 +335,10 @@ function searchProducts() {
 }
 
 
+// ========================================
+// SEARCH BUTTON
+// ========================================
+
 if (searchButton) {
 
     searchButton.addEventListener(
@@ -341,6 +348,10 @@ if (searchButton) {
 
 }
 
+
+// ========================================
+// ENTER
+// ========================================
 
 if (searchInput) {
 
@@ -360,6 +371,10 @@ if (searchInput) {
 }
 
 
+// ========================================
+// LIVE SEARCH
+// ========================================
+
 if (searchInput) {
 
     searchInput.addEventListener(
@@ -368,6 +383,71 @@ if (searchInput) {
     );
 
 }
+
+
+// ========================================
+// CATEGORIES
+// ========================================
+
+categoryButtons.forEach(button => {
+
+    button.addEventListener(
+        "click",
+        () => {
+
+            const category =
+                button.dataset.category;
+
+
+            categoryButtons.forEach(item => {
+
+                item.classList.remove(
+                    "active"
+                );
+
+            });
+
+
+            button.classList.add(
+                "active"
+            );
+
+
+            if (searchInput) {
+
+                searchInput.value = "";
+
+            }
+
+
+            if (category === "Все") {
+
+                renderProducts(products);
+
+                return;
+
+            }
+
+
+            const filteredProducts =
+                products.filter(product => {
+
+                    return (
+                        product.category ===
+                        category
+                    );
+
+                });
+
+
+            renderProducts(
+                filteredProducts
+            );
+
+        }
+    );
+
+});
 
 
 // ========================================
@@ -468,9 +548,11 @@ function renderProduct(product) {
     } else {
 
         specsHTML = `
+
             <p>
                 Характеристики пока не добавлены.
             </p>
+
         `;
 
     }
@@ -482,7 +564,9 @@ function renderProduct(product) {
 
 
             <div class="product-page-image">
+
                 Фото товара
+
             </div>
 
 
@@ -507,6 +591,7 @@ function renderProduct(product) {
                 <div class="product-color">
 
                     Цвет:
+
                     <strong>
                         ${product.color}
                     </strong>
