@@ -1,46 +1,27 @@
 // ======================================================
-// XIAOMI WEBBASE — PRODUCTS DATABASE
-// Версия: 22.08.2026
-// ======================================================
-//
-// ЛОГИКА НАЛИЧИЯ:
-//
-// СМАРТФОНЫ:
-// LDU = выставочный экземпляр.
-// Если LDU = 1 → 1 на витрине, остальные на складе.
-// Если LDU = 2 → 2 на витрине, остальные на складе.
-//
-// ПЛАНШЕТЫ:
-// Пока весь остаток считается складом.
-// Витрину можно будет выставить вручную.
-//
-// ЧАСЫ:
-// Все имеющиеся часы считаются находящимися на витрине,
-// потому что они висят на крючках.
-// LDU отдельно не вычитаем.
-//
-// ФИТНЕС-БРАСЛЕТЫ:
-// Та же логика, что и часы.
-//
-// ПЫЛЕСОСЫ / ОЧИСТИТЕЛИ / УВЛАЖНИТЕЛИ / КОРМУШКИ
-// и т.д.:
-// Пока склад = весь остаток.
-// Витрину потом выставишь вручную.
-//
-// ПФ:
-// Полностью игнорируется.
+// XIAOMI WEBBASE
+// PRODUCTS DATA
+// Версия базы: 22.08.2026
 // ======================================================
 
 
 // ======================================================
-// VERSION
+// НАСТРОЙКИ
 // ======================================================
 
-const DATA_VERSION = "2026-08-22-v2";
+// При изменении этой цифры старая локальная база
+// автоматически заменяется новой.
+const PRODUCTS_DATABASE_VERSION = "2026-08-22-v2";
+
+const PRODUCTS_STORAGE_KEY =
+    "xiaomiWebBaseProducts";
+
+const PRODUCTS_VERSION_KEY =
+    "xiaomiWebBaseProductsVersion";
 
 
 // ======================================================
-// PRODUCTS
+// ТОВАРЫ
 // ======================================================
 
 const products = [
@@ -50,443 +31,548 @@ const products = [
     // ==================================================
 
     {
-        id: 1,
+        id: 1001,
         name: "REDMI 17",
         category: "Смартфоны",
         memory: "4 / 128 GB",
         color: "Dark Black",
 
-        stock: 1,
-        ldu: 0,
+        quantity: 1,
+        ldu: 1,
+        display: 1,
+        warehouse: 0,
 
         description:
-            "Смартфон Redmi 17 с большим экраном и хорошей автономностью.",
+            "Смартфон REDMI 17 с 4 ГБ оперативной и 128 ГБ встроенной памяти.",
 
         specs: {
             "Память": "4 / 128 GB",
-            "Цвет": "Dark Black"
+            "Цвет": "Dark Black",
+            "LDU": "1 шт."
         },
 
         tip:
-            "Хороший вариант для повседневного использования."
+            "Выставочный экземпляр."
     },
 
-    {
-        id: 2,
-        name: "REDMI 17",
-        category: "Смартфоны",
-        memory: "4 / 128 GB",
-        color: "Blue",
-
-        stock: 1,
-        ldu: 0,
-
-        description:
-            "Смартфон Redmi 17 в синем цвете.",
-
-        specs: {
-            "Память": "4 / 128 GB",
-            "Цвет": "Blue"
-        },
-
-        tip:
-            "Подходит для повседневных задач и мультимедиа."
-    },
 
     {
-        id: 3,
-        name: "REDMI 17",
-        category: "Смартфоны",
-        memory: "4 / 128 GB",
-        color: "Green",
-
-        stock: 1,
-        ldu: 0,
-
-        description:
-            "Смартфон Redmi 17 в зеленом цвете.",
-
-        specs: {
-            "Память": "4 / 128 GB",
-            "Цвет": "Green"
-        },
-
-        tip:
-            "Хороший вариант для повседневного использования."
-    },
-
-    {
-        id: 4,
-        name: "REDMI 17",
-        category: "Смартфоны",
-        memory: "4 / 128 GB",
-        color: "Purple",
-
-        stock: 1,
-        ldu: 0,
-
-        description:
-            "Смартфон Redmi 17 в фиолетовом цвете.",
-
-        specs: {
-            "Память": "4 / 128 GB",
-            "Цвет": "Purple"
-        },
-
-        tip:
-            "Можно предложить покупателю, которому важен необычный цвет."
-    },
-
-    {
-        id: 5,
-        name: "REDMI 17",
-        category: "Смартфоны",
-        memory: "8 / 256 GB",
-        color: "Dark Black",
-
-        stock: 1,
-        ldu: 0,
-
-        description:
-            "Redmi 17 с увеличенным объёмом оперативной и встроенной памяти.",
-
-        specs: {
-            "Память": "8 / 256 GB",
-            "Цвет": "Dark Black"
-        },
-
-        tip:
-            "Хороший вариант, если покупателю нужно больше памяти."
-    },
-
-    {
-        id: 6,
+        id: 1002,
         name: "Xiaomi 17",
         category: "Смартфоны",
         memory: "12 / 256 GB",
         color: "Black",
 
-        stock: 1,
-        ldu: 0,
+        quantity: 1,
+        ldu: 1,
+        display: 1,
+        warehouse: 0,
 
         description:
-            "Флагманский смартфон Xiaomi 17.",
+            "Флагманский смартфон Xiaomi 17 с 12 ГБ оперативной и 256 ГБ встроенной памяти.",
 
         specs: {
             "Память": "12 / 256 GB",
-            "Цвет": "Black"
+            "Цвет": "Black",
+            "LDU": "1 шт."
         },
 
         tip:
-            "Для покупателя, который хочет производительный смартфон Xiaomi."
+            "Выставочный экземпляр."
     },
 
-    {
-        id: 7,
-        name: "Xiaomi 17 Ultra",
-        category: "Смартфоны",
-        memory: "16 / 512 GB",
-        color: "Black",
-
-        stock: 3,
-        ldu: 0,
-
-        description:
-            "Флагман Xiaomi 17 Ultra с максимальной конфигурацией памяти.",
-
-        specs: {
-            "Память": "16 / 512 GB",
-            "Цвет": "Black"
-        },
-
-        tip:
-            "Флагманский вариант для покупателя, которому важны камера и максимальная производительность."
-    },
 
     {
-        id: 8,
+        id: 1003,
         name: "Xiaomi 17 Ultra",
         category: "Смартфоны",
         memory: "16 / 512 GB",
         color: "White",
 
-        stock: 2,
-        ldu: 0,
+        quantity: 1,
+        ldu: 1,
+        display: 1,
+        warehouse: 0,
 
         description:
-            "Флагман Xiaomi 17 Ultra в белом цвете.",
+            "Флагманский смартфон Xiaomi 17 Ultra.",
 
         specs: {
             "Память": "16 / 512 GB",
-            "Цвет": "White"
+            "Цвет": "White",
+            "LDU": "1 шт."
         },
 
         tip:
-            "Премиальный флагман Xiaomi."
+            "Выставочный экземпляр."
     },
 
+
     {
-        id: 9,
+        id: 1004,
+        name: "Xiaomi 17 Ultra",
+        category: "Смартфоны",
+        memory: "16 / 512 GB",
+        color: "Black",
+
+        quantity: 3,
+        ldu: 0,
+        display: 0,
+        warehouse: 3,
+
+        description:
+            "Флагманский смартфон Xiaomi 17 Ultra.",
+
+        specs: {
+            "Память": "16 / 512 GB",
+            "Цвет": "Black",
+            "LDU": "Нет"
+        },
+
+        tip:
+            "Товар находится на складе."
+    },
+
+
+    {
+        id: 1005,
+        name: "Xiaomi 17 Ultra",
+        category: "Смартфоны",
+        memory: "16 / 512 GB",
+        color: "White",
+
+        quantity: 2,
+        ldu: 1,
+        display: 1,
+        warehouse: 1,
+
+        description:
+            "Флагманский смартфон Xiaomi 17 Ultra.",
+
+        specs: {
+            "Память": "16 / 512 GB",
+            "Цвет": "White",
+            "LDU": "1 шт."
+        },
+
+        tip:
+            "Один экземпляр на витрине, один на складе."
+    },
+
+
+    {
+        id: 1006,
         name: "Xiaomi 17T",
         category: "Смартфоны",
         memory: "12 / 256 GB",
         color: "Black",
 
-        stock: 9,
-        ldu: 0,
+        quantity: 10,
+        ldu: 1,
+        display: 1,
+        warehouse: 9,
 
         description:
-            "Производительный смартфон Xiaomi 17T.",
+            "Смартфон Xiaomi 17T.",
 
         specs: {
             "Память": "12 / 256 GB",
-            "Цвет": "Black"
+            "Цвет": "Black",
+            "LDU": "1 шт."
         },
 
         tip:
-            "Хороший универсальный смартфон для требовательного пользователя."
+            "Один экземпляр на витрине, остальные на складе."
     },
 
+
     {
-        id: 10,
+        id: 1007,
         name: "Xiaomi 17T",
         category: "Смартфоны",
         memory: "12 / 256 GB",
         color: "Blue",
 
-        stock: 7,
+        quantity: 7,
         ldu: 0,
+        display: 0,
+        warehouse: 7,
 
         description:
-            "Xiaomi 17T в синем цвете.",
+            "Смартфон Xiaomi 17T.",
 
         specs: {
             "Память": "12 / 256 GB",
-            "Цвет": "Blue"
+            "Цвет": "Blue",
+            "LDU": "Нет"
         },
 
         tip:
-            "Хороший вариант для производительного повседневного смартфона."
+            "Весь остаток находится на складе."
     },
 
+
     {
-        id: 11,
+        id: 1008,
         name: "Xiaomi 17T",
         category: "Смартфоны",
         memory: "12 / 256 GB",
         color: "Violet",
 
-        stock: 6,
+        quantity: 6,
         ldu: 0,
+        display: 0,
+        warehouse: 6,
 
         description:
-            "Xiaomi 17T в фиолетовом цвете.",
+            "Смартфон Xiaomi 17T.",
 
         specs: {
             "Память": "12 / 256 GB",
-            "Цвет": "Violet"
+            "Цвет": "Violet",
+            "LDU": "Нет"
         },
 
         tip:
-            "Подойдёт покупателю, которому важен необычный внешний вид."
+            "Весь остаток находится на складе."
     },
 
+
     {
-        id: 12,
+        id: 1009,
         name: "Xiaomi 17T",
         category: "Смартфоны",
         memory: "12 / 512 GB",
         color: "Black",
 
-        stock: 9,
+        quantity: 9,
         ldu: 0,
+        display: 0,
+        warehouse: 9,
 
         description:
-            "Xiaomi 17T с увеличенным объёмом встроенной памяти.",
+            "Смартфон Xiaomi 17T.",
 
         specs: {
             "Память": "12 / 512 GB",
-            "Цвет": "Black"
+            "Цвет": "Black",
+            "LDU": "Нет"
         },
 
         tip:
-            "Хороший вариант для пользователя, которому требуется много памяти."
+            "Весь остаток находится на складе."
     },
 
+
     {
-        id: 13,
+        id: 1010,
         name: "Xiaomi 17T",
         category: "Смартфоны",
         memory: "12 / 512 GB",
         color: "Blue",
 
-        stock: 5,
+        quantity: 5,
         ldu: 0,
+        display: 0,
+        warehouse: 5,
 
         description:
-            "Xiaomi 17T 12/512 GB в синем цвете.",
+            "Смартфон Xiaomi 17T.",
 
         specs: {
             "Память": "12 / 512 GB",
-            "Цвет": "Blue"
+            "Цвет": "Blue",
+            "LDU": "Нет"
         },
 
         tip:
-            "Большой объём памяти и высокая производительность."
+            "Весь остаток находится на складе."
     },
 
+
     {
-        id: 14,
+        id: 1011,
         name: "Xiaomi 17T Pro",
         category: "Смартфоны",
         memory: "12 / 1024 GB",
         color: "Black",
 
-        stock: 3,
+        quantity: 3,
         ldu: 0,
+        display: 0,
+        warehouse: 3,
 
         description:
-            "Xiaomi 17T Pro с 1 ТБ встроенной памяти.",
+            "Флагманский смартфон Xiaomi 17T Pro.",
 
         specs: {
             "Память": "12 / 1024 GB",
-            "Цвет": "Black"
+            "Цвет": "Black",
+            "LDU": "Нет"
         },
 
         tip:
-            "Для покупателя, которому нужен максимальный объём памяти."
+            "Весь остаток находится на складе."
     },
 
+
     {
-        id: 15,
+        id: 1012,
         name: "Xiaomi 17T Pro",
         category: "Смартфоны",
         memory: "12 / 1024 GB",
         color: "Deep Violet",
 
-        stock: 1,
+        quantity: 1,
         ldu: 0,
+        display: 0,
+        warehouse: 1,
 
         description:
-            "Xiaomi 17T Pro с 1 ТБ памяти.",
+            "Флагманский смартфон Xiaomi 17T Pro.",
 
         specs: {
             "Память": "12 / 1024 GB",
-            "Цвет": "Deep Violet"
+            "Цвет": "Deep Violet",
+            "LDU": "Нет"
         },
 
         tip:
-            "Премиальная версия с максимальным объёмом памяти."
+            "Весь остаток находится на складе."
     },
 
+
     {
-        id: 16,
+        id: 1013,
         name: "Xiaomi 17T Pro",
         category: "Смартфоны",
         memory: "12 / 256 GB",
         color: "Black",
 
-        stock: 3,
+        quantity: 3,
         ldu: 0,
+        display: 0,
+        warehouse: 3,
 
         description:
-            "Xiaomi 17T Pro 12/256 GB.",
+            "Смартфон Xiaomi 17T Pro.",
 
         specs: {
             "Память": "12 / 256 GB",
-            "Цвет": "Black"
+            "Цвет": "Black",
+            "LDU": "Нет"
         },
 
         tip:
-            "Флагманская версия 17T Pro."
+            "Весь остаток находится на складе."
     },
 
+
     {
-        id: 17,
+        id: 1014,
         name: "Xiaomi 17T Pro",
         category: "Смартфоны",
         memory: "12 / 256 GB",
         color: "Deep Blue",
 
-        stock: 4,
+        quantity: 4,
         ldu: 0,
+        display: 0,
+        warehouse: 4,
 
         description:
-            "Xiaomi 17T Pro в синем цвете.",
+            "Смартфон Xiaomi 17T Pro.",
 
         specs: {
             "Память": "12 / 256 GB",
-            "Цвет": "Deep Blue"
+            "Цвет": "Deep Blue",
+            "LDU": "Нет"
         },
 
         tip:
-            "Производительный флагман с ярким цветом корпуса."
+            "Весь остаток находится на складе."
     },
 
+
     {
-        id: 18,
+        id: 1015,
         name: "Xiaomi 17T Pro",
         category: "Смартфоны",
         memory: "12 / 256 GB",
         color: "Deep Violet",
 
-        stock: 1,
+        quantity: 1,
         ldu: 0,
+        display: 0,
+        warehouse: 1,
 
         description:
-            "Xiaomi 17T Pro в цвете Deep Violet.",
+            "Смартфон Xiaomi 17T Pro.",
 
         specs: {
             "Память": "12 / 256 GB",
-            "Цвет": "Deep Violet"
+            "Цвет": "Deep Violet",
+            "LDU": "Нет"
         },
 
         tip:
-            "Премиальный смартфон с необычным цветом."
+            "Весь остаток находится на складе."
     },
 
+
     {
-        id: 19,
+        id: 1016,
         name: "Xiaomi 17T Pro",
         category: "Смартфоны",
         memory: "12 / 512 GB",
         color: "Black",
 
-        stock: 8,
+        quantity: 8,
         ldu: 0,
+        display: 0,
+        warehouse: 8,
 
         description:
-            "Xiaomi 17T Pro 12/512 GB.",
+            "Смартфон Xiaomi 17T Pro.",
 
         specs: {
             "Память": "12 / 512 GB",
-            "Цвет": "Black"
+            "Цвет": "Black",
+            "LDU": "Нет"
         },
 
         tip:
-            "Хороший вариант для требовательного пользователя."
+            "Весь остаток находится на складе."
     },
 
+
     {
-        id: 20,
+        id: 1017,
         name: "Xiaomi 17T Pro",
         category: "Смартфоны",
         memory: "12 / 512 GB",
         color: "Deep Blue",
 
-        stock: 1,
+        quantity: 1,
         ldu: 0,
+        display: 0,
+        warehouse: 1,
 
         description:
-            "Xiaomi 17T Pro 12/512 GB в синем цвете.",
+            "Смартфон Xiaomi 17T Pro.",
 
         specs: {
             "Память": "12 / 512 GB",
-            "Цвет": "Deep Blue"
+            "Цвет": "Deep Blue",
+            "LDU": "Нет"
         },
 
         tip:
-            "Производительный смартфон с большим объёмом памяти."
+            "Весь остаток находится на складе."
+    },
+
+
+    {
+        id: 1018,
+        name: "REDMI 17",
+        category: "Смартфоны",
+        memory: "4 / 128 GB",
+        color: "Blue",
+
+        quantity: 1,
+        ldu: 0,
+        display: 0,
+        warehouse: 1,
+
+        description:
+            "Смартфон REDMI 17.",
+
+        specs: {
+            "Память": "4 / 128 GB",
+            "Цвет": "Blue",
+            "LDU": "Нет"
+        },
+
+        tip:
+            "Товар находится на складе."
+    },
+
+
+    {
+        id: 1019,
+        name: "REDMI 17",
+        category: "Смартфоны",
+        memory: "4 / 128 GB",
+        color: "Green",
+
+        quantity: 1,
+        ldu: 0,
+        display: 0,
+        warehouse: 1,
+
+        description:
+            "Смартфон REDMI 17.",
+
+        specs: {
+            "Память": "4 / 128 GB",
+            "Цвет": "Green",
+            "LDU": "Нет"
+        },
+
+        tip:
+            "Товар находится на складе."
+    },
+
+
+    {
+        id: 1020,
+        name: "REDMI 17",
+        category: "Смартфоны",
+        memory: "4 / 128 GB",
+        color: "Purple",
+
+        quantity: 1,
+        ldu: 0,
+        display: 0,
+        warehouse: 1,
+
+        description:
+            "Смартфон REDMI 17.",
+
+        specs: {
+            "Память": "4 / 128 GB",
+            "Цвет": "Purple",
+            "LDU": "Нет"
+        },
+
+        tip:
+            "Товар находится на складе."
+    },
+
+
+    {
+        id: 1021,
+        name: "REDMI 17",
+        category: "Смартфоны",
+        memory: "8 / 256 GB",
+        color: "Dark Black",
+
+        quantity: 1,
+        ldu: 0,
+        display: 0,
+        warehouse: 1,
+
+        description:
+            "Смартфон REDMI 17.",
+
+        specs: {
+            "Память": "8 / 256 GB",
+            "Цвет": "Dark Black",
+            "LDU": "Нет"
+        },
+
+        tip:
+            "Товар находится на складе."
     },
 
 
@@ -495,183 +581,210 @@ const products = [
     // ==================================================
 
     {
-        id: 101,
+        id: 2001,
         name: "REDMI Pad 2",
         category: "Планшеты",
         memory: "4 / 128 GB",
         color: "Graphite Gray",
 
-        stock: 1,
-        ldu: 0,
+        quantity: 1,
+        ldu: 1,
+        display: 1,
+        warehouse: 0,
 
         description:
-            "Планшет Redmi Pad 2 для учёбы, работы и мультимедиа.",
+            "Планшет REDMI Pad 2.",
 
         specs: {
             "Память": "4 / 128 GB",
-            "Цвет": "Graphite Gray"
+            "Цвет": "Graphite Gray",
+            "LDU": "1 шт."
         },
 
         tip:
-            "Хороший вариант для видео, учёбы и повседневных задач."
+            "Выставочный экземпляр."
     },
 
-    {
-        id: 102,
-        name: "REDMI Pad 2",
-        category: "Планшеты",
-        memory: "4 / 128 GB 4G",
-        color: "Graphite Gray",
-
-        stock: 3,
-        ldu: 0,
-
-        description:
-            "Версия Redmi Pad 2 с поддержкой мобильной связи.",
-
-        specs: {
-            "Память": "4 / 128 GB",
-            "Связь": "4G",
-            "Цвет": "Graphite Gray"
-        },
-
-        tip:
-            "Подходит покупателю, которому нужен планшет с мобильным интернетом."
-    },
 
     {
-        id: 103,
-        name: "REDMI Pad 2",
-        category: "Планшеты",
-        memory: "4 / 256 GB 4G",
-        color: "Graphite Gray",
-
-        stock: 1,
-        ldu: 0,
-
-        description:
-            "Redmi Pad 2 4G с увеличенным объёмом памяти.",
-
-        specs: {
-            "Память": "4 / 256 GB",
-            "Связь": "4G",
-            "Цвет": "Graphite Gray"
-        },
-
-        tip:
-            "Хороший выбор при необходимости мобильного интернета и большого объёма памяти."
-    },
-
-    {
-        id: 104,
+        id: 2002,
         name: "REDMI Pad 2 Pro",
         category: "Планшеты",
         memory: "6 / 128 GB",
         color: "Silver",
 
-        stock: 1,
+        quantity: 1,
         ldu: 0,
+        display: 0,
+        warehouse: 1,
 
         description:
-            "Планшет Redmi Pad 2 Pro.",
+            "Планшет REDMI Pad 2 Pro.",
 
         specs: {
             "Память": "6 / 128 GB",
-            "Цвет": "Silver"
+            "Цвет": "Silver",
+            "LDU": "Нет"
         },
 
         tip:
-            "Подходит для мультимедиа, работы и учёбы."
+            "Товар находится на складе."
     },
 
-    {
-        id: 105,
-        name: "REDMI Pad 2 Pro 5G",
-        category: "Планшеты",
-        memory: "8 / 256 GB",
-        color: "Graphite Gray",
-
-        stock: 2,
-        ldu: 0,
-
-        description:
-            "Redmi Pad 2 Pro 5G с большим экраном и поддержкой мобильной сети.",
-
-        specs: {
-            "Память": "8 / 256 GB",
-            "Связь": "5G",
-            "Цвет": "Graphite Gray"
-        },
-
-        tip:
-            "Хороший вариант для пользователя, которому нужен мобильный планшет."
-    },
 
     {
-        id: 106,
-        name: "REDMI Pad 2 Pro 5G",
-        category: "Планшеты",
-        memory: "8 / 256 GB",
-        color: "Silver",
-
-        stock: 2,
-        ldu: 0,
-
-        description:
-            "Redmi Pad 2 Pro 5G в серебристом цвете.",
-
-        specs: {
-            "Память": "8 / 256 GB",
-            "Связь": "5G",
-            "Цвет": "Silver"
-        },
-
-        tip:
-            "Подходит для работы, учёбы и мультимедиа."
-    },
-
-    {
-        id: 107,
-        name: "REDMI Pad 2 Pro",
-        category: "Планшеты",
-        memory: "8 / 256 GB",
-        color: "Silver",
-
-        stock: 1,
-        ldu: 0,
-
-        description:
-            "Redmi Pad 2 Pro с 256 GB памяти.",
-
-        specs: {
-            "Память": "8 / 256 GB",
-            "Цвет": "Silver"
-        },
-
-        tip:
-            "Хороший вариант для мультимедиа и повседневных задач."
-    },
-
-    {
-        id: 108,
+        id: 2003,
         name: "Xiaomi Pad 8",
         category: "Планшеты",
         memory: "8 / 128 GB",
         color: "Black",
 
-        stock: 1,
-        ldu: 0,
+        quantity: 1,
+        ldu: 1,
+        display: 1,
+        warehouse: 0,
 
         description:
             "Планшет Xiaomi Pad 8.",
 
         specs: {
             "Память": "8 / 128 GB",
-            "Цвет": "Black"
+            "Цвет": "Black",
+            "LDU": "1 шт."
         },
 
         tip:
-            "Подходит для работы, учёбы и развлечений."
+            "Выставочный экземпляр."
+    },
+
+
+    {
+        id: 2004,
+        name: "REDMI Pad 2 4G",
+        category: "Планшеты",
+        memory: "4 / 256 GB",
+        color: "Graphite Gray",
+
+        quantity: 1,
+        ldu: 0,
+        display: 0,
+        warehouse: 1,
+
+        description:
+            "Планшет REDMI Pad 2 с поддержкой 4G.",
+
+        specs: {
+            "Память": "4 / 256 GB",
+            "Цвет": "Graphite Gray",
+            "LDU": "Нет"
+        },
+
+        tip:
+            "Товар находится на складе."
+    },
+
+
+    {
+        id: 2005,
+        name: "REDMI Pad 2 9.7 4G",
+        category: "Планшеты",
+        memory: "4 / 128 GB",
+        color: "Graphite Gray",
+
+        quantity: 3,
+        ldu: 0,
+        display: 0,
+        warehouse: 3,
+
+        description:
+            "Планшет REDMI Pad 2 9.7 4G.",
+
+        specs: {
+            "Память": "4 / 128 GB",
+            "Цвет": "Graphite Gray",
+            "LDU": "Нет"
+        },
+
+        tip:
+            "Весь остаток находится на складе."
+    },
+
+
+    {
+        id: 2006,
+        name: "REDMI Pad 2 Pro 5G",
+        category: "Планшеты",
+        memory: "8 / 256 GB",
+        color: "Graphite Gray",
+
+        quantity: 2,
+        ldu: 0,
+        display: 0,
+        warehouse: 2,
+
+        description:
+            "Планшет REDMI Pad 2 Pro 5G.",
+
+        specs: {
+            "Память": "8 / 256 GB",
+            "Цвет": "Graphite Gray",
+            "LDU": "Нет"
+        },
+
+        tip:
+            "Весь остаток находится на складе."
+    },
+
+
+    {
+        id: 2007,
+        name: "REDMI Pad 2 Pro 5G",
+        category: "Планшеты",
+        memory: "8 / 256 GB",
+        color: "Silver",
+
+        quantity: 2,
+        ldu: 0,
+        display: 0,
+        warehouse: 2,
+
+        description:
+            "Планшет REDMI Pad 2 Pro 5G.",
+
+        specs: {
+            "Память": "8 / 256 GB",
+            "Цвет": "Silver",
+            "LDU": "Нет"
+        },
+
+        tip:
+            "Весь остаток находится на складе."
+    },
+
+
+    {
+        id: 2008,
+        name: "REDMI Pad 2 Pro",
+        category: "Планшеты",
+        memory: "8 / 256 GB",
+        color: "Silver",
+
+        quantity: 1,
+        ldu: 0,
+        display: 0,
+        warehouse: 1,
+
+        description:
+            "Планшет REDMI Pad 2 Pro.",
+
+        specs: {
+            "Память": "8 / 256 GB",
+            "Цвет": "Silver",
+            "LDU": "Нет"
+        },
+
+        tip:
+            "Товар находится на складе."
     },
 
 
@@ -680,306 +793,432 @@ const products = [
     // ==================================================
 
     {
-        id: 201,
+        id: 3001,
         name: "Redmi Watch 5",
         category: "Смарт-часы",
         memory: "",
         color: "Obsidian Black",
 
-        stock: 1,
-        ldu: 0,
+        quantity: 1,
+        ldu: 1,
+        display: 1,
+        warehouse: 0,
 
         description:
             "Смарт-часы Redmi Watch 5.",
 
         specs: {
-            "Цвет": "Obsidian Black"
-        },
-
-        tip:
-            "Можно показать покупателю на витрине."
-    },
-
-    {
-        id: 202,
-        name: "REDMI Watch 6 Active",
-        category: "Смарт-часы",
-        memory: "",
-        color: "Matte Silver",
-
-        stock: 6,
-        ldu: 0,
-
-        description:
-            "Смарт-часы Redmi Watch 6 Active.",
-
-        specs: {
-            "Цвет": "Matte Silver"
+            "Цвет": "Obsidian Black",
+            "LDU": "1 шт."
         },
 
         tip:
             "Часы находятся на витрине."
     },
 
-    {
-        id: 203,
-        name: "REDMI Watch 6 Active",
-        category: "Смарт-часы",
-        memory: "",
-        color: "Midnight Black",
-
-        stock: 8,
-        ldu: 0,
-
-        description:
-            "Смарт-часы Redmi Watch 6 Active.",
-
-        specs: {
-            "Цвет": "Midnight Black"
-        },
-
-        tip:
-            "Часы находятся на витрине."
-    },
 
     {
-        id: 204,
-        name: "REDMI Watch 6 Active",
-        category: "Смарт-часы",
-        memory: "",
-        color: "Sunset Orange",
-
-        stock: 4,
-        ldu: 0,
-
-        description:
-            "Смарт-часы Redmi Watch 6 Active.",
-
-        specs: {
-            "Цвет": "Sunset Orange"
-        },
-
-        tip:
-            "Яркий вариант для покупателя."
-    },
-
-    {
-        id: 205,
-        name: "REDMI Watch 6 Lite",
-        category: "Смарт-часы",
-        memory: "",
-        color: "Black",
-
-        stock: 8,
-        ldu: 0,
-
-        description:
-            "Смарт-часы Redmi Watch 6 Lite.",
-
-        specs: {
-            "Цвет": "Black"
-        },
-
-        tip:
-            "Часы находятся на витрине."
-    },
-
-    {
-        id: 206,
-        name: "REDMI Watch 6 Lite",
-        category: "Смарт-часы",
-        memory: "",
-        color: "Steel Gray",
-
-        stock: 7,
-        ldu: 0,
-
-        description:
-            "Смарт-часы Redmi Watch 6 Lite.",
-
-        specs: {
-            "Цвет": "Steel Gray"
-        },
-
-        tip:
-            "Часы находятся на витрине."
-    },
-
-    {
-        id: 207,
-        name: "Redmi Watch 6",
-        category: "Смарт-часы",
-        memory: "",
-        color: "Obsidian Black",
-
-        stock: 3,
-        ldu: 0,
-
-        description:
-            "Смарт-часы Redmi Watch 6.",
-
-        specs: {
-            "Цвет": "Obsidian Black"
-        },
-
-        tip:
-            "Часы находятся на витрине."
-    },
-
-    {
-        id: 208,
-        name: "REDMI Watch 6",
-        category: "Смарт-часы",
-        memory: "",
-        color: "Silver Gray",
-
-        stock: 5,
-        ldu: 0,
-
-        description:
-            "Смарт-часы Redmi Watch 6.",
-
-        specs: {
-            "Цвет": "Silver Gray"
-        },
-
-        tip:
-            "Часы находятся на витрине."
-    },
-
-    {
-        id: 209,
+        id: 3002,
         name: "Xiaomi Watch S4 41mm",
         category: "Смарт-часы",
         memory: "",
-        color: "White Leather",
+        color: "White",
 
-        stock: 2,
-        ldu: 0,
+        quantity: 2,
+        ldu: 2,
+        display: 2,
+        warehouse: 0,
 
         description:
             "Xiaomi Watch S4 41mm с кожаным ремешком.",
 
         specs: {
-            "Размер": "41 мм",
-            "Ремешок": "Leather",
-            "Цвет": "White"
+            "Ремешок": "Leather Strap",
+            "Цвет": "White",
+            "LDU": "2 шт."
         },
 
         tip:
             "Часы находятся на витрине."
     },
 
+
     {
-        id: 210,
-        name: "Xiaomi Watch S4 41mm",
+        id: 3003,
+        name: "REDMI Watch 6 Active",
         category: "Смарт-часы",
         memory: "",
-        color: "Black Fluororubber",
+        color: "Matte Silver",
 
-        stock: 1,
+        quantity: 6,
         ldu: 0,
+        display: 6,
+        warehouse: 0,
 
         description:
-            "Xiaomi Watch S4 41mm с ремешком Fluororubber.",
+            "Смарт-часы REDMI Watch 6 Active.",
 
         specs: {
-            "Размер": "41 мм",
-            "Ремешок": "Fluororubber",
-            "Цвет": "Black"
+            "Цвет": "Matte Silver",
+            "LDU": "Нет"
         },
 
         tip:
-            "Часы находятся на витрине."
+            "Часы находятся на витрине/крючках."
     },
 
+
     {
-        id: 211,
-        name: "Xiaomi Watch S5",
+        id: 3004,
+        name: "REDMI Watch 6 Active",
+        category: "Смарт-часы",
+        memory: "",
+        color: "Midnight Black",
+
+        quantity: 8,
+        ldu: 0,
+        display: 8,
+        warehouse: 0,
+
+        description:
+            "Смарт-часы REDMI Watch 6 Active.",
+
+        specs: {
+            "Цвет": "Midnight Black",
+            "LDU": "Нет"
+        },
+
+        tip:
+            "Часы находятся на витрине/крючках."
+    },
+
+
+    {
+        id: 3005,
+        name: "REDMI Watch 6 Active",
+        category: "Смарт-часы",
+        memory: "",
+        color: "Sunset Orange",
+
+        quantity: 4,
+        ldu: 0,
+        display: 4,
+        warehouse: 0,
+
+        description:
+            "Смарт-часы REDMI Watch 6 Active.",
+
+        specs: {
+            "Цвет": "Sunset Orange",
+            "LDU": "Нет"
+        },
+
+        tip:
+            "Часы находятся на витрине/крючках."
+    },
+
+
+    {
+        id: 3006,
+        name: "REDMI Watch 6 Lite",
         category: "Смарт-часы",
         memory: "",
         color: "Black",
 
-        stock: 1,
+        quantity: 8,
         ldu: 0,
+        display: 8,
+        warehouse: 0,
+
+        description:
+            "Смарт-часы REDMI Watch 6 Lite.",
+
+        specs: {
+            "Цвет": "Black",
+            "LDU": "Нет"
+        },
+
+        tip:
+            "Часы находятся на витрине/крючках."
+    },
+
+
+    {
+        id: 3007,
+        name: "REDMI Watch 6 Lite",
+        category: "Смарт-часы",
+        memory: "",
+        color: "Steel Gray",
+
+        quantity: 7,
+        ldu: 0,
+        display: 7,
+        warehouse: 0,
+
+        description:
+            "Смарт-часы REDMI Watch 6 Lite.",
+
+        specs: {
+            "Цвет": "Steel Gray",
+            "LDU": "Нет"
+        },
+
+        tip:
+            "Часы находятся на витрине/крючках."
+    },
+
+
+    {
+        id: 3008,
+        name: "Redmi Watch 6",
+        category: "Смарт-часы",
+        memory: "",
+        color: "Obsidian Black",
+
+        quantity: 3,
+        ldu: 0,
+        display: 3,
+        warehouse: 0,
+
+        description:
+            "Смарт-часы Redmi Watch 6.",
+
+        specs: {
+            "Цвет": "Obsidian Black",
+            "LDU": "Нет"
+        },
+
+        tip:
+            "Часы находятся на витрине/крючках."
+    },
+
+
+    {
+        id: 3009,
+        name: "REDMI Watch 6 Obsidian Black Demo",
+        category: "Смарт-часы",
+        memory: "",
+        color: "Obsidian Black",
+
+        quantity: 1,
+        ldu: 1,
+        display: 1,
+        warehouse: 0,
+
+        description:
+            "Демонстрационный экземпляр REDMI Watch 6.",
+
+        specs: {
+            "Цвет": "Obsidian Black",
+            "Тип": "Demo",
+            "LDU": "1 шт."
+        },
+
+        tip:
+            "Демонстрационный экземпляр на витрине."
+    },
+
+
+    {
+        id: 3010,
+        name: "REDMI Watch 6",
+        category: "Смарт-часы",
+        memory: "",
+        color: "Silver Gray",
+
+        quantity: 5,
+        ldu: 0,
+        display: 5,
+        warehouse: 0,
+
+        description:
+            "Смарт-часы REDMI Watch 6.",
+
+        specs: {
+            "Цвет": "Silver Gray",
+            "LDU": "Нет"
+        },
+
+        tip:
+            "Часы находятся на витрине/крючках."
+    },
+
+
+    {
+        id: 3011,
+        name: "Xiaomi Watch 5 Demo",
+        category: "Смарт-часы",
+        memory: "",
+        color: "Black Strap",
+
+        quantity: 1,
+        ldu: 1,
+        display: 1,
+        warehouse: 0,
+
+        description:
+            "Демонстрационные часы Xiaomi Watch 5.",
+
+        specs: {
+            "Цвет": "Black Strap",
+            "Тип": "Demo",
+            "LDU": "1 шт."
+        },
+
+        tip:
+            "Демонстрационный экземпляр."
+    },
+
+
+    {
+        id: 3012,
+        name: "Xiaomi Watch S4 41mm",
+        category: "Смарт-часы",
+        memory: "",
+        color: "Black",
+
+        quantity: 1,
+        ldu: 0,
+        display: 1,
+        warehouse: 0,
+
+        description:
+            "Xiaomi Watch S4 41mm с фторкаучуковым ремешком.",
+
+        specs: {
+            "Ремешок": "Fluororubber Strap",
+            "Цвет": "Black",
+            "LDU": "Нет"
+        },
+
+        tip:
+            "Часы находятся на витрине/крючках."
+    },
+
+
+    {
+        id: 3013,
+        name: "Xiaomi Watch S5 46mm",
+        category: "Смарт-часы",
+        memory: "",
+        color: "Black",
+
+        quantity: 1,
+        ldu: 0,
+        display: 1,
+        warehouse: 0,
 
         description:
             "Xiaomi Watch S5 46mm.",
 
         specs: {
-            "Размер": "46 мм",
-            "Цвет": "Black"
+            "Цвет": "Black",
+            "LDU": "Нет"
         },
 
         tip:
-            "Часы находятся на витрине."
+            "Часы находятся на витрине/крючках."
     },
 
+
     {
-        id: 212,
-        name: "Xiaomi Watch S5",
+        id: 3014,
+        name: "Xiaomi Watch S5 46mm",
         category: "Смарт-часы",
         memory: "",
         color: "Ceramic Blue",
 
-        stock: 1,
+        quantity: 1,
         ldu: 0,
+        display: 1,
+        warehouse: 0,
 
         description:
             "Xiaomi Watch S5 46mm.",
 
         specs: {
-            "Размер": "46 мм",
-            "Материал": "Ceramic",
-            "Цвет": "Blue"
+            "Цвет": "Ceramic Blue",
+            "LDU": "Нет"
         },
 
         tip:
-            "Премиальный вариант часов."
+            "Часы находятся на витрине/крючках."
     },
 
+
     {
-        id: 213,
-        name: "Xiaomi Watch S5",
+        id: 3015,
+        name: "Xiaomi Watch S5 46mm",
         category: "Смарт-часы",
         memory: "",
         color: "Jungle Green",
 
-        stock: 1,
+        quantity: 1,
         ldu: 0,
+        display: 1,
+        warehouse: 0,
 
         description:
             "Xiaomi Watch S5 46mm.",
 
         specs: {
-            "Размер": "46 мм",
-            "Цвет": "Jungle Green"
+            "Цвет": "Jungle Green",
+            "LDU": "Нет"
         },
 
         tip:
-            "Часы находятся на витрине."
+            "Часы находятся на витрине/крючках."
     },
 
+
     {
-        id: 214,
-        name: "Xiaomi Watch S5",
+        id: 3016,
+        name: "Xiaomi Watch S5 46mm",
         category: "Смарт-часы",
         memory: "",
         color: "Silver",
 
-        stock: 1,
+        quantity: 1,
         ldu: 0,
+        display: 1,
+        warehouse: 0,
 
         description:
             "Xiaomi Watch S5 46mm.",
 
         specs: {
-            "Размер": "46 мм",
-            "Цвет": "Silver"
+            "Цвет": "Silver",
+            "LDU": "Нет"
         },
 
         tip:
-            "Часы находятся на витрине."
+            "Часы находятся на витрине/крючках."
+    },
+
+
+    {
+        id: 3017,
+        name: "Xiaomi Watch S5 46mm Demo",
+        category: "Смарт-часы",
+        memory: "",
+        color: "Silver",
+
+        quantity: 1,
+        ldu: 1,
+        display: 1,
+        warehouse: 0,
+
+        description:
+            "Демонстрационный экземпляр Xiaomi Watch S5.",
+
+        specs: {
+            "Цвет": "Silver",
+            "Тип": "Demo",
+            "LDU": "1 шт."
+        },
+
+        tip:
+            "Демонстрационный экземпляр."
     },
 
 
@@ -988,528 +1227,262 @@ const products = [
     // ==================================================
 
     {
-        id: 301,
+        id: 4001,
         name: "Xiaomi Smart Band 10",
         category: "Фитнес-браслеты",
         memory: "",
         color: "Midnight Black",
 
-        stock: 5,
+        quantity: 5,
         ldu: 0,
+        display: 5,
+        warehouse: 0,
 
         description:
             "Фитнес-браслет Xiaomi Smart Band 10.",
 
         specs: {
-            "Цвет": "Midnight Black"
+            "Цвет": "Midnight Black",
+            "LDU": "Нет"
         },
 
         tip:
-            "Браслет находится на витрине."
+            "Браслеты находятся на витрине."
     },
 
+
     {
-        id: 302,
+        id: 4002,
         name: "Xiaomi Smart Band 10 Pro",
         category: "Фитнес-браслеты",
         memory: "",
-        color: "Pearl White Ceramic",
+        color: "Pearl White",
 
-        stock: 2,
+        quantity: 2,
         ldu: 0,
+        display: 2,
+        warehouse: 0,
 
         description:
             "Xiaomi Smart Band 10 Pro Ceramic Edition.",
 
         specs: {
-            "Материал": "Ceramic",
-            "Цвет": "Pearl White"
+            "Цвет": "Pearl White",
+            "Версия": "Ceramic Edition",
+            "LDU": "Нет"
         },
 
         tip:
-            "Премиальная версия браслета."
+            "Браслеты находятся на витрине."
     },
 
+
     {
-        id: 303,
+        id: 4003,
+        name: "Xiaomi Smart Band 10 Pro Demo",
+        category: "Фитнес-браслеты",
+        memory: "",
+        color: "Midnight Black",
+
+        quantity: 1,
+        ldu: 1,
+        display: 1,
+        warehouse: 0,
+
+        description:
+            "Демонстрационный экземпляр Xiaomi Smart Band 10 Pro.",
+
+        specs: {
+            "Цвет": "Midnight Black",
+            "Тип": "Demo",
+            "LDU": "1 шт."
+        },
+
+        tip:
+            "Демонстрационный экземпляр."
+    },
+
+
+    {
+        id: 4004,
         name: "Xiaomi Smart Band 10 Pro",
         category: "Фитнес-браслеты",
         memory: "",
         color: "Midnight Black",
 
-        stock: 4,
+        quantity: 4,
         ldu: 0,
+        display: 4,
+        warehouse: 0,
 
         description:
-            "Xiaomi Smart Band 10 Pro.",
+            "Фитнес-браслет Xiaomi Smart Band 10 Pro.",
 
         specs: {
-            "Цвет": "Midnight Black"
+            "Цвет": "Midnight Black",
+            "LDU": "Нет"
         },
 
         tip:
-            "Браслет находится на витрине."
+            "Браслеты находятся на витрине."
     },
 
+
     {
-        id: 304,
+        id: 4005,
         name: "Xiaomi Smart Band 11 Active",
         category: "Фитнес-браслеты",
         memory: "",
         color: "Black",
 
-        stock: 8,
+        quantity: 8,
         ldu: 0,
+        display: 8,
+        warehouse: 0,
 
         description:
-            "Xiaomi Smart Band 11 Active.",
+            "Фитнес-браслет Xiaomi Smart Band 11 Active.",
 
         specs: {
-            "Цвет": "Black"
+            "Цвет": "Black",
+            "LDU": "Нет"
         },
 
         tip:
-            "Браслет находится на витрине."
+            "Браслеты находятся на витрине."
     },
 
+
     {
-        id: 305,
+        id: 4006,
         name: "Xiaomi Smart Band 11 Active",
         category: "Фитнес-браслеты",
         memory: "",
         color: "Gray",
 
-        stock: 9,
+        quantity: 9,
         ldu: 0,
+        display: 9,
+        warehouse: 0,
 
         description:
-            "Xiaomi Smart Band 11 Active.",
+            "Фитнес-браслет Xiaomi Smart Band 11 Active.",
 
         specs: {
-            "Цвет": "Gray"
+            "Цвет": "Gray",
+            "LDU": "Нет"
         },
 
         tip:
-            "Браслет находится на витрине."
+            "Браслеты находятся на витрине."
     },
 
+
     {
-        id: 306,
+        id: 4007,
         name: "Xiaomi Smart Band 11 Active",
         category: "Фитнес-браслеты",
         memory: "",
         color: "Pomelo Pink",
 
-        stock: 4,
+        quantity: 4,
         ldu: 0,
+        display: 4,
+        warehouse: 0,
 
         description:
-            "Xiaomi Smart Band 11 Active.",
+            "Фитнес-браслет Xiaomi Smart Band 11 Active.",
 
         specs: {
-            "Цвет": "Pomelo Pink"
+            "Цвет": "Pomelo Pink",
+            "LDU": "Нет"
         },
 
         tip:
-            "Браслет находится на витрине."
+            "Браслеты находятся на витрине."
     },
 
+
     {
-        id: 307,
+        id: 4008,
         name: "Xiaomi Smart Band 9 Active",
         category: "Фитнес-браслеты",
         memory: "",
         color: "Black",
 
-        stock: 1,
+        quantity: 1,
         ldu: 0,
+        display: 1,
+        warehouse: 0,
 
         description:
-            "Xiaomi Smart Band 9 Active.",
+            "Фитнес-браслет Xiaomi Smart Band 9 Active.",
 
         specs: {
-            "Цвет": "Black"
+            "Цвет": "Black",
+            "LDU": "Нет"
         },
 
         tip:
             "Браслет находится на витрине."
-    },
-
-
-    // ==================================================
-    // ТЕХНИКА — ПОКА БЕЗ РАСПРЕДЕЛЕНИЯ ВИТРИНЫ
-    // ==================================================
-
-    {
-        id: 401,
-        name: "Xiaomi Robot Vacuum 5",
-        category: "Роботы-пылесосы",
-        memory: "",
-        color: "",
-
-        stock: 1,
-        ldu: 0,
-
-        manualDisplay: true,
-
-        description:
-            "Робот-пылесос Xiaomi Robot Vacuum 5.",
-
-        specs: {},
-
-        tip:
-            "Расположение на витрине будет выставлено вручную."
-    },
-
-    {
-        id: 402,
-        name: "Xiaomi Robot Vacuum 5 Pro",
-        category: "Роботы-пылесосы",
-        memory: "",
-        color: "",
-
-        stock: 2,
-        ldu: 0,
-
-        manualDisplay: true,
-
-        description:
-            "Робот-пылесос Xiaomi Robot Vacuum 5 Pro.",
-
-        specs: {},
-
-        tip:
-            "Расположение на витрине будет выставлено вручную."
-    },
-
-    {
-        id: 403,
-        name: "Xiaomi Robot Vacuum E5",
-        category: "Роботы-пылесосы",
-        memory: "",
-        color: "Black",
-
-        stock: 2,
-        ldu: 0,
-
-        manualDisplay: true,
-
-        description:
-            "Робот-пылесос Xiaomi Robot Vacuum E5.",
-
-        specs: {},
-
-        tip:
-            "Расположение на витрине будет выставлено вручную."
-    },
-
-    {
-        id: 404,
-        name: "Xiaomi Robot Vacuum H40",
-        category: "Роботы-пылесосы",
-        memory: "",
-        color: "",
-
-        stock: 1,
-        ldu: 0,
-
-        manualDisplay: true,
-
-        description:
-            "Робот-пылесос Xiaomi Robot Vacuum H40.",
-
-        specs: {},
-
-        tip:
-            "Расположение на витрине будет выставлено вручную."
-    },
-
-    {
-        id: 405,
-        name: "Xiaomi Robot Vacuum H50",
-        category: "Роботы-пылесосы",
-        memory: "",
-        color: "",
-
-        stock: 2,
-        ldu: 0,
-
-        manualDisplay: true,
-
-        description:
-            "Робот-пылесос Xiaomi Robot Vacuum H50.",
-
-        specs: {},
-
-        tip:
-            "Расположение на витрине будет выставлено вручную."
-    },
-
-    {
-        id: 406,
-        name: "Xiaomi Smart Air Purifier 4 Lite",
-        category: "Очистители воздуха",
-        memory: "",
-        color: "",
-
-        stock: 2,
-        ldu: 0,
-
-        manualDisplay: true,
-
-        description:
-            "Очиститель воздуха Xiaomi Smart Air Purifier 4 Lite.",
-
-        specs: {},
-
-        tip:
-            "Расположение на витрине будет выставлено вручную."
-    },
-
-    {
-        id: 407,
-        name: "Xiaomi Smart Air Purifier Elite",
-        category: "Очистители воздуха",
-        memory: "",
-        color: "",
-
-        stock: 1,
-        ldu: 0,
-
-        manualDisplay: true,
-
-        description:
-            "Очиститель воздуха Xiaomi Smart Air Purifier Elite.",
-
-        specs: {},
-
-        tip:
-            "Расположение на витрине будет выставлено вручную."
-    },
-
-    {
-        id: 408,
-        name: "Mijia Smart Air Purifier 6",
-        category: "Очистители воздуха",
-        memory: "",
-        color: "",
-
-        stock: 1,
-        ldu: 0,
-
-        manualDisplay: true,
-
-        description:
-            "Очиститель воздуха Mijia Smart Air Purifier 6.",
-
-        specs: {},
-
-        tip:
-            "Расположение на витрине будет выставлено вручную."
-    },
-
-    {
-        id: 409,
-        name: "Mijia Smart Air Purifier Max",
-        category: "Очистители воздуха",
-        memory: "",
-        color: "",
-
-        stock: 1,
-        ldu: 0,
-
-        manualDisplay: true,
-
-        description:
-            "Очиститель воздуха Mijia Smart Air Purifier Max.",
-
-        specs: {},
-
-        tip:
-            "Расположение на витрине будет выставлено вручную."
-    },
-
-    {
-        id: 410,
-        name: "Xiaomi Smart Pet Food Feeder 2",
-        category: "Для животных",
-        memory: "",
-        color: "",
-
-        stock: 1,
-        ldu: 0,
-
-        manualDisplay: true,
-
-        description:
-            "Умная кормушка для животных Xiaomi.",
-
-        specs: {},
-
-        tip:
-            "Расположение на витрине будет выставлено вручную."
-    },
-
-    {
-        id: 411,
-        name: "Xiaomi Smart Pet Fountain 2",
-        category: "Для животных",
-        memory: "",
-        color: "",
-
-        stock: 1,
-        ldu: 0,
-
-        manualDisplay: true,
-
-        description:
-            "Умная поилка Xiaomi.",
-
-        specs: {},
-
-        tip:
-            "Расположение на витрине будет выставлено вручную."
     }
 
 ];
 
 
 // ======================================================
-// РАСЧЁТ ВИТРИНЫ И СКЛАДА
-// ======================================================
-
-products.forEach(product => {
-
-    const stock =
-        Number(product.stock || 0);
-
-    const ldu =
-        Number(product.ldu || 0);
-
-
-    // ----------------------------------------------
-    // СМАРТФОНЫ
-    // ----------------------------------------------
-
-    if (
-        product.category === "Смартфоны"
-    ) {
-
-        product.display =
-            Math.min(ldu, stock);
-
-        product.warehouse =
-            Math.max(
-                stock - product.display,
-                0
-            );
-
-        return;
-    }
-
-
-    // ----------------------------------------------
-    // ЧАСЫ
-    // ----------------------------------------------
-
-    if (
-        product.category === "Смарт-часы"
-    ) {
-
-        product.display = stock;
-
-        product.warehouse = 0;
-
-        return;
-    }
-
-
-    // ----------------------------------------------
-    // ФИТНЕС-БРАСЛЕТЫ
-    // ----------------------------------------------
-
-    if (
-        product.category === "Фитнес-браслеты"
-    ) {
-
-        product.display = stock;
-
-        product.warehouse = 0;
-
-        return;
-    }
-
-
-    // ----------------------------------------------
-    // ПЛАНШЕТЫ
-    // ----------------------------------------------
-
-    if (
-        product.category === "Планшеты"
-    ) {
-
-        product.display = 0;
-
-        product.warehouse = stock;
-
-        return;
-    }
-
-
-    // ----------------------------------------------
-    // ОСТАЛЬНЫЕ ТОВАРЫ
-    // ----------------------------------------------
-
-    product.display =
-        Number(product.display || 0);
-
-    product.warehouse =
-        Number(product.warehouse ?? stock);
-
-});
-
-
-// ======================================================
 // LOCAL STORAGE
 // ======================================================
-//
-// ВАЖНО:
-// При обновлении версии старые тестовые товары
-// автоматически удаляются.
-//
-// После этого изменения количества сохраняются.
-// ======================================================
+
+function saveProducts() {
+
+    localStorage.setItem(
+        PRODUCTS_STORAGE_KEY,
+        JSON.stringify(products)
+    );
+
+    localStorage.setItem(
+        PRODUCTS_VERSION_KEY,
+        PRODUCTS_DATABASE_VERSION
+    );
+}
+
 
 function loadProducts() {
 
     const savedVersion =
         localStorage.getItem(
-            "xiaomiWebBaseDataVersion"
+            PRODUCTS_VERSION_KEY
         );
 
 
-    const savedProducts =
-        localStorage.getItem(
-            "xiaomiWebBaseProducts"
-        );
+    // ================================================
+    // ЕСЛИ ВЕРСИЯ СТАРАЯ —
+    // ПОЛНОСТЬЮ УДАЛЯЕМ СТАРУЮ БАЗУ
+    // ================================================
 
-
-    // Новая версия базы
     if (
-        savedVersion !== DATA_VERSION
+        savedVersion !==
+        PRODUCTS_DATABASE_VERSION
     ) {
 
         localStorage.removeItem(
-            "xiaomiWebBaseProducts"
+            PRODUCTS_STORAGE_KEY
         );
 
         localStorage.setItem(
-            "xiaomiWebBaseDataVersion",
-            DATA_VERSION
+            PRODUCTS_VERSION_KEY,
+            PRODUCTS_DATABASE_VERSION
         );
 
         return;
     }
+
+
+    const savedProducts =
+        localStorage.getItem(
+            PRODUCTS_STORAGE_KEY
+        );
 
 
     if (!savedProducts) {
@@ -1523,9 +1496,7 @@ function loadProducts() {
             JSON.parse(savedProducts);
 
 
-        if (
-            Array.isArray(parsedProducts)
-        ) {
+        if (Array.isArray(parsedProducts)) {
 
             products.length = 0;
 
@@ -1542,21 +1513,11 @@ function loadProducts() {
             error
         );
 
+        localStorage.removeItem(
+            PRODUCTS_STORAGE_KEY
+        );
+
     }
-
-}
-
-
-// ======================================================
-// SAVE
-// ======================================================
-
-function saveProducts() {
-
-    localStorage.setItem(
-        "xiaomiWebBaseProducts",
-        JSON.stringify(products)
-    );
 
 }
 
@@ -1612,6 +1573,7 @@ function renderProducts(
 
 
     if (
+        !productsToRender ||
         productsToRender.length === 0
     ) {
 
@@ -1651,7 +1613,8 @@ function renderProducts(
 
 
             const total =
-                display + warehouse;
+                display +
+                warehouse;
 
 
             const card =
@@ -1667,16 +1630,12 @@ function renderProducts(
             card.innerHTML = `
 
                 <div class="product-image">
-
                     Фото товара
-
                 </div>
 
 
                 <div class="product-name">
-
                     ${product.name}
-
                 </div>
 
 
@@ -1807,9 +1766,9 @@ function searchProducts() {
 
                     ${product.category}
 
-                    ${product.memory}
+                    ${product.memory || ""}
 
-                    ${product.color}
+                    ${product.color || ""}
 
                 `.toLowerCase();
 
@@ -2035,7 +1994,8 @@ function renderProduct(
 
 
     const total =
-        display + warehouse;
+        display +
+        warehouse;
 
 
     let specsHTML = "";
@@ -2043,7 +2003,9 @@ function renderProduct(
 
     if (
         product.specs &&
-        Object.keys(product.specs).length > 0
+        Object.keys(
+            product.specs
+        ).length > 0
     ) {
 
         specsHTML =
@@ -2051,25 +2013,25 @@ function renderProduct(
                 product.specs
             )
 
-                .map(
-                    ([key, value]) => `
+            .map(
+                ([key, value]) => `
 
-                        <div class="spec-row">
+                    <div class="spec-row">
 
-                            <span>
-                                ${key}
-                            </span>
+                        <span>
+                            ${key}
+                        </span>
 
-                            <strong>
-                                ${value}
-                            </strong>
+                        <strong>
+                            ${value}
+                        </strong>
 
-                        </div>
+                    </div>
 
-                    `
-                )
+                `
+            )
 
-                .join("");
+            .join("");
 
     } else {
 
@@ -2119,7 +2081,7 @@ function renderProduct(
                             <div class="product-memory">
                                 ${product.memory}
                             </div>
-                          `
+                        `
                         : ""
                 }
 
@@ -2136,14 +2098,12 @@ function renderProduct(
                                 </strong>
 
                             </div>
-                          `
+                        `
                         : ""
                 }
 
 
-                <!-- =================================
-                     STOCK
-                     ================================= -->
+                <!-- STOCK -->
 
                 <div class="product-stock">
 
@@ -2243,9 +2203,7 @@ function renderProduct(
                 </div>
 
 
-                <!-- =================================
-                     DESCRIPTION
-                     ================================= -->
+                <!-- DESCRIPTION -->
 
                 <div class="product-description">
 
@@ -2266,9 +2224,7 @@ function renderProduct(
                 </div>
 
 
-                <!-- =================================
-                     SPECS
-                     ================================= -->
+                <!-- SPECS -->
 
                 <div class="product-specs">
 
@@ -2282,9 +2238,7 @@ function renderProduct(
                 </div>
 
 
-                <!-- =================================
-                     TIP
-                     ================================= -->
+                <!-- TIP -->
 
                 <div class="product-tip">
 
@@ -2382,6 +2336,16 @@ function setupQuantityButtons(
                         }
 
                     }
+
+
+                    // Обновляем общее количество
+                    product.quantity =
+                        Number(
+                            product.display || 0
+                        ) +
+                        Number(
+                            product.warehouse || 0
+                        );
 
 
                     saveProducts();
