@@ -23,194 +23,496 @@
 <body>
 
 
-    <!-- =========================================
-         HEADER
-    ========================================== -->
+<header class="header">
 
-    <header class="header">
+    <div class="container header-container">
 
-        <div class="container header-container">
+        <div>
 
-            <div>
+            <div class="logo">
+                Xiaomi WebBase
+            </div>
 
-                <div class="logo">
-                    Xiaomi WebBase
-                </div>
-
-                <div class="subtitle">
-                    Внутренняя база магазина
-                </div>
-
+            <div class="subtitle">
+                Внутренняя база магазина
             </div>
 
         </div>
 
-    </header>
+    </div>
+
+</header>
 
 
-    <!-- =========================================
-         MAIN
-    ========================================== -->
 
-    <main class="main">
+<main class="main">
 
-        <div class="container">
+    <div class="container">
 
 
-            <!-- =====================================
-                 SEARCH
-            ====================================== -->
+        <!-- ПОИСК -->
 
-            <section class="search-section">
+        <section class="search-section">
 
-                <h1>
-                    Поиск товара
-                </h1>
+            <h1>
+                Поиск товара
+            </h1>
 
 
-                <div class="search-box">
+            <div class="search-box">
 
-                    <input
-                        type="text"
-                        id="searchInput"
-                        placeholder="Введите название товара..."
-                        autocomplete="off"
-                    >
-
-
-                    <button
-                        id="searchButton"
-                        type="button"
-                    >
-                        Найти
-                    </button>
-
-                </div>
-
-            </section>
-
-
-            <!-- =====================================
-                 CATEGORIES
-            ====================================== -->
-
-            <section class="categories">
-
-                <h2>
-                    Категории
-                </h2>
-
-
-                <div class="category-list">
-
-
-                    <button
-                        class="category-button active"
-                        data-category="Все"
-                        type="button"
-                    >
-                        Все товары
-                    </button>
-
-
-                    <button
-                        class="category-button"
-                        data-category="Смартфоны"
-                        type="button"
-                    >
-                        Смартфоны
-                    </button>
-
-
-                    <button
-                        class="category-button"
-                        data-category="Планшеты"
-                        type="button"
-                    >
-                        Планшеты
-                    </button>
-
-
-                    <button
-                        class="category-button"
-                        data-category="Смарт-часы"
-                        type="button"
-                    >
-                        Смарт-часы
-                    </button>
-
-
-                    <button
-                        class="category-button"
-                        data-category="Фитнес-браслеты"
-                        type="button"
-                    >
-                        Фитнес-браслеты
-                    </button>
-
-
-                    <button
-                        class="category-button"
-                        data-category="Аксессуары"
-                        type="button"
-                    >
-                        Аксессуары
-                    </button>
-
-
-                </div>
-
-            </section>
-
-
-            <!-- =====================================
-                 PRODUCTS
-            ====================================== -->
-
-            <section class="products">
-
-
-                <div class="section-title">
-
-                    <h2>
-                        Товары
-                    </h2>
-
-                </div>
-
-
-                <div
-                    id="productsList"
-                    class="products-list"
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Введите название товара..."
+                    autocomplete="off"
                 >
 
-                    <!--
-                        Товары автоматически
-                        загружаются через app.js
-                    -->
+
+                <button id="searchButton">
+                    Найти
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- КАТЕГОРИИ -->
+
+        <section class="categories">
+
+            <h2>
+                Категории
+            </h2>
+
+
+            <div class="category-list">
+
+                <button
+                    class="category-button active"
+                    data-category="Все"
+                >
+                    Все товары
+                </button>
+
+
+                <button
+                    class="category-button"
+                    data-category="Смартфоны"
+                >
+                    Смартфоны
+                </button>
+
+
+                <button
+                    class="category-button"
+                    data-category="Планшеты"
+                >
+                    Планшеты
+                </button>
+
+
+                <button
+                    class="category-button"
+                    data-category="Смарт-часы"
+                >
+                    Смарт-часы
+                </button>
+
+
+                <button
+                    class="category-button"
+                    data-category="Фитнес-браслеты"
+                >
+                    Фитнес-браслеты
+                </button>
+
+
+                <button
+                    class="category-button"
+                    data-category="Аксессуары"
+                >
+                    Аксессуары
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- УПРАВЛЕНИЕ -->
+
+        <section class="management">
+
+            <div class="management-header">
+
+                <div>
+
+                    <h2>
+                        Управление базой
+                    </h2>
+
+                    <p>
+                        Добавляй и редактируй товары прямо через сайт
+                    </p>
 
                 </div>
 
 
-            </section>
+                <button
+                    id="addProductButton"
+                    class="add-product-button"
+                >
+                    + Добавить товар
+                </button>
+
+            </div>
 
 
-        </div>
+            <!-- ФОРМА -->
 
-    </main>
+            <div
+                id="productFormWrapper"
+                class="product-form-wrapper hidden"
+            >
+
+                <div class="form-title">
+
+                    <h2 id="formTitle">
+                        Добавить товар
+                    </h2>
+
+                    <button
+                        id="closeFormButton"
+                        class="close-form-button"
+                    >
+                        ×
+                    </button>
+
+                </div>
 
 
-    <!-- =========================================
-         SCRIPTS
+                <form id="productForm">
 
-         Сначала загружаем базу товаров,
-         затем основной JS.
-    ========================================== -->
 
-    <script src="products-data.js"></script>
+                    <input
+                        type="hidden"
+                        id="editProductId"
+                    >
 
-    <script src="app.js"></script>
 
+                    <!-- ОСНОВНОЕ -->
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label for="formName">
+                                Название товара *
+                            </label>
+
+                            <input
+                                id="formName"
+                                type="text"
+                                placeholder="Например: Xiaomi 17T Pro"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="formCategory">
+                                Категория *
+                            </label>
+
+                            <select
+                                id="formCategory"
+                                required
+                            >
+
+                                <option value="Смартфоны">
+                                    Смартфоны
+                                </option>
+
+                                <option value="Планшеты">
+                                    Планшеты
+                                </option>
+
+                                <option value="Смарт-часы">
+                                    Смарт-часы
+                                </option>
+
+                                <option value="Фитнес-браслеты">
+                                    Фитнес-браслеты
+                                </option>
+
+                                <option value="Аксессуары">
+                                    Аксессуары
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="formMemory">
+                                Память / версия
+                            </label>
+
+                            <input
+                                id="formMemory"
+                                type="text"
+                                placeholder="12 / 512 GB"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="formColor">
+                                Цвет
+                            </label>
+
+                            <input
+                                id="formColor"
+                                type="text"
+                                placeholder="Black"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="formDisplay">
+                                На витрине
+                            </label>
+
+                            <input
+                                id="formDisplay"
+                                type="number"
+                                min="0"
+                                value="0"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="formWarehouse">
+                                На складе
+                            </label>
+
+                            <input
+                                id="formWarehouse"
+                                type="number"
+                                min="0"
+                                value="0"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="formLdu">
+                                LDU
+                            </label>
+
+                            <input
+                                id="formLdu"
+                                type="number"
+                                min="0"
+                                value="0"
+                            >
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- ФОТО -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Фото товара
+                        </label>
+
+
+                        <div class="photo-upload">
+
+                            <div
+                                id="photoPreview"
+                                class="photo-preview"
+                            >
+                                Фото не выбрано
+                            </div>
+
+
+                            <div class="photo-buttons">
+
+                                <label class="photo-upload-button">
+
+                                    Выбрать фото
+
+                                    <input
+                                        type="file"
+                                        id="formPhoto"
+                                        accept="image/*"
+                                        hidden
+                                    >
+
+                                </label>
+
+
+                                <button
+                                    type="button"
+                                    id="removePhotoButton"
+                                    class="remove-photo-button"
+                                >
+                                    Удалить фото
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- ОПИСАНИЕ -->
+
+                    <div class="form-group">
+
+                        <label for="formDescription">
+                            Краткое описание
+                        </label>
+
+                        <textarea
+                            id="formDescription"
+                            rows="4"
+                            placeholder="Описание товара..."
+                        ></textarea>
+
+                    </div>
+
+
+
+                    <!-- ХАРАКТЕРИСТИКИ -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Характеристики
+                        </label>
+
+
+                        <div id="specsEditor"></div>
+
+
+                        <button
+                            type="button"
+                            id="addSpecButton"
+                            class="secondary-button"
+                        >
+                            + Добавить характеристику
+                        </button>
+
+                    </div>
+
+
+
+                    <!-- ПОДСКАЗКА -->
+
+                    <div class="form-group">
+
+                        <label for="formTip">
+                            Подсказка продавцу
+                        </label>
+
+                        <textarea
+                            id="formTip"
+                            rows="3"
+                            placeholder="Например: Один экземпляр на витрине, остальные на складе."
+                        ></textarea>
+
+                    </div>
+
+
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            class="save-product-button"
+                        >
+                            Сохранить товар
+                        </button>
+
+
+                        <button
+                            type="button"
+                            id="cancelFormButton"
+                            class="cancel-button"
+                        >
+                            Отмена
+                        </button>
+
+                    </div>
+
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ТОВАРЫ -->
+
+        <section class="products">
+
+            <div class="section-title">
+
+                <h2>
+                    Товары
+                </h2>
+
+                <span id="productsCount"></span>
+
+            </div>
+
+
+            <div
+                id="productsList"
+                class="products-list"
+            ></div>
+
+        </section>
+
+
+    </div>
+
+</main>
+
+
+<script src="products-data.js"></script>
+<script src="app.js"></script>
 
 </body>
 
