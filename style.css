@@ -1553,3 +1553,69 @@ body > #productModal {
     }
 
 }
+/* ======================================================
+   КНОПКА ДОБАВЛЕНИЯ ТОВАРА
+====================================================== */
+
+.add-product-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: auto !important;
+    min-width: 220px;
+
+    margin-top: 18px;
+
+    padding: 10px 16px;
+
+    background: #191919;
+    color: #ffffff;
+
+    border: none;
+    border-radius: 7px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    position: relative;
+    z-index: 10;
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+.add-product-button:hover {
+    background: #333333;
+}
+
+.add-product-button:active {
+    transform: scale(0.98);
+}
+
+
+/* скрытое модальное окно НИКОГДА
+   не перекрывает страницу */
+
+.modal-overlay {
+    pointer-events: none;
+}
+
+.modal-overlay.active {
+    pointer-events: auto;
+}
+
+
+@media (max-width: 520px) {
+
+    .add-product-button {
+        width: auto !important;
+        min-width: 0;
+
+        padding: 10px 14px;
+
+        font-size: 13px;
+    }
+
+}
