@@ -12,14 +12,23 @@ function startApp() {
 
     if (typeof products === "undefined") {
 
-        console.error(
-            "products-data.js не найден."
-        );
-
+        console.error("products-data.js не найден.");
         return;
+
     }
 
+    // Если это страница товара
+    if (document.getElementById("productDetails")) {
+
+        initProductPage();
+
+        return;
+
+    }
+
+    // Если это главная страница
     initApp();
+
 }
 
 
@@ -39,7 +48,7 @@ if (typeof products === "undefined") {
         startApp;
 
     dataScript.onerror =
-        function () {
+        function() {
 
             console.error(
                 "Не удалось загрузить products-data.js"
@@ -59,44 +68,10 @@ if (typeof products === "undefined") {
 
 
 // ======================================================
-// APP
+// MAIN APP
 // ======================================================
 
 function initApp() {
-
-
-    // ==================================================
-    // STORAGE
-    // ==================================================
-
-    const STORAGE_KEY =
-        typeof PRODUCTS_STORAGE_KEY !== "undefined"
-            ? PRODUCTS_STORAGE_KEY
-            : "xiaomiWebBaseProducts";
-
-
-    function saveProducts() {
-
-        localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify(products)
-        );
-
-    }
-
-
-    // ==================================================
-    // STATE
-    // ==================================================
-
-    let editingProductId = null;
-
-    let currentPhoto = "";
-
-
-    // ==================================================
-    // GET ELEMENTS
-    // ==================================================
 
     const productsList =
         document.getElementById(
@@ -113,91 +88,46 @@ function initApp() {
             "searchButton"
         );
 
+    const addButton =
+        document.getElementById(
+            "addProductButton"
+        ) ||
+        document.getElementById(
+            "openAddProductButton"
+        );
+
     const categoryButtons =
         document.querySelectorAll(
             ".category-button"
         );
 
+    const STORAGE_KEY =
+        typeof PRODUCTS_STORAGE_KEY !== "undefined"
+            ? PRODUCTS_STORAGE_KEY
+            : "xiaomiWebBaseProducts";
+
 
     // ==================================================
-    // ADD BUTTON
+    // STORAGE
     // ==================================================
 
-    function ensureAddButton() {
+    function saveProducts() {
 
-        let addButton =
-            document.getElementById(
-                "openAddProductButton"
-            );
-
-
-        if (!addButton) {
-
-            addButton =
-                document.getElementById(
-                    "addProductButton"
-                );
-
-        }
-
-
-        if (!addButton) {
-
-            const headerContainer =
-                document.querySelector(
-                    ".header-container"
-                );
-
-
-            if (headerContainer) {
-
-                addButton =
-                    document.createElement(
-                        "button"
-                    );
-
-
-                addButton.type =
-                    "button";
-
-
-                addButton.id =
-                    "openAddProductButton";
-
-
-                addButton.className =
-                    "header-add-button";
-
-
-                addButton.textContent =
-                    "+ Добавить товар";
-
-
-                headerContainer.appendChild(
-                    addButton
-                );
-
-            }
-
-        }
-
-
-        if (addButton) {
-
-            addButton.onclick =
-                function (event) {
-
-                    event.preventDefault();
-
-                    event.stopPropagation();
-
-                    openProductModal();
-
-                };
-
-        }
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(products)
+        );
 
     }
+
+
+    // ==================================================
+    // MODAL STATE
+    // ==================================================
+
+    let editingProductId = null;
+
+    let currentPhoto = "";
 
 
     // ==================================================
@@ -206,290 +136,312 @@ function initApp() {
 
     function createProductModal() {
 
-        if (
+        // Если модальное окно уже есть в HTML,
+        // используем его.
+        let overlay =
             document.getElementById(
                 "productModalOverlay"
-            )
-        ) {
+            );
 
-            return;
+        if (!overlay) {
+
+            const existingModal =
+                document.getElementById(
+                    "productModal"
+                );
+
+            if (existingModal) {
+
+                overlay =
+                    existingModal.closest(
+                        ".modal-overlay"
+                    );
+
+                if (overlay) {
+
+                    overlay.id =
+                        "productModalOverlay";
+
+                }
+
+            }
 
         }
 
 
-        const overlay =
-            document.createElement(
-                "div"
-            );
+        // Если модального окна вообще нет —
+        // создаём его.
+        if (!overlay) {
 
+            overlay =
+                document.createElement("div");
 
-        overlay.id =
-            "productModalOverlay";
+            overlay.id =
+                "productModalOverlay";
 
+            overlay.className =
+                "modal-overlay";
 
-        overlay.className =
-            "modal-overlay";
+            overlay.innerHTML = `
 
-
-        overlay.innerHTML = `
-
-            <div
-                class="modal"
-                id="dynamicProductModal"
-                role="dialog"
-                aria-modal="true"
-            >
-
-
-                <div class="modal-header">
-
-                    <div>
-
-                        <h2 id="modalTitle">
-                            Добавить товар
-                        </h2>
-
-                    </div>
-
-
-                    <button
-                        type="button"
-                        class="modal-close"
-                        id="closeProductModal"
-                    >
-                        ×
-                    </button>
-
-                </div>
-
-
-
-                <form
-                    id="productForm"
-                    class="product-form"
+                <div
+                    class="modal"
+                    role="dialog"
+                    aria-modal="true"
                 >
 
+                    <div class="modal-header">
 
-                    <!-- ОСНОВНАЯ ИНФОРМАЦИЯ -->
+                        <div>
 
-                    <div class="form-group">
-
-                        <label>
-                            Категория
-                        </label>
-
-                        <select
-                            id="productCategory"
-                            required
-                        >
-
-                            <option value="">
-                                Выберите категорию
-                            </option>
-
-                            <option value="Смартфоны">
-                                Смартфоны
-                            </option>
-
-                            <option value="Планшеты">
-                                Планшеты
-                            </option>
-
-                            <option value="Смарт-часы">
-                                Смарт-часы
-                            </option>
-
-                            <option value="Фитнес-браслеты">
-                                Фитнес-браслеты
-                            </option>
-
-                            <option value="Аксессуары">
-                                Аксессуары
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-
-                    <div class="form-group">
-
-                        <label>
-                            Название товара
-                        </label>
-
-                        <input
-                            type="text"
-                            id="productName"
-                            placeholder="Например: Xiaomi 17 Ultra"
-                            required
-                        >
-
-                    </div>
-
-
-
-                    <div class="form-group">
-
-                        <label>
-                            Цвет
-                        </label>
-
-                        <input
-                            type="text"
-                            id="productColor"
-                            placeholder="Например: Black"
-                        >
-
-                    </div>
-
-
-
-                    <!-- ХАРАКТЕРИСТИКИ -->
-
-                    <div class="characteristics">
-
-                        <div class="characteristics-title">
-                            Характеристики
-                        </div>
-
-
-                        <div class="characteristics-grid">
-
-
-                            <div class="form-group">
-
-                                <label>
-                                    Встроенная память
-                                </label>
-
-                                <input
-                                    type="text"
-                                    id="specStorage"
-                                    placeholder="512 GB"
-                                >
-
-                            </div>
-
-
-                            <div class="form-group">
-
-                                <label>
-                                    Дисплей
-                                </label>
-
-                                <input
-                                    type="text"
-                                    id="specDisplay"
-                                    placeholder="6.9 AMOLED"
-                                >
-
-                            </div>
-
-
-                            <div class="form-group">
-
-                                <label>
-                                    Процессор
-                                </label>
-
-                                <input
-                                    type="text"
-                                    id="specProcessor"
-                                    placeholder="Snapdragon..."
-                                >
-
-                            </div>
-
-
-                            <div class="form-group">
-
-                                <label>
-                                    Фотокамера
-                                </label>
-
-                                <input
-                                    type="text"
-                                    id="specCamera"
-                                    placeholder="200 Мп"
-                                >
-
-                            </div>
-
-
-                            <div class="form-group">
-
-                                <label>
-                                    Ёмкость аккумулятора
-                                </label>
-
-                                <input
-                                    type="text"
-                                    id="specBattery"
-                                    placeholder="6000 мАч"
-                                >
-
-                            </div>
-
-
-                            <div class="form-group">
-
-                                <label>
-                                    Оперативная память
-                                </label>
-
-                                <input
-                                    type="text"
-                                    id="specRam"
-                                    placeholder="16 GB"
-                                >
-
-                            </div>
+                            <h2 id="modalTitle">
+                                Добавить товар
+                            </h2>
 
                         </div>
 
+                        <button
+                            type="button"
+                            class="modal-close"
+                            id="closeProductModal"
+                        >
+                            ×
+                        </button>
+
                     </div>
 
 
+                    <form
+                        id="productForm"
+                        class="product-form"
+                    >
 
-                    <!-- НАЛИЧИЕ -->
+                        <div class="form-group">
 
-                    <div class="characteristics">
+                            <label>
+                                Категория
+                            </label>
 
-                        <div class="characteristics-title">
-                            Наличие
+                            <select
+                                id="productCategory"
+                                required
+                            >
+
+                                <option value="">
+                                    Выберите категорию
+                                </option>
+
+                                <option value="Смартфоны">
+                                    Смартфоны
+                                </option>
+
+                                <option value="Планшеты">
+                                    Планшеты
+                                </option>
+
+                                <option value="Смарт-часы">
+                                    Смарт-часы
+                                </option>
+
+                                <option value="Фитнес-браслеты">
+                                    Фитнес-браслеты
+                                </option>
+
+                                <option value="Аксессуары">
+                                    Аксессуары
+                                </option>
+
+                            </select>
+
                         </div>
 
 
-                        <div class="stock-form">
+                        <div class="form-group">
+
+                            <label>
+                                Название товара
+                            </label>
+
+                            <input
+                                type="text"
+                                id="productName"
+                                placeholder="Например: Xiaomi 17 Ultra"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Цвет
+                            </label>
+
+                            <input
+                                type="text"
+                                id="productColor"
+                                placeholder="Например: Black"
+                            >
+
+                        </div>
+
+
+                        <div class="characteristics">
+
+                            <div class="characteristics-title">
+                                Характеристики
+                            </div>
+
+
+                            <div class="characteristics-grid">
+
+                                <div class="form-group">
+
+                                    <label>
+                                        Встроенная память
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="specStorage"
+                                        placeholder="512 GB"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>
+                                        Дисплей
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="specDisplay"
+                                        placeholder="6.9 AMOLED"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>
+                                        Процессор
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="specProcessor"
+                                        placeholder="Snapdragon..."
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>
+                                        Фотокамера
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="specCamera"
+                                        placeholder="200 Мп"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>
+                                        Ёмкость аккумулятора
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="specBattery"
+                                        placeholder="6000 мАч"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>
+                                        Оперативная память
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="specRam"
+                                        placeholder="16 GB"
+                                    >
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="characteristics">
+
+                            <div class="characteristics-title">
+                                Наличие
+                            </div>
+
+
+                            <div class="stock-form">
+
+                                <div class="form-group">
+
+                                    <label>
+                                        На витрине
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="productDisplay"
+                                        min="0"
+                                        value="0"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>
+                                        На складе
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="productWarehouse"
+                                        min="0"
+                                        value="0"
+                                    >
+
+                                </div>
+
+                            </div>
 
 
                             <div class="form-group">
 
                                 <label>
-                                    На витрине
+                                    LDU
                                 </label>
 
                                 <input
                                     type="number"
-                                    id="productDisplay"
-                                    min="0"
-                                    value="0"
-                                >
-
-                            </div>
-
-
-                            <div class="form-group">
-
-                                <label>
-                                    На складе
-                                </label>
-
-                                <input
-                                    type="number"
-                                    id="productWarehouse"
+                                    id="productLdu"
                                     min="0"
                                     value="0"
                                 >
@@ -502,139 +454,105 @@ function initApp() {
                         <div class="form-group">
 
                             <label>
-                                LDU / демонстрационные экземпляры
+                                Краткое описание
                             </label>
 
-                            <input
-                                type="number"
-                                id="productLdu"
-                                min="0"
-                                value="0"
-                            >
-
-                        </div>
-
-                    </div>
-
-
-
-                    <!-- ОПИСАНИЕ -->
-
-                    <div class="form-group">
-
-                        <label>
-                            Краткое описание
-                        </label>
-
-                        <textarea
-                            id="productDescription"
-                            rows="4"
-                            placeholder="Краткая информация о товаре..."
-                        ></textarea>
-
-                    </div>
-
-
-
-                    <!-- ПОДСКАЗКА -->
-
-                    <div class="form-group">
-
-                        <label>
-                            Подсказка продавцу
-                        </label>
-
-                        <textarea
-                            id="productTip"
-                            rows="4"
-                            placeholder="Подсказка продавцу..."
-                        ></textarea>
-
-                    </div>
-
-
-
-                    <!-- ФОТО -->
-
-                    <div class="form-group">
-
-                        <label>
-                            Фото товара
-                        </label>
-
-
-                        <div class="photo-upload">
-
-                            <input
-                                type="file"
-                                id="productPhoto"
-                                accept="image/*"
-                            >
+                            <textarea
+                                id="productDescription"
+                                placeholder="Краткая информация о товаре..."
+                            ></textarea>
 
                         </div>
 
 
-                        <div
-                            class="photo-preview"
-                            id="photoPreview"
-                        >
+                        <div class="form-group">
 
-                            <img
-                                id="photoPreviewImage"
-                                src=""
-                                alt=""
-                            >
+                            <label>
+                                Подсказка продавцу
+                            </label>
+
+                            <textarea
+                                id="productTip"
+                                placeholder="Подсказка продавцу..."
+                            ></textarea>
 
                         </div>
 
-                    </div>
+
+                        <div class="form-group">
+
+                            <label>
+                                Фото товара
+                            </label>
+
+                            <div class="photo-upload">
+
+                                <input
+                                    type="file"
+                                    id="productPhoto"
+                                    accept="image/*"
+                                >
+
+                            </div>
 
 
+                            <div
+                                class="photo-preview"
+                                id="photoPreview"
+                            >
 
-                    <!-- КНОПКИ -->
+                                <img
+                                    id="photoPreviewImage"
+                                    src=""
+                                    alt=""
+                                >
 
-                    <div class="form-actions">
+                            </div>
 
-                        <button
-                            type="button"
-                            class="form-button cancel"
-                            id="cancelProductModal"
-                        >
-                            Отмена
-                        </button>
-
-
-                        <button
-                            type="submit"
-                            class="form-button save"
-                        >
-                            Сохранить товар
-                        </button>
-
-                    </div>
+                        </div>
 
 
-                </form>
+                        <div class="form-actions">
 
-            </div>
+                            <button
+                                type="button"
+                                class="form-button cancel"
+                                id="cancelProductModal"
+                            >
+                                Отмена
+                            </button>
 
-        `;
 
+                            <button
+                                type="submit"
+                                class="form-button save"
+                            >
+                                Сохранить товар
+                            </button>
 
-        document.body.appendChild(
-            overlay
-        );
+                        </div>
+
+                    </form>
+
+                </div>
+
+            `;
+
+            document.body.appendChild(
+                overlay
+            );
+
+        }
 
 
         // ==================================================
-        // CLOSE
+        // BUTTONS
         // ==================================================
 
         const closeButton =
             document.getElementById(
                 "closeProductModal"
             );
-
 
         const cancelButton =
             document.getElementById(
@@ -659,11 +577,10 @@ function initApp() {
 
 
         overlay.onclick =
-            function (event) {
+            function(event) {
 
                 if (
-                    event.target ===
-                    overlay
+                    event.target === overlay
                 ) {
 
                     closeProductModal();
@@ -730,6 +647,10 @@ function initApp() {
 
         if (!overlay) {
 
+            console.error(
+                "Модальное окно не найдено."
+            );
+
             return;
 
         }
@@ -742,25 +663,20 @@ function initApp() {
 
 
         currentPhoto =
-            product &&
-            product.image
+            product && product.image
                 ? product.image
                 : "";
 
 
-        // ==================================================
-        // TITLE
-        // ==================================================
-
-        const modalTitle =
+        const title =
             document.getElementById(
                 "modalTitle"
             );
 
 
-        if (modalTitle) {
+        if (title) {
 
-            modalTitle.textContent =
+            title.textContent =
                 product
                     ? "Редактировать товар"
                     : "Добавить товар";
@@ -768,109 +684,112 @@ function initApp() {
         }
 
 
-        // ==================================================
-        // VALUES
-        // ==================================================
+        const category =
+            document.getElementById(
+                "productCategory"
+            );
 
-        document.getElementById(
-            "productCategory"
-        ).value =
-            product?.category || "";
+        if (category) {
 
+            category.value =
+                product?.category || "";
 
-        document.getElementById(
-            "productName"
-        ).value =
-            product?.name || "";
+        }
 
 
-        document.getElementById(
-            "productColor"
-        ).value =
-            product?.color || "";
+        const name =
+            document.getElementById(
+                "productName"
+            );
+
+        if (name) {
+
+            name.value =
+                product?.name || "";
+
+        }
+
+
+        const color =
+            document.getElementById(
+                "productColor"
+            );
+
+        if (color) {
+
+            color.value =
+                product?.color || "";
+
+        }
 
 
         const specs =
             product?.specs || {};
 
 
-        document.getElementById(
-            "specStorage"
-        ).value =
-            specs["Встроенная память"] || "";
+        setValue(
+            "specStorage",
+            specs["Встроенная память"]
+        );
 
+        setValue(
+            "specDisplay",
+            specs["Дисплей"]
+        );
 
-        document.getElementById(
-            "specDisplay"
-        ).value =
-            specs["Дисплей"] || "";
+        setValue(
+            "specProcessor",
+            specs["Процессор"]
+        );
 
+        setValue(
+            "specCamera",
+            specs["Фотокамера"]
+        );
 
-        document.getElementById(
-            "specProcessor"
-        ).value =
-            specs["Процессор"] || "";
-
-
-        document.getElementById(
-            "specCamera"
-        ).value =
-            specs["Фотокамера"] || "";
-
-
-        document.getElementById(
-            "specBattery"
-        ).value =
+        setValue(
+            "specBattery",
             specs["Емкость аккумулятора"] ||
-            specs["Ёмкость аккумулятора"] ||
-            "";
+            specs["Ёмкость аккумулятора"]
+        );
+
+        setValue(
+            "specRam",
+            specs["Оперативная память"]
+        );
 
 
-        document.getElementById(
-            "specRam"
-        ).value =
-            specs["Оперативная память"] || "";
+        setValue(
+            "productDisplay",
+            product?.display || 0
+        );
+
+        setValue(
+            "productWarehouse",
+            product?.warehouse || 0
+        );
+
+        setValue(
+            "productLdu",
+            product?.ldu || 0
+        );
 
 
-        document.getElementById(
-            "productDisplay"
-        ).value =
-            product?.display || 0;
+        setValue(
+            "productDescription",
+            product?.description || ""
+        );
 
+        setValue(
+            "productTip",
+            product?.tip || ""
+        );
 
-        document.getElementById(
-            "productWarehouse"
-        ).value =
-            product?.warehouse || 0;
-
-
-        document.getElementById(
-            "productLdu"
-        ).value =
-            product?.ldu || 0;
-
-
-        document.getElementById(
-            "productDescription"
-        ).value =
-            product?.description || "";
-
-
-        document.getElementById(
-            "productTip"
-        ).value =
-            product?.tip || "";
-
-
-        // ==================================================
-        // PHOTO
-        // ==================================================
 
         const preview =
             document.getElementById(
                 "photoPreview"
             );
-
 
         const previewImage =
             document.getElementById(
@@ -891,29 +810,20 @@ function initApp() {
                 "active"
             );
 
-        } else {
+        } else if (
+            preview &&
+            previewImage
+        ) {
 
-            if (previewImage) {
+            previewImage.src =
+                "";
 
-                previewImage.src =
-                    "";
-
-            }
-
-            if (preview) {
-
-                preview.classList.remove(
-                    "active"
-                );
-
-            }
+            preview.classList.remove(
+                "active"
+            );
 
         }
 
-
-        // ==================================================
-        // OPEN
-        // ==================================================
 
         overlay.classList.add(
             "active"
@@ -925,13 +835,12 @@ function initApp() {
 
 
         setTimeout(
-            function () {
+            function() {
 
                 const nameInput =
                     document.getElementById(
                         "productName"
                     );
-
 
                 if (nameInput) {
 
@@ -942,6 +851,28 @@ function initApp() {
             },
             100
         );
+
+    }
+
+
+    // ==================================================
+    // SET VALUE
+    // ==================================================
+
+    function setValue(
+        id,
+        value
+    ) {
+
+        const element =
+            document.getElementById(id);
+
+        if (element) {
+
+            element.value =
+                value ?? "";
+
+        }
 
     }
 
@@ -990,11 +921,10 @@ function initApp() {
 
     document.addEventListener(
         "keydown",
-        function (event) {
+        function(event) {
 
             if (
-                event.key ===
-                "Escape"
+                event.key === "Escape"
             ) {
 
                 closeProductModal();
@@ -1042,7 +972,7 @@ function initApp() {
 
 
         reader.onload =
-            function (event) {
+            function(event) {
 
                 currentPhoto =
                     event.target.result;
@@ -1052,7 +982,6 @@ function initApp() {
                     document.getElementById(
                         "photoPreview"
                     );
-
 
                 const image =
                     document.getElementById(
@@ -1096,15 +1025,15 @@ function initApp() {
 
 
         const category =
-            document.getElementById(
+            getValue(
                 "productCategory"
-            ).value.trim();
+            ).trim();
 
 
         const name =
-            document.getElementById(
+            getValue(
                 "productName"
-            ).value.trim();
+            ).trim();
 
 
         if (!category) {
@@ -1130,54 +1059,54 @@ function initApp() {
 
 
         const storage =
-            document.getElementById(
+            getValue(
                 "specStorage"
-            ).value.trim();
+            ).trim();
 
 
         const displaySpec =
-            document.getElementById(
+            getValue(
                 "specDisplay"
-            ).value.trim();
+            ).trim();
 
 
         const processor =
-            document.getElementById(
+            getValue(
                 "specProcessor"
-            ).value.trim();
+            ).trim();
 
 
         const camera =
-            document.getElementById(
+            getValue(
                 "specCamera"
-            ).value.trim();
+            ).trim();
 
 
         const battery =
-            document.getElementById(
+            getValue(
                 "specBattery"
-            ).value.trim();
+            ).trim();
 
 
         const ram =
-            document.getElementById(
+            getValue(
                 "specRam"
-            ).value.trim();
+            ).trim();
 
 
         const color =
-            document.getElementById(
+            getValue(
                 "productColor"
-            ).value.trim();
+            ).trim();
 
 
         const display =
             Math.max(
                 0,
                 Number(
-                    document.getElementById(
+                    getValue(
                         "productDisplay"
-                    ).value
+                    )
                 ) || 0
             );
 
@@ -1186,9 +1115,9 @@ function initApp() {
             Math.max(
                 0,
                 Number(
-                    document.getElementById(
+                    getValue(
                         "productWarehouse"
-                    ).value
+                    )
                 ) || 0
             );
 
@@ -1197,86 +1126,61 @@ function initApp() {
             Math.max(
                 0,
                 Number(
-                    document.getElementById(
+                    getValue(
                         "productLdu"
-                    ).value
+                    )
                 ) || 0
             );
 
 
         const description =
-            document.getElementById(
+            getValue(
                 "productDescription"
-            ).value.trim();
+            ).trim();
 
 
         const tip =
-            document.getElementById(
+            getValue(
                 "productTip"
-            ).value.trim();
+            ).trim();
 
-
-        // ==================================================
-        // SPECS
-        // ==================================================
 
         const specs = {};
 
 
-        if (storage) {
-
+        if (storage)
             specs["Встроенная память"] =
                 storage;
 
-        }
 
-
-        if (displaySpec) {
-
+        if (displaySpec)
             specs["Дисплей"] =
                 displaySpec;
 
-        }
 
-
-        if (processor) {
-
+        if (processor)
             specs["Процессор"] =
                 processor;
 
-        }
 
-
-        if (camera) {
-
+        if (camera)
             specs["Фотокамера"] =
                 camera;
 
-        }
 
-
-        if (battery) {
-
+        if (battery)
             specs["Емкость аккумулятора"] =
                 battery;
 
-        }
 
-
-        if (ram) {
-
+        if (ram)
             specs["Оперативная память"] =
                 ram;
 
-        }
 
-
-        if (color) {
-
+        if (color)
             specs["Цвет"] =
                 color;
-
-        }
 
 
         specs["LDU"] =
@@ -1284,10 +1188,6 @@ function initApp() {
                 ? `${ldu} шт.`
                 : "Нет";
 
-
-        // ==================================================
-        // MEMORY
-        // ==================================================
 
         let memory = "";
 
@@ -1303,14 +1203,13 @@ function initApp() {
         } else {
 
             memory =
-                storage ||
-                ram;
+                storage || ram;
 
         }
 
 
         // ==================================================
-        // EDIT EXISTING
+        // EDIT
         // ==================================================
 
         if (
@@ -1320,8 +1219,8 @@ function initApp() {
             const product =
                 products.find(
                     item =>
-                        Number(item.id) ===
-                        Number(editingProductId)
+                        String(item.id) ===
+                        String(editingProductId)
                 );
 
 
@@ -1330,43 +1229,33 @@ function initApp() {
                 product.name =
                     name;
 
-
                 product.category =
                     category;
-
 
                 product.memory =
                     memory;
 
-
                 product.color =
                     color;
-
 
                 product.display =
                     display;
 
-
                 product.warehouse =
                     warehouse;
-
 
                 product.quantity =
                     display +
                     warehouse;
 
-
                 product.ldu =
                     ldu;
-
 
                 product.description =
                     description;
 
-
                 product.tip =
                     tip;
-
 
                 product.specs =
                     specs;
@@ -1383,9 +1272,8 @@ function initApp() {
 
         }
 
-
         // ==================================================
-        // CREATE NEW
+        // NEW
         // ==================================================
 
         else {
@@ -1447,35 +1335,53 @@ function initApp() {
         }
 
 
-        // ==================================================
-        // SAVE
-        // ==================================================
-
         saveProducts();
+
+
+        const wasEditing =
+            editingProductId !== null;
+
+        const savedId =
+            editingProductId;
 
 
         closeProductModal();
 
 
-        // ==================================================
-        // CURRENT PAGE
-        // ==================================================
-
+        // Если редактировали существующий товар —
+        // возвращаемся сразу на него.
         if (
-            document.getElementById(
-                "productDetails"
-            )
+            wasEditing &&
+            savedId !== null
         ) {
 
-            renderProductPage();
+            window.location.href =
+                `product.html?id=${savedId}`;
 
-        } else {
-
-            renderProducts(
-                products
-            );
+            return;
 
         }
+
+
+        renderProducts(
+            products
+        );
+
+    }
+
+
+    // ==================================================
+    // GET VALUE
+    // ==================================================
+
+    function getValue(id) {
+
+        const element =
+            document.getElementById(id);
+
+        return element
+            ? element.value
+            : "";
 
     }
 
@@ -1490,7 +1396,7 @@ function initApp() {
 
 
         products.forEach(
-            function (product) {
+            function(product) {
 
                 const id =
                     Number(
@@ -1498,12 +1404,9 @@ function initApp() {
                     ) || 0;
 
 
-                if (
-                    id > maxId
-                ) {
+                if (id > maxId) {
 
-                    maxId =
-                        id;
+                    maxId = id;
 
                 }
 
@@ -1517,69 +1420,27 @@ function initApp() {
 
 
     // ==================================================
-    // DELETE PRODUCT
+    // ADD BUTTON
     // ==================================================
 
-    function deleteProduct(
-        productId
-    ) {
+    if (addButton) {
 
-        const product =
-            products.find(
-                item =>
-                    Number(item.id) ===
-                    Number(productId)
-            );
+        addButton.onclick =
+            function(event) {
 
+                event.preventDefault();
 
-        if (!product) {
+                event.stopPropagation();
 
-            return;
+                openProductModal();
 
-        }
+            };
 
+    } else {
 
-        const confirmed =
-            confirm(
-                `Удалить товар "${product.name}"?`
-            );
-
-
-        if (!confirmed) {
-
-            return;
-
-        }
-
-
-        const index =
-            products.findIndex(
-                item =>
-                    Number(item.id) ===
-                    Number(productId)
-            );
-
-
-        if (
-            index === -1
-        ) {
-
-            return;
-
-        }
-
-
-        products.splice(
-            index,
-            1
+        console.warn(
+            "Кнопка добавления товара не найдена."
         );
-
-
-        saveProducts();
-
-
-        window.location.href =
-            "index.html";
 
     }
 
@@ -1630,19 +1491,17 @@ function initApp() {
 
 
         list.forEach(
-            function (product) {
+            function(product) {
 
                 const display =
                     Number(
-                        product.display ||
-                        0
+                        product.display || 0
                     );
 
 
                 const warehouse =
                     Number(
-                        product.warehouse ||
-                        0
+                        product.warehouse || 0
                     );
 
 
@@ -1770,7 +1629,7 @@ function initApp() {
 
 
                 card.onclick =
-                    function () {
+                    function() {
 
                         window.location.href =
                             `product.html?id=${product.id}`;
@@ -1815,7 +1674,7 @@ function initApp() {
 
         const result =
             products.filter(
-                function (product) {
+                function(product) {
 
                     const text = `
 
@@ -1864,11 +1723,10 @@ function initApp() {
 
 
         searchInput.onkeydown =
-            function (event) {
+            function(event) {
 
                 if (
-                    event.key ===
-                    "Enter"
+                    event.key === "Enter"
                 ) {
 
                     searchProducts();
@@ -1885,13 +1743,13 @@ function initApp() {
     // ==================================================
 
     categoryButtons.forEach(
-        function (button) {
+        function(button) {
 
             button.onclick =
-                function () {
+                function() {
 
                     categoryButtons.forEach(
-                        function (item) {
+                        function(item) {
 
                             item.classList.remove(
                                 "active"
@@ -1919,8 +1777,7 @@ function initApp() {
 
 
                     if (
-                        category ===
-                        "Все"
+                        category === "Все"
                     ) {
 
                         renderProducts(
@@ -1934,7 +1791,7 @@ function initApp() {
 
                     renderProducts(
                         products.filter(
-                            function (product) {
+                            function(product) {
 
                                 return (
                                     product.category ===
@@ -1952,509 +1809,1400 @@ function initApp() {
 
 
     // ==================================================
-    // PRODUCT PAGE
+    // INIT
     // ==================================================
 
-    function renderProductPage() {
-
-        const productDetails =
-            document.getElementById(
-                "productDetails"
-            );
+    createProductModal();
 
 
-        if (!productDetails) {
+    renderProducts(
+        products
+    );
 
-            return;
-
-        }
-
-
-        const params =
-            new URLSearchParams(
-                window.location.search
-            );
+}
 
 
-        const productId =
-            Number(
-                params.get("id")
-            );
+// ======================================================
+// PRODUCT PAGE
+// ======================================================
+
+function initProductPage() {
+
+    const container =
+        document.getElementById(
+            "productDetails"
+        );
 
 
-        const product =
-            products.find(
-                item =>
-                    Number(item.id) ===
-                    productId
-            );
+    if (!container) {
+
+        return;
+
+    }
 
 
-        if (!product) {
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
 
-            productDetails.innerHTML = `
 
-                <div class="empty-result">
+    const productId =
+        params.get("id");
+
+
+    if (!productId) {
+
+        container.innerHTML = `
+
+            <div class="empty-result">
+
+                <strong>
+                    Товар не найден
+                </strong>
+
+                <p>
+                    Не указан ID товара.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    const product =
+        products.find(
+            item =>
+                String(item.id) ===
+                String(productId)
+        );
+
+
+    if (!product) {
+
+        container.innerHTML = `
+
+            <div class="empty-result">
+
+                <strong>
+                    Товар не найден
+                </strong>
+
+                <p>
+                    Возможно, товар был удалён.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    renderProductPage(
+        container,
+        product
+    );
+
+}
+
+
+// ======================================================
+// RENDER PRODUCT PAGE
+// ======================================================
+
+function renderProductPage(
+    container,
+    product
+) {
+
+    const display =
+        Number(
+            product.display || 0
+        );
+
+
+    const warehouse =
+        Number(
+            product.warehouse || 0
+        );
+
+
+    const total =
+        display +
+        warehouse;
+
+
+    const ldu =
+        Number(
+            product.ldu || 0
+        );
+
+
+    const specs =
+        product.specs || {};
+
+
+    let specsHTML =
+        "";
+
+
+    const specEntries = [
+        [
+            "Встроенная память",
+            specs["Встроенная память"]
+        ],
+        [
+            "Дисплей",
+            specs["Дисплей"]
+        ],
+        [
+            "Процессор",
+            specs["Процессор"]
+        ],
+        [
+            "Фотокамера",
+            specs["Фотокамера"]
+        ],
+        [
+            "Ёмкость аккумулятора",
+            specs["Емкость аккумулятора"] ||
+            specs["Ёмкость аккумулятора"]
+        ],
+        [
+            "Оперативная память",
+            specs["Оперативная память"]
+        ]
+    ];
+
+
+    specEntries.forEach(
+        function(item) {
+
+            const label =
+                item[0];
+
+            const value =
+                item[1];
+
+
+            if (!value) {
+
+                return;
+
+            }
+
+
+            specsHTML += `
+
+                <div class="spec-row">
+
+                    <span>
+                        ${escapeHTML(label)}
+                    </span>
 
                     <strong>
-                        Товар не найден
+                        ${escapeHTML(value)}
                     </strong>
-
-                    <p>
-                        Возможно, товар был удалён.
-                    </p>
 
                 </div>
 
             `;
 
-            return;
-
         }
+    );
 
 
-        const display =
-            Number(
-                product.display ||
-                0
-            );
+    container.innerHTML = `
+
+        <div class="product-page">
 
 
-        const warehouse =
-            Number(
-                product.warehouse ||
-                0
-            );
+            <!-- ======================================
+                 IMAGE
+            ======================================= -->
+
+            <div>
+
+                <div class="product-page-image">
+
+                    ${
+                        product.image
+
+                            ? `
+
+                                <img
+                                    src="${escapeHTML(product.image)}"
+                                    alt="${escapeHTML(product.name)}"
+                                >
+
+                              `
+
+                            : `
+
+                                Фото товара
+
+                              `
+                    }
+
+                </div>
+
+            </div>
 
 
-        const total =
-            display +
-            warehouse;
+
+            <!-- ======================================
+                 CONTENT
+            ======================================= -->
+
+            <div class="product-page-content">
 
 
-        const specs =
-            product.specs ||
-            {};
+                <div class="product-category">
 
-
-        productDetails.innerHTML = `
-
-            <div class="product-page">
-
-
-                <!-- IMAGE -->
-
-                <div>
-
-                    <div class="product-page-image">
-
-                        ${
-                            product.image
-
-                                ? `
-
-                                    <img
-                                        src="${escapeHTML(product.image)}"
-                                        alt="${escapeHTML(product.name)}"
-                                    >
-
-                                  `
-
-                                : `
-
-                                    Фото товара
-
-                                  `
-                        }
-
-                    </div>
+                    ${escapeHTML(
+                        product.category || ""
+                    )}
 
                 </div>
 
 
+                <!-- TITLE + EDIT -->
 
-                <!-- CONTENT -->
+                <div
+                    style="
+                        display:flex;
+                        align-items:center;
+                        justify-content:space-between;
+                        gap:12px;
+                        margin-bottom:10px;
+                    "
+                >
 
-                <div class="product-page-content">
-
-
-                    <div class="product-category">
-
-                        ${escapeHTML(
-                            product.category ||
-                            ""
-                        )}
-
-                    </div>
-
-
-                    <h1>
-
+                    <h1
+                        style="
+                            margin:0;
+                        "
+                    >
                         ${escapeHTML(
                             product.name
                         )}
-
                     </h1>
 
 
-                    ${
-                        product.memory
-
-                            ? `
-
-                                <div class="product-memory">
-
-                                    ${escapeHTML(
-                                        product.memory
-                                    )}
-
-                                </div>
-
-                              `
-
-                            : ""
-                    }
-
-
-                    ${
-                        product.color
-
-                            ? `
-
-                                <div class="product-color">
-
-                                    Цвет:
-                                    ${escapeHTML(
-                                        product.color
-                                    )}
-
-                                </div>
-
-                              `
-
-                            : ""
-                    }
-
-
-
-                    <!-- ACTIONS -->
-
-                    <div
-                        class="product-page-actions"
+                    <button
+                        type="button"
+                        id="editProductButton"
                         style="
-                            display:flex;
-                            gap:10px;
-                            margin-bottom:25px;
-                            flex-wrap:wrap;
+                            flex-shrink:0;
+                            border:1px solid #dddddd;
+                            background:#ffffff;
+                            color:#444444;
+                            padding:7px 11px;
+                            border-radius:6px;
+                            font-size:13px;
+                            font-weight:600;
+                            cursor:pointer;
                         "
                     >
-
-                        <button
-                            type="button"
-                            id="editProductButton"
-                            class="form-button save"
-                        >
-                            Редактировать товар
-                        </button>
-
-
-                        <button
-                            type="button"
-                            id="deleteProductButton"
-                            class="delete-product-button"
-                        >
-                            Удалить товар
-                        </button>
-
-                    </div>
-
-
-
-                    <!-- STOCK -->
-
-                    <div class="product-stock">
-
-                        <h2>
-                            Наличие
-                        </h2>
-
-
-                        <div class="stock-big-row">
-
-                            <span>
-                                На витрине
-                            </span>
-
-                            <strong>
-                                ${display} шт.
-                            </strong>
-
-                        </div>
-
-
-                        <div class="stock-big-row">
-
-                            <span>
-                                На складе
-                            </span>
-
-                            <strong>
-                                ${warehouse} шт.
-                            </strong>
-
-                        </div>
-
-
-                        <div class="stock-big-row total">
-
-                            <span>
-                                Всего
-                            </span>
-
-                            <strong>
-                                ${total} шт.
-                            </strong>
-
-                        </div>
-
-
-                        <div class="stock-big-row">
-
-                            <span>
-                                LDU
-                            </span>
-
-                            <strong>
-
-                                ${
-                                    Number(
-                                        product.ldu ||
-                                        0
-                                    ) > 0
-
-                                        ? `${Number(
-                                            product.ldu
-                                        )} шт.`
-
-                                        : "Нет"
-                                }
-
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <!-- DESCRIPTION -->
-
-                    ${
-                        product.description
-
-                            ? `
-
-                                <div class="product-description">
-
-                                    <h2>
-                                        Описание
-                                    </h2>
-
-                                    <p>
-
-                                        ${escapeHTML(
-                                            product.description
-                                        )}
-
-                                    </p>
-
-                                </div>
-
-                              `
-
-                            : ""
-                    }
-
-
-
-                    <!-- SPECS -->
-
-                    ${
-                        Object.keys(
-                            specs
-                        ).length > 0
-
-                            ? `
-
-                                <div class="product-specs">
-
-                                    <h2>
-                                        Характеристики
-                                    </h2>
-
-
-                                    ${
-                                        Object.entries(
-                                            specs
-                                        )
-                                        .map(
-                                            function (
-                                                [key, value]
-                                            ) {
-
-                                                return `
-
-                                                    <div class="spec-row">
-
-                                                        <span>
-                                                            ${escapeHTML(
-                                                                key
-                                                            )}
-                                                        </span>
-
-                                                        <strong>
-                                                            ${escapeHTML(
-                                                                value
-                                                            )}
-                                                        </strong>
-
-                                                    </div>
-
-                                                `;
-
-                                            }
-                                        )
-                                        .join("")
-                                    }
-
-                                </div>
-
-                              `
-
-                            : ""
-                    }
-
-
-
-                    <!-- SELLER TIP -->
-
-                    ${
-                        product.tip
-
-                            ? `
-
-                                <div class="product-tip">
-
-                                    <h2>
-                                        Подсказка продавцу
-                                    </h2>
-
-                                    <p>
-
-                                        ${escapeHTML(
-                                            product.tip
-                                        )}
-
-                                    </p>
-
-                                </div>
-
-                              `
-
-                            : ""
-                    }
-
+                        Редактировать
+                    </button>
 
                 </div>
+
+
+                ${
+                    product.memory
+                        ? `
+
+                            <div class="product-memory">
+
+                                ${escapeHTML(
+                                    product.memory
+                                )}
+
+                            </div>
+
+                          `
+                        : ""
+                }
+
+
+                ${
+                    product.color
+                        ? `
+
+                            <div class="product-color">
+
+                                Цвет:
+                                ${escapeHTML(
+                                    product.color
+                                )}
+
+                            </div>
+
+                          `
+                        : ""
+                }
+
+
+
+                <!-- STOCK -->
+
+                <section class="product-stock">
+
+                    <h2>
+                        Наличие
+                    </h2>
+
+
+                    <div class="stock-big-row">
+
+                        <span>
+                            На витрине
+                        </span>
+
+                        <strong>
+                            ${display}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="stock-big-row">
+
+                        <span>
+                            На складе
+                        </span>
+
+                        <strong>
+                            ${warehouse}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="stock-big-row">
+
+                        <span>
+                            LDU
+                        </span>
+
+                        <strong>
+                            ${
+                                ldu > 0
+                                    ? `${ldu} шт.`
+                                    : "Нет"
+                            }
+                        </strong>
+
+                    </div>
+
+
+                    <div class="stock-big-row total">
+
+                        <span>
+                            Всего
+                        </span>
+
+                        <strong>
+                            ${total}
+                        </strong>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- DESCRIPTION -->
+
+                ${
+                    product.description
+
+                        ? `
+
+                            <section class="product-description">
+
+                                <h2>
+                                    Описание
+                                </h2>
+
+                                <p>
+                                    ${escapeHTML(
+                                        product.description
+                                    )}
+                                </p>
+
+                            </section>
+
+                          `
+
+                        : ""
+                }
+
+
+
+                <!-- SPECS -->
+
+                ${
+                    specsHTML
+
+                        ? `
+
+                            <section class="product-specs">
+
+                                <h2>
+                                    Характеристики
+                                </h2>
+
+                                ${specsHTML}
+
+                            </section>
+
+                          `
+
+                        : ""
+                }
+
+
+
+                <!-- TIP -->
+
+                ${
+                    product.tip
+
+                        ? `
+
+                            <section class="product-tip">
+
+                                <h2>
+                                    Подсказка продавцу
+                                </h2>
+
+                                <p>
+                                    ${escapeHTML(
+                                        product.tip
+                                    )}
+                                </p>
+
+                            </section>
+
+                          `
+
+                        : ""
+                }
+
+
+
+                <!-- ==================================
+                     DELETE
+                =================================== -->
+
+                <div
+                    style="
+                        margin-top:40px;
+                        padding-top:20px;
+                        border-top:1px solid #eeeeee;
+                    "
+                >
+
+                    <button
+                        type="button"
+                        id="deleteProductButton"
+                        style="
+                            border:1px solid #e3b8b4;
+                            background:#ffffff;
+                            color:#c62828;
+                            padding:8px 12px;
+                            border-radius:6px;
+                            font-size:12px;
+                            font-weight:600;
+                            cursor:pointer;
+                        "
+                    >
+                        Удалить товар
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    // ==================================================
+    // EDIT BUTTON
+    // ==================================================
+
+    const editButton =
+        document.getElementById(
+            "editProductButton"
+        );
+
+
+    if (editButton) {
+
+        editButton.onclick =
+            function() {
+
+                openEditModalFromProductPage(
+                    product
+                );
+
+            };
+
+    }
+
+
+    // ==================================================
+    // DELETE BUTTON
+    // ==================================================
+
+    const deleteButton =
+        document.getElementById(
+            "deleteProductButton"
+        );
+
+
+    if (deleteButton) {
+
+        deleteButton.onclick =
+            function() {
+
+                deleteProductFromProductPage(
+                    product
+                );
+
+            };
+
+    }
+
+}
+
+
+// ======================================================
+// OPEN EDIT MODAL FROM PRODUCT PAGE
+// ======================================================
+
+function openEditModalFromProductPage(
+    product
+) {
+
+    let overlay =
+        document.getElementById(
+            "productModalOverlay"
+        );
+
+
+    if (!overlay) {
+
+        overlay =
+            document.createElement(
+                "div"
+            );
+
+        overlay.id =
+            "productModalOverlay";
+
+        overlay.className =
+            "modal-overlay";
+
+
+        overlay.innerHTML = `
+
+            <div
+                class="modal"
+                role="dialog"
+                aria-modal="true"
+            >
+
+                <div class="modal-header">
+
+                    <div>
+
+                        <h2 id="modalTitle">
+                            Редактировать товар
+                        </h2>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="modal-close"
+                        id="closeProductModal"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+
+                <form
+                    id="productForm"
+                    class="product-form"
+                >
+
+                    <div class="form-group">
+
+                        <label>
+                            Категория
+                        </label>
+
+                        <select
+                            id="productCategory"
+                            required
+                        >
+
+                            <option value="Смартфоны">
+                                Смартфоны
+                            </option>
+
+                            <option value="Планшеты">
+                                Планшеты
+                            </option>
+
+                            <option value="Смарт-часы">
+                                Смарт-часы
+                            </option>
+
+                            <option value="Фитнес-браслеты">
+                                Фитнес-браслеты
+                            </option>
+
+                            <option value="Аксессуары">
+                                Аксессуары
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Название товара
+                        </label>
+
+                        <input
+                            type="text"
+                            id="productName"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Цвет
+                        </label>
+
+                        <input
+                            type="text"
+                            id="productColor"
+                        >
+
+                    </div>
+
+
+                    <div class="characteristics">
+
+                        <div class="characteristics-title">
+                            Характеристики
+                        </div>
+
+
+                        <div class="characteristics-grid">
+
+                            <div class="form-group">
+                                <label>Встроенная память</label>
+                                <input
+                                    type="text"
+                                    id="specStorage"
+                                >
+                            </div>
+
+
+                            <div class="form-group">
+                                <label>Дисплей</label>
+                                <input
+                                    type="text"
+                                    id="specDisplay"
+                                >
+                            </div>
+
+
+                            <div class="form-group">
+                                <label>Процессор</label>
+                                <input
+                                    type="text"
+                                    id="specProcessor"
+                                >
+                            </div>
+
+
+                            <div class="form-group">
+                                <label>Фотокамера</label>
+                                <input
+                                    type="text"
+                                    id="specCamera"
+                                >
+                            </div>
+
+
+                            <div class="form-group">
+                                <label>Ёмкость аккумулятора</label>
+                                <input
+                                    type="text"
+                                    id="specBattery"
+                                >
+                            </div>
+
+
+                            <div class="form-group">
+                                <label>Оперативная память</label>
+                                <input
+                                    type="text"
+                                    id="specRam"
+                                >
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="characteristics">
+
+                        <div class="characteristics-title">
+                            Наличие
+                        </div>
+
+
+                        <div class="stock-form">
+
+                            <div class="form-group">
+
+                                <label>
+                                    На витрине
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="productDisplay"
+                                    min="0"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label>
+                                    На складе
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="productWarehouse"
+                                    min="0"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                LDU
+                            </label>
+
+                            <input
+                                type="number"
+                                id="productLdu"
+                                min="0"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Краткое описание
+                        </label>
+
+                        <textarea
+                            id="productDescription"
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Подсказка продавцу
+                        </label>
+
+                        <textarea
+                            id="productTip"
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <button
+                            type="button"
+                            class="form-button cancel"
+                            id="cancelProductModal"
+                        >
+                            Отмена
+                        </button>
+
+
+                        <button
+                            type="submit"
+                            class="form-button save"
+                        >
+                            Сохранить изменения
+                        </button>
+
+                    </div>
+
+                </form>
 
             </div>
 
         `;
 
 
-        // ==================================================
-        // EDIT BUTTON
-        // ==================================================
-
-        const editButton =
-            document.getElementById(
-                "editProductButton"
-            );
+        document.body.appendChild(
+            overlay
+        );
 
 
-        if (editButton) {
+        document.getElementById(
+            "closeProductModal"
+        ).onclick =
+            function() {
 
-            editButton.onclick =
-                function () {
+                closeStandaloneModal();
 
-                    openProductModal(
-                        product
-                    );
-
-                };
-
-        }
+            };
 
 
-        // ==================================================
-        // DELETE BUTTON
-        // ==================================================
+        document.getElementById(
+            "cancelProductModal"
+        ).onclick =
+            function() {
 
-        const deleteButton =
-            document.getElementById(
-                "deleteProductButton"
-            );
+                closeStandaloneModal();
+
+            };
 
 
-        if (deleteButton) {
+        document.getElementById(
+            "productForm"
+        ).onsubmit =
+            function(event) {
 
-            deleteButton.onclick =
-                function () {
+                event.preventDefault();
 
-                    deleteProduct(
-                        product.id
-                    );
+                saveEditedProductFromPage(
+                    product
+                );
 
-                };
-
-        }
+            };
 
     }
 
 
-    // ==================================================
-    // CREATE MODAL
-    // ==================================================
-
-    createProductModal();
+    fillEditForm(
+        product
+    );
 
 
-    // ==================================================
-    // ADD BUTTON
-    // ==================================================
-
-    ensureAddButton();
+    overlay.classList.add(
+        "active"
+    );
 
 
-    // ==================================================
-    // RENDER
-    // ==================================================
+    document.body.style.overflow =
+        "hidden";
 
-    if (
+}
+
+
+// ======================================================
+// FILL EDIT FORM
+// ======================================================
+
+function fillEditForm(
+    product
+) {
+
+    setElementValue(
+        "productCategory",
+        product.category || ""
+    );
+
+    setElementValue(
+        "productName",
+        product.name || ""
+    );
+
+    setElementValue(
+        "productColor",
+        product.color || ""
+    );
+
+
+    const specs =
+        product.specs || {};
+
+
+    setElementValue(
+        "specStorage",
+        specs["Встроенная память"] || ""
+    );
+
+    setElementValue(
+        "specDisplay",
+        specs["Дисплей"] || ""
+    );
+
+    setElementValue(
+        "specProcessor",
+        specs["Процессор"] || ""
+    );
+
+    setElementValue(
+        "specCamera",
+        specs["Фотокамера"] || ""
+    );
+
+    setElementValue(
+        "specBattery",
+        specs["Емкость аккумулятора"] ||
+        specs["Ёмкость аккумулятора"] ||
+        ""
+    );
+
+    setElementValue(
+        "specRam",
+        specs["Оперативная память"] || ""
+    );
+
+
+    setElementValue(
+        "productDisplay",
+        product.display || 0
+    );
+
+    setElementValue(
+        "productWarehouse",
+        product.warehouse || 0
+    );
+
+    setElementValue(
+        "productLdu",
+        product.ldu || 0
+    );
+
+
+    setElementValue(
+        "productDescription",
+        product.description || ""
+    );
+
+    setElementValue(
+        "productTip",
+        product.tip || ""
+    );
+
+}
+
+
+// ======================================================
+// SAVE EDIT FROM PRODUCT PAGE
+// ======================================================
+
+function saveEditedProductFromPage(
+    product
+) {
+
+    const category =
+        getElementValue(
+            "productCategory"
+        ).trim();
+
+
+    const name =
+        getElementValue(
+            "productName"
+        ).trim();
+
+
+    if (!category) {
+
+        alert(
+            "Выберите категорию."
+        );
+
+        return;
+
+    }
+
+
+    if (!name) {
+
+        alert(
+            "Введите название товара."
+        );
+
+        return;
+
+    }
+
+
+    const storage =
+        getElementValue(
+            "specStorage"
+        ).trim();
+
+
+    const displaySpec =
+        getElementValue(
+            "specDisplay"
+        ).trim();
+
+
+    const processor =
+        getElementValue(
+            "specProcessor"
+        ).trim();
+
+
+    const camera =
+        getElementValue(
+            "specCamera"
+        ).trim();
+
+
+    const battery =
+        getElementValue(
+            "specBattery"
+        ).trim();
+
+
+    const ram =
+        getElementValue(
+            "specRam"
+        ).trim();
+
+
+    const color =
+        getElementValue(
+            "productColor"
+        ).trim();
+
+
+    const display =
+        Math.max(
+            0,
+            Number(
+                getElementValue(
+                    "productDisplay"
+                )
+            ) || 0
+        );
+
+
+    const warehouse =
+        Math.max(
+            0,
+            Number(
+                getElementValue(
+                    "productWarehouse"
+                )
+            ) || 0
+        );
+
+
+    const ldu =
+        Math.max(
+            0,
+            Number(
+                getElementValue(
+                    "productLdu"
+                )
+            ) || 0
+        );
+
+
+    const description =
+        getElementValue(
+            "productDescription"
+        ).trim();
+
+
+    const tip =
+        getElementValue(
+            "productTip"
+        ).trim();
+
+
+    const specs = {};
+
+
+    if (storage)
+        specs["Встроенная память"] =
+            storage;
+
+
+    if (displaySpec)
+        specs["Дисплей"] =
+            displaySpec;
+
+
+    if (processor)
+        specs["Процессор"] =
+            processor;
+
+
+    if (camera)
+        specs["Фотокамера"] =
+            camera;
+
+
+    if (battery)
+        specs["Емкость аккумулятора"] =
+            battery;
+
+
+    if (ram)
+        specs["Оперативная память"] =
+            ram;
+
+
+    if (color)
+        specs["Цвет"] =
+            color;
+
+
+    specs["LDU"] =
+        ldu > 0
+            ? `${ldu} шт.`
+            : "Нет";
+
+
+    const memory =
+        ram && storage
+            ? `${ram} / ${storage}`
+            : storage || ram;
+
+
+    product.name =
+        name;
+
+    product.category =
+        category;
+
+    product.memory =
+        memory;
+
+    product.color =
+        color;
+
+    product.display =
+        display;
+
+    product.warehouse =
+        warehouse;
+
+    product.quantity =
+        display +
+        warehouse;
+
+    product.ldu =
+        ldu;
+
+    product.description =
+        description;
+
+    product.tip =
+        tip;
+
+    product.specs =
+        specs;
+
+
+    saveProductsGlobal();
+
+
+    closeStandaloneModal();
+
+
+    window.location.reload();
+
+}
+
+
+// ======================================================
+// CLOSE STANDALONE MODAL
+// ======================================================
+
+function closeStandaloneModal() {
+
+    const overlay =
         document.getElementById(
-            "productDetails"
-        )
-    ) {
+            "productModalOverlay"
+        );
 
-        renderProductPage();
 
-    } else {
+    if (overlay) {
 
-        renderProducts(
-            products
+        overlay.classList.remove(
+            "active"
         );
 
     }
+
+
+    document.body.style.overflow =
+        "";
+
+}
+
+
+// ======================================================
+// DELETE PRODUCT
+// ======================================================
+
+function deleteProductFromProductPage(
+    product
+) {
+
+    const confirmed =
+        confirm(
+            `Удалить товар "${product.name}"?\n\nЭто действие нельзя отменить.`
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    const index =
+        products.findIndex(
+            item =>
+                String(item.id) ===
+                String(product.id)
+        );
+
+
+    if (index === -1) {
+
+        alert(
+            "Товар не найден."
+        );
+
+        return;
+
+    }
+
+
+    products.splice(
+        index,
+        1
+    );
+
+
+    saveProductsGlobal();
+
+
+    window.location.href =
+        "index.html";
+
+}
+
+
+// ======================================================
+// GLOBAL SAVE
+// ======================================================
+
+function saveProductsGlobal() {
+
+    const key =
+        typeof PRODUCTS_STORAGE_KEY !== "undefined"
+            ? PRODUCTS_STORAGE_KEY
+            : "xiaomiWebBaseProducts";
+
+
+    localStorage.setItem(
+        key,
+        JSON.stringify(products)
+    );
+
+}
+
+
+// ======================================================
+// GLOBAL VALUE HELPERS
+// ======================================================
+
+function setElementValue(
+    id,
+    value
+) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (element) {
+
+        element.value =
+            value ?? "";
+
+    }
+
+}
+
+
+function getElementValue(
+    id
+) {
+
+    const element =
+        document.getElementById(id);
+
+
+    return element
+        ? element.value
+        : "";
 
 }
 
@@ -2463,7 +3211,9 @@ function initApp() {
 // ESCAPE HTML
 // ======================================================
 
-function escapeHTML(value) {
+function escapeHTML(
+    value
+) {
 
     if (
         value === null ||
