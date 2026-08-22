@@ -23,7 +23,9 @@
 <body>
 
 
-    <!-- HEADER -->
+    <!-- =========================================
+         HEADER
+    ========================================== -->
 
     <header class="header">
 
@@ -46,14 +48,18 @@
     </header>
 
 
-    <!-- MAIN -->
+    <!-- =========================================
+         MAIN
+    ========================================== -->
 
     <main class="main">
 
         <div class="container">
 
 
-            <!-- SEARCH -->
+            <!-- =====================================
+                 SEARCH
+            ====================================== -->
 
             <section class="search-section">
 
@@ -72,7 +78,10 @@
                     >
 
 
-                    <button id="searchButton">
+                    <button
+                        id="searchButton"
+                        type="button"
+                    >
                         Найти
                     </button>
 
@@ -81,7 +90,9 @@
             </section>
 
 
-            <!-- CATEGORIES -->
+            <!-- =====================================
+                 CATEGORIES
+            ====================================== -->
 
             <section class="categories">
 
@@ -92,9 +103,11 @@
 
                 <div class="category-list">
 
+
                     <button
                         class="category-button active"
                         data-category="Все"
+                        type="button"
                     >
                         Все товары
                     </button>
@@ -103,6 +116,7 @@
                     <button
                         class="category-button"
                         data-category="Смартфоны"
+                        type="button"
                     >
                         Смартфоны
                     </button>
@@ -111,6 +125,7 @@
                     <button
                         class="category-button"
                         data-category="Планшеты"
+                        type="button"
                     >
                         Планшеты
                     </button>
@@ -118,19 +133,42 @@
 
                     <button
                         class="category-button"
+                        data-category="Смарт-часы"
+                        type="button"
+                    >
+                        Смарт-часы
+                    </button>
+
+
+                    <button
+                        class="category-button"
+                        data-category="Фитнес-браслеты"
+                        type="button"
+                    >
+                        Фитнес-браслеты
+                    </button>
+
+
+                    <button
+                        class="category-button"
                         data-category="Аксессуары"
+                        type="button"
                     >
                         Аксессуары
                     </button>
+
 
                 </div>
 
             </section>
 
 
-            <!-- PRODUCTS -->
+            <!-- =====================================
+                 PRODUCTS
+            ====================================== -->
 
             <section class="products">
+
 
                 <div class="section-title">
 
@@ -146,9 +184,13 @@
                     class="products-list"
                 >
 
-                    <!-- Товары загружаются через JS -->
+                    <!--
+                        Товары автоматически
+                        загружаются через app.js
+                    -->
 
                 </div>
+
 
             </section>
 
@@ -158,7 +200,17 @@
     </main>
 
 
+    <!-- =========================================
+         SCRIPTS
+
+         Сначала загружаем базу товаров,
+         затем основной JS.
+    ========================================== -->
+
+    <script src="products-data.js"></script>
+
     <script src="app.js"></script>
+
 
 </body>
 
