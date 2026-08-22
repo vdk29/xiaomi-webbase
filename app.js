@@ -1,84 +1,12 @@
-const products = [
-    {
-        id: 1,
-        name: "Redmi Note 15",
-        category: "Смартфоны",
-        memory: "8 / 256 GB",
-        color: "Чёрный",
-
-        display: 1,
-        warehouse: 2,
-
-        description:
-            "Смартфон с AMOLED-дисплеем, высокой частотой обновления и большой батареей.",
-
-        specs: {
-            "Экран": "6.77 AMOLED, 120 Гц",
-            "Процессор": "MediaTek",
-            "Камера": "108 Мп",
-            "Аккумулятор": "6000 мА·ч",
-            "NFC": "Есть"
-        },
-
-        tip:
-            "Хороший вариант для покупателя, которому важны большой экран и автономность."
-    },
-
-    {
-        id: 2,
-        name: "Xiaomi 15",
-        category: "Смартфоны",
-        memory: "12 / 256 GB",
-        color: "Белый",
-
-        display: 1,
-        warehouse: 0,
-
-        description:
-            "Компактный флагман Xiaomi с производительным процессором и качественной камерой.",
-
-        specs: {
-            "Экран": "6.36 AMOLED, 120 Гц",
-            "Процессор": "Snapdragon",
-            "Камера": "50 Мп",
-            "Аккумулятор": "5240 мА·ч",
-            "NFC": "Есть"
-        },
-
-        tip:
-            "Подходит покупателям, которым нужен компактный и производительный флагман."
-    },
-
-    {
-        id: 3,
-        name: "Redmi Pad 2",
-        category: "Планшеты",
-        memory: "8 / 256 GB",
-        color: "Серый",
-
-        display: 0,
-        warehouse: 3,
-
-        description:
-            "Планшет для работы, просмотра видео, учёбы и повседневных задач.",
-
-        specs: {
-            "Экран": "11 дюймов",
-            "Процессор": "MediaTek",
-            "Память": "8 / 256 GB",
-            "Аккумулятор": "Большая ёмкость",
-            "NFC": "Нет"
-        },
-
-        tip:
-            "Хороший вариант для просмотра контента, учёбы и повседневного использования."
-    }
-];
+// ======================================================
+// XIAOMI WEBBASE
+// APP.JS
+// ======================================================
 
 
-// ========================================
+// ======================================================
 // ELEMENTS
-// ========================================
+// ======================================================
 
 const productsList =
     document.getElementById("productsList");
@@ -96,62 +24,37 @@ const categoryButtons =
     document.querySelectorAll(".category-button");
 
 
-// ========================================
-// LOCAL STORAGE
-// ========================================
+// ======================================================
+// HELPERS
+// ======================================================
 
-function saveProducts() {
+function getDisplay(product) {
 
-    localStorage.setItem(
-        "xiaomiWebBaseProducts",
-        JSON.stringify(products)
+    return Number(product.display || 0);
+
+}
+
+
+function getWarehouse(product) {
+
+    return Number(product.warehouse || 0);
+
+}
+
+
+function getTotal(product) {
+
+    return (
+        getDisplay(product) +
+        getWarehouse(product)
     );
 
 }
 
 
-function loadProducts() {
-
-    const savedProducts =
-        localStorage.getItem(
-            "xiaomiWebBaseProducts"
-        );
-
-
-    if (!savedProducts) {
-        return;
-    }
-
-
-    try {
-
-        const parsedProducts =
-            JSON.parse(savedProducts);
-
-
-        if (Array.isArray(parsedProducts)) {
-
-            products.length = 0;
-
-            products.push(...parsedProducts);
-
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Ошибка загрузки товаров:",
-            error
-        );
-
-    }
-
-}
-
-
-// ========================================
+// ======================================================
 // PRODUCT LIST
-// ========================================
+// ======================================================
 
 function renderProducts(productsToRender) {
 
@@ -163,7 +66,10 @@ function renderProducts(productsToRender) {
     productsList.innerHTML = "";
 
 
-    if (productsToRender.length === 0) {
+    if (
+        !productsToRender ||
+        productsToRender.length === 0
+    ) {
 
         productsList.innerHTML = `
 
@@ -182,15 +88,19 @@ function renderProducts(productsToRender) {
         `;
 
         return;
-
     }
 
 
     productsToRender.forEach(product => {
 
+        const display =
+            getDisplay(product);
+
+        const warehouse =
+            getWarehouse(product);
+
         const total =
-            Number(product.display || 0) +
-            Number(product.warehouse || 0);
+            getTotal(product);
 
 
         const card =
@@ -214,9 +124,26 @@ function renderProducts(productsToRender) {
 
 
             <div class="product-info">
-                ${product.memory}
-                ·
-                ${product.color}
+
+                ${
+                    product.memory
+                        ? product.memory
+                        : ""
+                }
+
+                ${
+                    product.memory &&
+                    product.color
+                        ? " · "
+                        : ""
+                }
+
+                ${
+                    product.color
+                        ? product.color
+                        : ""
+                }
+
             </div>
 
 
@@ -229,7 +156,7 @@ function renderProducts(productsToRender) {
                     </span>
 
                     <span>
-                        ${product.display}
+                        ${display}
                     </span>
 
                 </div>
@@ -242,7 +169,7 @@ function renderProducts(productsToRender) {
                     </span>
 
                     <span>
-                        ${product.warehouse}
+                        ${warehouse}
                     </span>
 
                 </div>
@@ -283,9 +210,9 @@ function renderProducts(productsToRender) {
 }
 
 
-// ========================================
+// ======================================================
 // SEARCH
-// ========================================
+// ======================================================
 
 function searchProducts() {
 
@@ -305,7 +232,6 @@ function searchProducts() {
         renderProducts(products);
 
         return;
-
     }
 
 
@@ -318,9 +244,17 @@ function searchProducts() {
 
                 ${product.category}
 
-                ${product.memory}
+                ${product.memory || ""}
 
-                ${product.color}
+                ${product.color || ""}
+
+                ${product.description || ""}
+
+                ${
+                    product.specs
+                        ? Object.values(product.specs).join(" ")
+                        : ""
+                }
 
             `.toLowerCase();
 
@@ -335,9 +269,9 @@ function searchProducts() {
 }
 
 
-// ========================================
+// ======================================================
 // SEARCH BUTTON
-// ========================================
+// ======================================================
 
 if (searchButton) {
 
@@ -349,9 +283,9 @@ if (searchButton) {
 }
 
 
-// ========================================
+// ======================================================
 // ENTER
-// ========================================
+// ======================================================
 
 if (searchInput) {
 
@@ -371,9 +305,9 @@ if (searchInput) {
 }
 
 
-// ========================================
+// ======================================================
 // LIVE SEARCH
-// ========================================
+// ======================================================
 
 if (searchInput) {
 
@@ -385,9 +319,9 @@ if (searchInput) {
 }
 
 
-// ========================================
+// ======================================================
 // CATEGORIES
-// ========================================
+// ======================================================
 
 categoryButtons.forEach(button => {
 
@@ -401,16 +335,12 @@ categoryButtons.forEach(button => {
 
             categoryButtons.forEach(item => {
 
-                item.classList.remove(
-                    "active"
-                );
+                item.classList.remove("active");
 
             });
 
 
-            button.classList.add(
-                "active"
-            );
+            button.classList.add("active");
 
 
             if (searchInput) {
@@ -450,9 +380,9 @@ categoryButtons.forEach(button => {
 });
 
 
-// ========================================
+// ======================================================
 // PRODUCT PAGE
-// ========================================
+// ======================================================
 
 function renderProductPage() {
 
@@ -468,13 +398,17 @@ function renderProductPage() {
 
 
     const productId =
-        Number(params.get("id"));
+        Number(
+            params.get("id")
+        );
 
 
     const product =
-        products.find(
-            item => item.id === productId
-        );
+        products.find(item => {
+
+            return item.id === productId;
+
+        });
 
 
     if (!product) {
@@ -488,7 +422,8 @@ function renderProductPage() {
                 </h1>
 
                 <p>
-                    Возможно, товар был удалён.
+                    Возможно, товар был удалён
+                    или ссылка неверная.
                 </p>
 
             </div>
@@ -496,7 +431,6 @@ function renderProductPage() {
         `;
 
         return;
-
     }
 
 
@@ -505,16 +439,27 @@ function renderProductPage() {
 }
 
 
-// ========================================
+// ======================================================
 // RENDER PRODUCT
-// ========================================
+// ======================================================
 
 function renderProduct(product) {
 
-    const total =
-        Number(product.display || 0) +
-        Number(product.warehouse || 0);
+    const display =
+        getDisplay(product);
 
+
+    const warehouse =
+        getWarehouse(product);
+
+
+    const total =
+        getTotal(product);
+
+
+    // ==================================================
+    // SPECS
+    // ==================================================
 
     let specsHTML = "";
 
@@ -527,21 +472,25 @@ function renderProduct(product) {
         specsHTML =
             Object.entries(product.specs)
 
-                .map(([key, value]) => `
+                .map(([key, value]) => {
 
-                    <div class="spec-row">
+                    return `
 
-                        <span>
-                            ${key}
-                        </span>
+                        <div class="spec-row">
 
-                        <strong>
-                            ${value}
-                        </strong>
+                            <span>
+                                ${key}
+                            </span>
 
-                    </div>
+                            <strong>
+                                ${value}
+                            </strong>
 
-                `)
+                        </div>
+
+                    `;
+
+                })
 
                 .join("");
 
@@ -558,10 +507,16 @@ function renderProduct(product) {
     }
 
 
+    // ==================================================
+    // PRODUCT HTML
+    // ==================================================
+
     productDetails.innerHTML = `
 
         <div class="product-page">
 
+
+            <!-- IMAGE -->
 
             <div class="product-page-image">
 
@@ -570,36 +525,70 @@ function renderProduct(product) {
             </div>
 
 
+            <!-- CONTENT -->
+
             <div class="product-page-content">
 
 
+                <!-- CATEGORY -->
+
                 <div class="product-category">
+
                     ${product.category}
+
                 </div>
 
 
+                <!-- NAME -->
+
                 <h1>
+
                     ${product.name}
+
                 </h1>
 
 
-                <div class="product-memory">
-                    ${product.memory}
-                </div>
+                <!-- MEMORY -->
+
+                ${
+                    product.memory
+                        ? `
+
+                            <div class="product-memory">
+
+                                ${product.memory}
+
+                            </div>
+
+                        `
+                        : ""
+                }
 
 
-                <div class="product-color">
+                <!-- COLOR -->
 
-                    Цвет:
+                ${
+                    product.color
+                        ? `
 
-                    <strong>
-                        ${product.color}
-                    </strong>
+                            <div class="product-color">
 
-                </div>
+                                Цвет:
+
+                                <strong>
+                                    ${product.color}
+                                </strong>
+
+                            </div>
+
+                        `
+                        : ""
+                }
 
 
-                <!-- STOCK -->
+                <!-- =================================
+                     STOCK
+                ================================== -->
 
                 <div class="product-stock">
 
@@ -607,6 +596,8 @@ function renderProduct(product) {
                         Наличие
                     </h2>
 
+
+                    <!-- DISPLAY -->
 
                     <div class="stock-control">
 
@@ -629,7 +620,7 @@ function renderProduct(product) {
                             <strong
                                 id="displayQuantity"
                             >
-                                ${product.display}
+                                ${display}
                             </strong>
 
 
@@ -645,6 +636,8 @@ function renderProduct(product) {
 
                     </div>
 
+
+                    <!-- WAREHOUSE -->
 
                     <div class="stock-control">
 
@@ -667,7 +660,7 @@ function renderProduct(product) {
                             <strong
                                 id="warehouseQuantity"
                             >
-                                ${product.warehouse}
+                                ${warehouse}
                             </strong>
 
 
@@ -684,14 +677,19 @@ function renderProduct(product) {
                     </div>
 
 
+                    <!-- TOTAL -->
+
                     <div class="stock-big-row total">
 
                         <span>
                             Всего
                         </span>
 
+
                         <strong id="totalQuantity">
+
                             ${total}
+
                         </strong>
 
                     </div>
@@ -699,7 +697,9 @@ function renderProduct(product) {
                 </div>
 
 
-                <!-- DESCRIPTION -->
+                <!-- =================================
+                     DESCRIPTION
+                ================================== -->
 
                 <div class="product-description">
 
@@ -709,16 +709,20 @@ function renderProduct(product) {
 
 
                     <p>
+
                         ${
                             product.description ||
                             "Описание пока не добавлено."
                         }
+
                     </p>
 
                 </div>
 
 
-                <!-- SPECS -->
+                <!-- =================================
+                     SPECS
+                ================================== -->
 
                 <div class="product-specs">
 
@@ -732,7 +736,9 @@ function renderProduct(product) {
                 </div>
 
 
-                <!-- TIP -->
+                <!-- =================================
+                     TIP
+                ================================== -->
 
                 <div class="product-tip">
 
@@ -742,10 +748,12 @@ function renderProduct(product) {
 
 
                     <p>
+
                         ${
                             product.tip ||
                             "Подсказка пока не добавлена."
                         }
+
                     </p>
 
                 </div>
@@ -758,18 +766,26 @@ function renderProduct(product) {
     `;
 
 
+    // ==================================================
+    // PAGE TITLE
+    // ==================================================
+
     document.title =
         `${product.name} — Xiaomi WebBase`;
 
+
+    // ==================================================
+    // BUTTONS
+    // ==================================================
 
     setupQuantityButtons(product);
 
 }
 
 
-// ========================================
+// ======================================================
 // QUANTITY BUTTONS
-// ========================================
+// ======================================================
 
 function setupQuantityButtons(product) {
 
@@ -793,29 +809,60 @@ function setupQuantityButtons(product) {
                     button.dataset.action;
 
 
+                // ======================================
+                // PLUS
+                // ======================================
+
                 if (action === "plus") {
 
                     product[type] =
-                        Number(product[type]) + 1;
+                        Number(
+                            product[type] || 0
+                        ) + 1;
 
                 }
 
 
+                // ======================================
+                // MINUS
+                // ======================================
+
                 if (action === "minus") {
 
-                    if (
-                        Number(product[type]) > 0
-                    ) {
+                    const current =
+                        Number(
+                            product[type] || 0
+                        );
+
+
+                    if (current > 0) {
 
                         product[type] =
-                            Number(product[type]) - 1;
+                            current - 1;
 
                     }
 
                 }
 
 
+                // ======================================
+                // TOTAL
+                // ======================================
+
+                product.quantity =
+                    getTotal(product);
+
+
+                // ======================================
+                // SAVE
+                // ======================================
+
                 saveProducts();
+
+
+                // ======================================
+                // RENDER AGAIN
+                // ======================================
 
                 renderProduct(product);
 
@@ -827,22 +874,38 @@ function setupQuantityButtons(product) {
 }
 
 
-// ========================================
+// ======================================================
+// INITIALIZATION
+// ======================================================
+
+function init() {
+
+    // ================================================
+    // MAIN PAGE
+    // ================================================
+
+    if (productsList) {
+
+        renderProducts(products);
+
+    }
+
+
+    // ================================================
+    // PRODUCT PAGE
+    // ================================================
+
+    if (productDetails) {
+
+        renderProductPage();
+
+    }
+
+}
+
+
+// ======================================================
 // START
-// ========================================
+// ======================================================
 
-loadProducts();
-
-
-if (productsList) {
-
-    renderProducts(products);
-
-}
-
-
-if (productDetails) {
-
-    renderProductPage();
-
-}
+init();
