@@ -1665,6 +1665,501 @@ function initApp() {
     renderProducts(
         products
     );
+    // ==================================================
+// PRODUCT PAGE
+// ==================================================
+
+function renderProductPage() {
+
+    const productDetails =
+        document.getElementById("productDetails");
+
+
+    if (!productDetails) {
+
+        return;
+
+    }
+
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    const productId =
+        Number(
+            params.get("id")
+        );
+
+
+    const product =
+        products.find(
+            item =>
+                Number(item.id) ===
+                productId
+        );
+
+
+    if (!product) {
+
+        productDetails.innerHTML = `
+
+            <div class="empty-result">
+
+                <strong>
+                    Товар не найден
+                </strong>
+
+                <p>
+                    Возможно, товар был удалён.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    const display =
+        Number(product.display || 0);
+
+
+    const warehouse =
+        Number(product.warehouse || 0);
+
+
+    const total =
+        display +
+        warehouse;
+
+
+    const specs =
+        product.specs || {};
+
+
+    productDetails.innerHTML = `
+
+        <div class="product-page">
+
+
+            <div>
+
+
+                <div class="product-page-image">
+
+                    ${
+                        product.image
+
+                            ? `
+
+                                <img
+                                    src="${escapeHTML(product.image)}"
+                                    alt="${escapeHTML(product.name)}"
+                                >
+
+                              `
+
+                            : `
+
+                                Фото товара
+
+                              `
+                    }
+
+                </div>
+
+
+            </div>
+
+
+
+            <div class="product-page-content">
+
+
+                <div class="product-category">
+
+                    ${escapeHTML(product.category || "")}
+
+                </div>
+
+
+                <h1>
+
+                    ${escapeHTML(product.name)}
+
+                </h1>
+
+
+                ${
+                    product.memory
+
+                        ? `
+
+                            <div class="product-memory">
+
+                                ${escapeHTML(product.memory)}
+
+                            </div>
+
+                          `
+
+                        : ""
+                }
+
+
+                ${
+                    product.color
+
+                        ? `
+
+                            <div class="product-color">
+
+                                Цвет:
+                                ${escapeHTML(product.color)}
+
+                            </div>
+
+                          `
+
+                        : ""
+                }
+
+
+
+                <!-- ACTIONS -->
+
+                <div
+                    style="
+                        display:flex;
+                        gap:10px;
+                        margin-bottom:25px;
+                        flex-wrap:wrap;
+                    "
+                >
+
+                    <button
+                        type="button"
+                        id="editProductButton"
+                        class="form-button save"
+                    >
+                        Редактировать товар
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="deleteProductButton"
+                        class="delete-product-button"
+                    >
+                        Удалить товар
+                    </button>
+
+                </div>
+
+
+
+                <!-- STOCK -->
+
+                <div class="product-stock">
+
+                    <h2>
+                        Наличие
+                    </h2>
+
+
+                    <div class="stock-big-row">
+
+                        <span>
+                            На витрине
+                        </span>
+
+                        <strong>
+                            ${display} шт.
+                        </strong>
+
+                    </div>
+
+
+                    <div class="stock-big-row">
+
+                        <span>
+                            На складе
+                        </span>
+
+                        <strong>
+                            ${warehouse} шт.
+                        </strong>
+
+                    </div>
+
+
+                    <div class="stock-big-row total">
+
+                        <span>
+                            Всего
+                        </span>
+
+                        <strong>
+                            ${total} шт.
+                        </strong>
+
+                    </div>
+
+
+                    <div class="stock-big-row">
+
+                        <span>
+                            LDU
+                        </span>
+
+                        <strong>
+                            ${
+                                Number(product.ldu || 0)
+                                    ? `${Number(product.ldu)} шт.`
+                                    : "Нет"
+                            }
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- DESCRIPTION -->
+
+                ${
+                    product.description
+
+                        ? `
+
+                            <div class="product-description">
+
+                                <h2>
+                                    Описание
+                                </h2>
+
+                                <p>
+                                    ${escapeHTML(product.description)}
+                                </p>
+
+                            </div>
+
+                          `
+
+                        : ""
+                }
+
+
+
+                <!-- SPECS -->
+
+                ${
+                    Object.keys(specs).length
+
+                        ? `
+
+                            <div class="product-specs">
+
+                                <h2>
+                                    Характеристики
+                                </h2>
+
+
+                                ${
+                                    Object.entries(specs)
+                                        .map(
+                                            ([key, value]) => `
+
+                                                <div class="spec-row">
+
+                                                    <span>
+                                                        ${escapeHTML(key)}
+                                                    </span>
+
+                                                    <strong>
+                                                        ${escapeHTML(value)}
+                                                    </strong>
+
+                                                </div>
+
+                                            `
+                                        )
+                                        .join("")
+                                }
+
+                            </div>
+
+                          `
+
+                        : ""
+                }
+
+
+
+                <!-- TIP -->
+
+                ${
+                    product.tip
+
+                        ? `
+
+                            <div class="product-tip">
+
+                                <h2>
+                                    Подсказка продавцу
+                                </h2>
+
+                                <p>
+                                    ${escapeHTML(product.tip)}
+                                </p>
+
+                            </div>
+
+                          `
+
+                        : ""
+                }
+
+
+            </div>
+
+        </div>
+
+    `;
+
+
+
+    // ==================================================
+    // EDIT
+    // ==================================================
+
+    const editButton =
+        document.getElementById(
+            "editProductButton"
+        );
+
+
+    if (editButton) {
+
+        editButton.onclick =
+            function() {
+
+                openProductModal(
+                    product
+                );
+
+            };
+
+    }
+
+
+
+    // ==================================================
+    // DELETE
+    // ==================================================
+
+    const deleteButton =
+        document.getElementById(
+            "deleteProductButton"
+        );
+
+
+    if (deleteButton) {
+
+        deleteButton.onclick =
+            function() {
+
+                deleteProduct(
+                    product.id
+                );
+
+            };
+
+    }
+
+}
+
+
+// ==================================================
+// DELETE PRODUCT
+// ==================================================
+
+function deleteProduct(productId) {
+
+    const product =
+        products.find(
+            item =>
+                Number(item.id) ===
+                Number(productId)
+        );
+
+
+    if (!product) {
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            `Удалить товар "${product.name}"?`
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    const index =
+        products.findIndex(
+            item =>
+                Number(item.id) ===
+                Number(productId)
+        );
+
+
+    if (index === -1) {
+
+        return;
+
+    }
+
+
+    products.splice(
+        index,
+        1
+    );
+
+
+    localStorage.setItem(
+        typeof PRODUCTS_STORAGE_KEY !== "undefined"
+            ? PRODUCTS_STORAGE_KEY
+            : "xiaomiWebBaseProducts",
+        JSON.stringify(products)
+    );
+
+
+    window.location.href =
+        "index.html";
+
+}
+
+
+// ==================================================
+// INIT PRODUCT PAGE
+// ==================================================
+
+renderProductPage();
 
 }
 
