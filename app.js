@@ -5,7 +5,7 @@
 
 
 // ======================================================
-// ПРОВЕРКА PRODUCTS-DATA
+// ЗАПУСК
 // ======================================================
 
 function startApp() {
@@ -19,14 +19,12 @@ function startApp() {
         return;
     }
 
-
     initApp();
 }
 
 
 // ======================================================
-// ЕСЛИ products-data.js НЕ ПОДКЛЮЧЕН
-// ПЫТАЕМСЯ ПОДКЛЮЧИТЬ ЕГО АВТОМАТИЧЕСКИ
+// АВТОЗАГРУЗКА PRODUCTS-DATA
 // ======================================================
 
 if (typeof products === "undefined") {
@@ -112,21 +110,541 @@ function initApp() {
 
 
     // ==================================================
-    // SAVE
+    // СТИЛИ ДЛЯ НОВОГО ИНТЕРФЕЙСА
+    // ==================================================
+
+    function injectAppStyles() {
+
+        if (
+            document.getElementById(
+                "xiaomiAppStyles"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        const style =
+            document.createElement(
+                "style"
+            );
+
+
+        style.id =
+            "xiaomiAppStyles";
+
+
+        style.textContent = `
+
+            /* ==========================================
+               КНОПКА ДОБАВЛЕНИЯ
+               ========================================== */
+
+            #addProductButton,
+            .add-product-button {
+
+                display: inline-flex !important;
+
+                align-items: center !important;
+
+                justify-content: center !important;
+
+                width: auto !important;
+
+                min-width: 0 !important;
+
+                max-width: 280px !important;
+
+                height: 42px !important;
+
+                padding: 0 16px !important;
+
+                margin: 12px 0 !important;
+
+                border-radius: 12px !important;
+
+                font-size: 14px !important;
+
+                font-weight: 600 !important;
+
+                line-height: 1 !important;
+
+                cursor: pointer !important;
+
+                position: relative !important;
+
+                z-index: 5 !important;
+
+            }
+
+
+            /* ==========================================
+               MODAL
+               ========================================== */
+
+            #productModalOverlay {
+
+                position: fixed !important;
+
+                inset: 0 !important;
+
+                width: 100vw !important;
+
+                height: 100vh !important;
+
+                z-index: 999999 !important;
+
+                display: none !important;
+
+                align-items: center !important;
+
+                justify-content: center !important;
+
+                padding: 20px !important;
+
+                box-sizing: border-box !important;
+
+                background:
+                    rgba(0, 0, 0, 0.68) !important;
+
+                overflow-y: auto !important;
+
+            }
+
+
+            #productModalOverlay.active {
+
+                display: flex !important;
+
+            }
+
+
+            #productModal {
+
+                position: relative !important;
+
+                z-index: 1000000 !important;
+
+                width: min(
+                    720px,
+                    calc(100vw - 30px)
+                ) !important;
+
+                max-height: calc(
+                    100vh - 40px
+                ) !important;
+
+                overflow-y: auto !important;
+
+                margin: auto !important;
+
+                box-sizing: border-box !important;
+
+                background: #111 !important;
+
+                color: #fff !important;
+
+                border-radius: 18px !important;
+
+                border: 1px solid
+                    rgba(255,255,255,.10) !important;
+
+                box-shadow:
+                    0 30px 100px
+                    rgba(0,0,0,.65) !important;
+
+                pointer-events: auto !important;
+
+            }
+
+
+            #productModal .modal-header {
+
+                position: sticky !important;
+
+                top: 0 !important;
+
+                z-index: 20 !important;
+
+                display: flex !important;
+
+                align-items: center !important;
+
+                justify-content: space-between !important;
+
+                padding: 18px 20px !important;
+
+                background: #111 !important;
+
+                border-bottom: 1px solid
+                    rgba(255,255,255,.08) !important;
+
+            }
+
+
+            #productModal .modal-header h2 {
+
+                margin: 0 !important;
+
+                font-size: 20px !important;
+
+            }
+
+
+            /* ==========================================
+               КРЕСТИК
+               ========================================== */
+
+            #closeProductModal {
+
+                appearance: none !important;
+
+                -webkit-appearance: none !important;
+
+                border: 0 !important;
+
+                outline: none !important;
+
+                width: 38px !important;
+
+                height: 38px !important;
+
+                min-width: 38px !important;
+
+                padding: 0 !important;
+
+                margin: 0 !important;
+
+                display: flex !important;
+
+                align-items: center !important;
+
+                justify-content: center !important;
+
+                border-radius: 50% !important;
+
+                background:
+                    rgba(255,255,255,.08) !important;
+
+                color: #fff !important;
+
+                font-size: 25px !important;
+
+                line-height: 1 !important;
+
+                cursor: pointer !important;
+
+                pointer-events: auto !important;
+
+                position: relative !important;
+
+                z-index: 1000001 !important;
+
+            }
+
+
+            #closeProductModal:hover {
+
+                background:
+                    rgba(255,255,255,.16) !important;
+
+            }
+
+
+            /* ==========================================
+               FORM
+               ========================================== */
+
+            #productForm {
+
+                padding: 20px !important;
+
+                box-sizing: border-box !important;
+
+            }
+
+
+            #productForm input,
+            #productForm select,
+            #productForm textarea {
+
+                width: 100% !important;
+
+                box-sizing: border-box !important;
+
+            }
+
+
+            #productForm textarea {
+
+                min-height: 90px !important;
+
+                resize: vertical !important;
+
+            }
+
+
+            .characteristics {
+
+                margin-top: 20px !important;
+
+                padding: 16px !important;
+
+                border-radius: 14px !important;
+
+                background:
+                    rgba(255,255,255,.04) !important;
+
+                border: 1px solid
+                    rgba(255,255,255,.07) !important;
+
+            }
+
+
+            .characteristics-title {
+
+                margin-bottom: 15px !important;
+
+                font-size: 16px !important;
+
+                font-weight: 700 !important;
+
+            }
+
+
+            .characteristics-grid {
+
+                display: grid !important;
+
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr)) !important;
+
+                gap: 12px !important;
+
+            }
+
+
+            .stock-form {
+
+                display: grid !important;
+
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr)) !important;
+
+                gap: 12px !important;
+
+            }
+
+
+            .form-actions {
+
+                display: flex !important;
+
+                gap: 10px !important;
+
+                margin-top: 20px !important;
+
+            }
+
+
+            .form-actions button {
+
+                flex: 1 !important;
+
+                min-height: 46px !important;
+
+                cursor: pointer !important;
+
+            }
+
+
+            .photo-preview {
+
+                display: none !important;
+
+                margin-top: 12px !important;
+
+                text-align: center !important;
+
+            }
+
+
+            .photo-preview.active {
+
+                display: block !important;
+
+            }
+
+
+            .photo-preview img {
+
+                max-width: 220px !important;
+
+                max-height: 220px !important;
+
+                object-fit: contain !important;
+
+                border-radius: 12px !important;
+
+            }
+
+
+            /* ==========================================
+               MOBILE
+               ========================================== */
+
+            @media (max-width: 600px) {
+
+                #productModalOverlay {
+
+                    padding: 10px !important;
+
+                    align-items: flex-start !important;
+
+                }
+
+
+                #productModal {
+
+                    width: 100% !important;
+
+                    max-height:
+                        calc(100vh - 20px) !important;
+
+                    margin-top: 10px !important;
+
+                    border-radius: 16px !important;
+
+                }
+
+
+                .characteristics-grid,
+                .stock-form {
+
+                    grid-template-columns:
+                        1fr !important;
+
+                }
+
+
+                #productForm {
+
+                    padding: 16px !important;
+
+                }
+
+
+                #productModal .modal-header {
+
+                    padding: 15px 16px !important;
+
+                }
+
+
+                .form-actions {
+
+                    flex-direction: column !important;
+
+                }
+
+
+                #addProductButton,
+                .add-product-button {
+
+                    height: 40px !important;
+
+                    max-width: 250px !important;
+
+                    font-size: 13px !important;
+
+                    padding: 0 14px !important;
+
+                }
+
+            }
+
+        `;
+
+
+        document.head.appendChild(
+            style
+        );
+
+    }
+
+
+    injectAppStyles();
+
+
+    // ==================================================
+    // SAVE PRODUCTS
     // ==================================================
 
     function saveProducts() {
 
-        localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify(products)
+        try {
+
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(products)
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Ошибка сохранения товаров:",
+                error
+            );
+
+        }
+
+    }
+
+
+    // ==================================================
+    // УБРАТЬ СЕРУЮ КНОПКУ "ДОПЛАТИТЬ ТОВАР"
+    // ==================================================
+
+    function removePayButton() {
+
+        const allButtons =
+            document.querySelectorAll(
+                "button, a, div"
+            );
+
+
+        allButtons.forEach(
+            element => {
+
+                const text =
+                    (
+                        element.textContent ||
+                        ""
+                    )
+                    .trim()
+                    .toLowerCase();
+
+
+                if (
+                    text === "доплатить товар" ||
+                    text === "доплатить товар +" ||
+                    text === "доплатить"
+                ) {
+
+                    element.remove();
+
+                }
+
+            }
         );
 
     }
 
 
     // ==================================================
-    // MODAL HTML
+    // MODAL
     // ==================================================
 
     function createProductModal() {
@@ -161,6 +679,8 @@ function initApp() {
             <div
                 class="modal"
                 id="productModal"
+                role="dialog"
+                aria-modal="true"
             >
 
                 <div class="modal-header">
@@ -173,6 +693,7 @@ function initApp() {
                         type="button"
                         class="modal-close"
                         id="closeProductModal"
+                        aria-label="Закрыть"
                     >
                         ×
                     </button>
@@ -184,7 +705,6 @@ function initApp() {
                     class="product-form"
                     id="productForm"
                 >
-
 
                     <!-- ОСНОВНАЯ ИНФОРМАЦИЯ -->
 
@@ -269,7 +789,6 @@ function initApp() {
 
 
                         <div class="characteristics-grid">
-
 
                             <div class="form-group">
 
@@ -360,7 +879,6 @@ function initApp() {
 
                             </div>
 
-
                         </div>
 
                     </div>
@@ -376,7 +894,6 @@ function initApp() {
 
 
                         <div class="stock-form">
-
 
                             <div class="form-group">
 
@@ -408,7 +925,6 @@ function initApp() {
                                 >
 
                             </div>
-
 
                         </div>
 
@@ -459,7 +975,7 @@ function initApp() {
 
                         <textarea
                             id="productTip"
-                            placeholder="Например: один экземпляр на витрине..."
+                            placeholder="Подсказка продавцу..."
                         ></textarea>
 
                     </div>
@@ -473,7 +989,6 @@ function initApp() {
                             Фото товара
                         </label>
 
-
                         <div class="photo-upload">
 
                             <input
@@ -481,7 +996,6 @@ function initApp() {
                                 id="productPhoto"
                                 accept="image/*"
                             >
-
 
                             <div
                                 class="photo-preview"
@@ -523,13 +1037,19 @@ function initApp() {
 
                     </div>
 
-
                 </form>
 
             </div>
 
         `;
 
+
+        /*
+         * ВАЖНО:
+         * Добавляем modal прямо в BODY,
+         * а не внутрь какого-либо блока сайта.
+         * Поэтому он всегда поверх интерфейса.
+         */
 
         document.body.appendChild(
             overlay
@@ -553,6 +1073,12 @@ function initApp() {
             );
 
 
+        const modal =
+            document.getElementById(
+                "productModal"
+            );
+
+
         const closeButton =
             document.getElementById(
                 "closeProductModal"
@@ -565,31 +1091,66 @@ function initApp() {
             );
 
 
+        const form =
+            document.getElementById(
+                "productForm"
+            );
+
+
+        const photoInput =
+            document.getElementById(
+                "productPhoto"
+            );
+
+
+        // ----------------------------------------------
+        // КРЕСТИК
+        // ----------------------------------------------
+
         if (closeButton) {
 
-            closeButton.addEventListener(
-                "click",
-                closeProductModal
-            );
+            closeButton.onclick =
+                function(event) {
+
+                    event.preventDefault();
+
+                    event.stopPropagation();
+
+                    closeProductModal();
+
+                };
 
         }
 
+
+        // ----------------------------------------------
+        // ОТМЕНА
+        // ----------------------------------------------
 
         if (cancelButton) {
 
-            cancelButton.addEventListener(
-                "click",
-                closeProductModal
-            );
+            cancelButton.onclick =
+                function(event) {
+
+                    event.preventDefault();
+
+                    event.stopPropagation();
+
+                    closeProductModal();
+
+                };
 
         }
 
 
+        // ----------------------------------------------
+        // КЛИК ПО ФОНУ
+        // ----------------------------------------------
+
         if (overlay) {
 
-            overlay.addEventListener(
-                "click",
-                event => {
+            overlay.onclick =
+                function(event) {
 
                     if (
                         event.target === overlay
@@ -599,56 +1160,77 @@ function initApp() {
 
                     }
 
-                }
+                };
+
+        }
+
+
+        // ----------------------------------------------
+        // НЕ ЗАКРЫВАЕМ ОКНО ПРИ КЛИКЕ ВНУТРИ
+        // ----------------------------------------------
+
+        if (modal) {
+
+            modal.onclick =
+                function(event) {
+
+                    event.stopPropagation();
+
+                };
+
+        }
+
+
+        // ----------------------------------------------
+        // ESC
+        // ----------------------------------------------
+
+        if (
+            !window.__xiaomiModalKeyHandler
+        ) {
+
+            window.__xiaomiModalKeyHandler =
+                function(event) {
+
+                    if (
+                        event.key === "Escape"
+                    ) {
+
+                        closeProductModal();
+
+                    }
+
+                };
+
+
+            document.addEventListener(
+                "keydown",
+                window.__xiaomiModalKeyHandler
             );
 
         }
 
 
-        document.addEventListener(
-            "keydown",
-            event => {
-
-                if (
-                    event.key === "Escape"
-                ) {
-
-                    closeProductModal();
-
-                }
-
-            }
-        );
-
-
-        const form =
-            document.getElementById(
-                "productForm"
-            );
-
+        // ----------------------------------------------
+        // FORM
+        // ----------------------------------------------
 
         if (form) {
 
-            form.addEventListener(
-                "submit",
-                saveProductFromForm
-            );
+            form.onsubmit =
+                saveProductFromForm;
 
         }
 
 
-        const photoInput =
-            document.getElementById(
-                "productPhoto"
-            );
-
+        // ----------------------------------------------
+        // PHOTO
+        // ----------------------------------------------
 
         if (photoInput) {
 
-            photoInput.addEventListener(
-                "change",
-                handlePhoto
-            );
+            photoInput.onchange =
+                handlePhoto;
 
         }
 
@@ -696,8 +1278,17 @@ function initApp() {
             );
 
 
-        if (!overlay || !form) {
+        if (
+            !overlay ||
+            !form
+        ) {
+
+            console.error(
+                "Не удалось открыть форму товара."
+            );
+
             return;
+
         }
 
 
@@ -708,22 +1299,16 @@ function initApp() {
 
 
         currentPhoto =
-            product && product.image
+            product &&
+            product.image
                 ? product.image
                 : "";
 
 
-        if (product) {
-
-            title.textContent =
-                "Редактировать товар";
-
-        } else {
-
-            title.textContent =
-                "Добавить товар";
-
-        }
+        title.textContent =
+            product
+                ? "Редактировать товар"
+                : "Добавить товар";
 
 
         // ----------------------------------------------
@@ -767,7 +1352,8 @@ function initApp() {
         // ----------------------------------------------
 
         const specs =
-            product && product.specs
+            product &&
+            product.specs
                 ? product.specs
                 : {};
 
@@ -823,7 +1409,9 @@ function initApp() {
             "productDisplay"
         ).value =
             product
-                ? Number(product.display || 0)
+                ? Number(
+                    product.display || 0
+                )
                 : 0;
 
 
@@ -831,7 +1419,9 @@ function initApp() {
             "productWarehouse"
         ).value =
             product
-                ? Number(product.warehouse || 0)
+                ? Number(
+                    product.warehouse || 0
+                )
                 : 0;
 
 
@@ -839,7 +1429,9 @@ function initApp() {
             "productLdu"
         ).value =
             product
-                ? Number(product.ldu || 0)
+                ? Number(
+                    product.ldu || 0
+                )
                 : 0;
 
 
@@ -883,10 +1475,14 @@ function initApp() {
             );
 
 
-        if (currentPhoto) {
+        if (
+            currentPhoto &&
+            previewImage
+        ) {
 
             previewImage.src =
                 currentPhoto;
+
 
             preview.classList.add(
                 "active"
@@ -894,15 +1490,28 @@ function initApp() {
 
         } else {
 
-            previewImage.src =
-                "";
+            if (previewImage) {
 
-            preview.classList.remove(
-                "active"
-            );
+                previewImage.src =
+                    "";
+
+            }
+
+
+            if (preview) {
+
+                preview.classList.remove(
+                    "active"
+                );
+
+            }
 
         }
 
+
+        // ----------------------------------------------
+        // OPEN
+        // ----------------------------------------------
 
         overlay.classList.add(
             "active"
@@ -916,9 +1525,17 @@ function initApp() {
         setTimeout(
             () => {
 
-                document.getElementById(
-                    "productName"
-                ).focus();
+                const nameInput =
+                    document.getElementById(
+                        "productName"
+                    );
+
+
+                if (nameInput) {
+
+                    nameInput.focus();
+
+                }
 
             },
             100
@@ -940,7 +1557,9 @@ function initApp() {
 
 
         if (!overlay) {
+
             return;
+
         }
 
 
@@ -960,6 +1579,48 @@ function initApp() {
         currentPhoto =
             "";
 
+
+        const form =
+            document.getElementById(
+                "productForm"
+            );
+
+
+        if (form) {
+
+            form.reset();
+
+        }
+
+
+        const preview =
+            document.getElementById(
+                "photoPreview"
+            );
+
+
+        const previewImage =
+            document.getElementById(
+                "photoPreviewImage"
+            );
+
+
+        if (preview) {
+
+            preview.classList.remove(
+                "active"
+            );
+
+        }
+
+
+        if (previewImage) {
+
+            previewImage.src =
+                "";
+
+        }
+
     }
 
 
@@ -972,11 +1633,14 @@ function initApp() {
     ) {
 
         const file =
+            event.target.files &&
             event.target.files[0];
 
 
         if (!file) {
+
             return;
+
         }
 
 
@@ -1000,7 +1664,7 @@ function initApp() {
 
 
         reader.onload =
-            event => {
+            function(event) {
 
                 currentPhoto =
                     event.target.result;
@@ -1018,13 +1682,20 @@ function initApp() {
                     );
 
 
-                previewImage.src =
-                    currentPhoto;
+                if (
+                    preview &&
+                    previewImage
+                ) {
+
+                    previewImage.src =
+                        currentPhoto;
 
 
-                preview.classList.add(
-                    "active"
-                );
+                    preview.classList.add(
+                        "active"
+                    );
+
+                }
 
             };
 
@@ -1037,7 +1708,7 @@ function initApp() {
 
 
     // ==================================================
-    // SAVE PRODUCT FROM FORM
+    // SAVE PRODUCT
     // ==================================================
 
     function saveProductFromForm(
@@ -1045,6 +1716,10 @@ function initApp() {
     ) {
 
         event.preventDefault();
+
+
+        const wasEditing =
+            editingProductId !== null;
 
 
         const category =
@@ -1262,7 +1937,8 @@ function initApp() {
         // MEMORY
         // ----------------------------------------------
 
-        let memory = "";
+        let memory =
+            "";
 
 
         if (
@@ -1287,7 +1963,7 @@ function initApp() {
 
 
         // ----------------------------------------------
-        // EDIT EXISTING
+        // EDIT
         // ----------------------------------------------
 
         if (
@@ -1302,52 +1978,65 @@ function initApp() {
                 );
 
 
-            if (product) {
+            if (!product) {
 
-                product.name =
-                    name;
+                alert(
+                    "Товар для редактирования не найден."
+                );
 
-                product.category =
-                    category;
+                return;
 
-                product.memory =
-                    memory;
-
-                product.color =
-                    color;
-
-                product.quantity =
-                    quantity;
-
-                product.ldu =
-                    ldu;
-
-                product.display =
-                    display;
-
-                product.warehouse =
-                    warehouse;
-
-                product.description =
-                    description;
-
-                product.specs =
-                    specs;
-
-                product.tip =
-                    tip;
+            }
 
 
-                if (currentPhoto) {
+            product.name =
+                name;
 
-                    product.image =
-                        currentPhoto;
 
-                } else {
+            product.category =
+                category;
 
-                    delete product.image;
 
-                }
+            product.memory =
+                memory;
+
+
+            product.color =
+                color;
+
+
+            product.quantity =
+                quantity;
+
+
+            product.ldu =
+                ldu;
+
+
+            product.display =
+                display;
+
+
+            product.warehouse =
+                warehouse;
+
+
+            product.description =
+                description;
+
+
+            product.specs =
+                specs;
+
+
+            product.tip =
+                tip;
+
+
+            if (currentPhoto) {
+
+                product.image =
+                    currentPhoto;
 
             }
 
@@ -1355,40 +2044,46 @@ function initApp() {
 
 
         // ----------------------------------------------
-        // CREATE NEW
+        // CREATE
         // ----------------------------------------------
 
         else {
 
-            const newId =
-                generateProductId();
-
-
             const newProduct = {
 
-                id: newId,
+                id:
+                    generateProductId(),
 
-                name: name,
+                name:
+                    name,
 
-                category: category,
+                category:
+                    category,
 
-                memory: memory,
+                memory:
+                    memory,
 
-                color: color,
+                color:
+                    color,
 
-                quantity: quantity,
+                quantity:
+                    quantity,
 
-                ldu: ldu,
+                ldu:
+                    ldu,
 
-                display: display,
+                display:
+                    display,
 
-                warehouse: warehouse,
+                warehouse:
+                    warehouse,
 
                 description:
                     description ||
                     `${name}.`,
 
-                specs: specs,
+                specs:
+                    specs,
 
                 tip:
                     tip ||
@@ -1443,7 +2138,7 @@ function initApp() {
 
 
         alert(
-            editingProductId !== null
+            wasEditing
                 ? "Товар обновлён."
                 : "Товар добавлен."
         );
@@ -1470,7 +2165,10 @@ function initApp() {
                     ) || 0;
 
 
-                if (id > maxId) {
+                if (
+                    id >
+                    maxId
+                ) {
 
                     maxId =
                         id;
@@ -1487,7 +2185,7 @@ function initApp() {
 
 
     // ==================================================
-    // ADD BUTTON
+    // ADD PRODUCT BUTTON
     // ==================================================
 
     function createAddButton() {
@@ -1529,7 +2227,7 @@ function initApp() {
 
 
             button.textContent =
-                "＋ Добавить товары с поставки";
+                "＋ Добавить товар";
 
 
             const searchSection =
@@ -1539,6 +2237,12 @@ function initApp() {
 
 
             if (searchSection) {
+
+                /*
+                 * Кнопка теперь находится
+                 * непосредственно после поиска,
+                 * а не огромным отдельным блоком.
+                 */
 
                 searchSection.after(
                     button
@@ -1550,12 +2254,20 @@ function initApp() {
                     button
                 );
 
+            } else {
+
+                document.body.prepend(
+                    button
+                );
+
             }
 
         }
 
 
-        // Убираем старые обработчики через clone
+        /*
+         * Удаляем старые обработчики.
+         */
 
         const newButton =
             button.cloneNode(true);
@@ -1566,14 +2278,32 @@ function initApp() {
         );
 
 
-        newButton.addEventListener(
-            "click",
-            () => {
+        newButton.id =
+            "addProductButton";
+
+
+        newButton.className =
+            "add-product-button";
+
+
+        newButton.type =
+            "button";
+
+
+        newButton.textContent =
+            "＋ Добавить товар";
+
+
+        newButton.onclick =
+            function(event) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
 
                 openProductModal();
 
-            }
-        );
+            };
 
     }
 
@@ -1622,7 +2352,9 @@ function initApp() {
             );
 
 
-        if (index !== -1) {
+        if (
+            index !== -1
+        ) {
 
             products.splice(
                 index,
@@ -1734,19 +2466,23 @@ function initApp() {
                 const imageHTML =
                     product.image
                         ? `
+
                             <div class="product-image">
 
                                 <img
-                                    src="${product.image}"
+                                    src="${escapeHTML(product.image)}"
                                     alt="${escapeHTML(product.name)}"
                                 >
 
                             </div>
+
                         `
                         : `
+
                             <div class="product-image">
                                 Фото товара
                             </div>
+
                         `;
 
 
@@ -1839,7 +2575,7 @@ function initApp() {
 
                 card.addEventListener(
                     "click",
-                    () => {
+                    function() {
 
                         window.location.href =
                             `product.html?id=${product.id}`;
@@ -1877,7 +2613,9 @@ function initApp() {
                 .toLowerCase();
 
 
-        if (query === "") {
+        if (
+            query === ""
+        ) {
 
             renderProducts(
                 products
@@ -1894,23 +2632,17 @@ function initApp() {
 
                     const searchText = `
 
-                        ${product.name}
+                        ${product.name || ""}
 
-                        ${product.category}
+                        ${product.category || ""}
 
                         ${product.memory || ""}
 
                         ${product.color || ""}
 
-                        ${
-                            product.description ||
-                            ""
-                        }
+                        ${product.description || ""}
 
-                        ${
-                            product.tip ||
-                            ""
-                        }
+                        ${product.tip || ""}
 
                     `.toLowerCase();
 
@@ -2161,7 +2893,6 @@ function initApp() {
                 Object.entries(
                     product.specs
                 )
-
                 .map(
                     ([key, value]) => `
 
@@ -2183,7 +2914,6 @@ function initApp() {
 
                     `
                 )
-
                 .join("");
 
         } else {
@@ -2202,13 +2932,17 @@ function initApp() {
         const imageHTML =
             product.image
                 ? `
+
                     <img
-                        src="${product.image}"
+                        src="${escapeHTML(product.image)}"
                         alt="${escapeHTML(product.name)}"
                     >
+
                 `
                 : `
+
                     Фото товара
+
                 `;
 
 
@@ -2218,7 +2952,6 @@ function initApp() {
 
 
                 <div>
-
 
                     <div class="product-page-image">
 
@@ -2256,7 +2989,6 @@ function initApp() {
 
                     </div>
 
-
                 </div>
 
 
@@ -2284,6 +3016,7 @@ function initApp() {
                     ${
                         product.memory
                             ? `
+
                                 <div class="product-memory">
 
                                     ${escapeHTML(
@@ -2291,6 +3024,7 @@ function initApp() {
                                     )}
 
                                 </div>
+
                             `
                             : ""
                     }
@@ -2299,17 +3033,21 @@ function initApp() {
                     ${
                         product.color
                             ? `
+
                                 <div class="product-color">
 
                                     Цвет:
 
                                     <strong>
+
                                         ${escapeHTML(
                                             product.color
                                         )}
+
                                     </strong>
 
                                 </div>
+
                             `
                             : ""
                     }
@@ -2334,6 +3072,7 @@ function initApp() {
                             <div class="quantity-control">
 
                                 <button
+                                    type="button"
                                     class="quantity-button"
                                     data-type="display"
                                     data-action="minus"
@@ -2350,6 +3089,7 @@ function initApp() {
 
 
                                 <button
+                                    type="button"
                                     class="quantity-button"
                                     data-type="display"
                                     data-action="plus"
@@ -2372,6 +3112,7 @@ function initApp() {
                             <div class="quantity-control">
 
                                 <button
+                                    type="button"
                                     class="quantity-button"
                                     data-type="warehouse"
                                     data-action="minus"
@@ -2388,6 +3129,7 @@ function initApp() {
 
 
                                 <button
+                                    type="button"
                                     class="quantity-button"
                                     data-type="warehouse"
                                     data-action="plus"
@@ -2500,16 +3242,16 @@ function initApp() {
 
         if (editButton) {
 
-            editButton.addEventListener(
-                "click",
-                () => {
+            editButton.onclick =
+                function(event) {
+
+                    event.preventDefault();
 
                     openProductModal(
                         product
                     );
 
-                }
-            );
+                };
 
         }
 
@@ -2526,16 +3268,16 @@ function initApp() {
 
         if (deleteButton) {
 
-            deleteButton.addEventListener(
-                "click",
-                () => {
+            deleteButton.onclick =
+                function(event) {
+
+                    event.preventDefault();
 
                     deleteProduct(
                         product.id
                     );
 
-                }
-            );
+                };
 
         }
 
@@ -2552,7 +3294,7 @@ function initApp() {
 
 
     // ==================================================
-    // QUANTITY BUTTONS
+    // QUANTITY
     // ==================================================
 
     function setupQuantityButtons(
@@ -2568,9 +3310,8 @@ function initApp() {
         buttons.forEach(
             button => {
 
-                button.addEventListener(
-                    "click",
-                    () => {
+                button.onclick =
+                    function() {
 
                         const type =
                             button.dataset.type;
@@ -2628,8 +3369,7 @@ function initApp() {
                             product
                         );
 
-                    }
-                );
+                    };
 
             }
         );
@@ -2693,6 +3433,9 @@ function initApp() {
 
 
     createAddButton();
+
+
+    removePayButton();
 
 
     if (productsList) {
