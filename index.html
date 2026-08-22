@@ -55,6 +55,7 @@
     </header>
 
 
+
     <!-- MAIN -->
 
     <main class="main">
@@ -91,6 +92,7 @@
                 </div>
 
             </section>
+
 
 
             <!-- CATEGORIES -->
@@ -164,6 +166,7 @@
             </section>
 
 
+
             <!-- PRODUCTS -->
 
             <section class="products">
@@ -182,8 +185,6 @@
                     class="products-list"
                 >
 
-                    <!-- Товары загружаются через JS -->
-
                 </div>
 
             </section>
@@ -196,7 +197,7 @@
 
 
     <!-- ==================================================
-         ADD PRODUCT MODAL
+         MODAL
     ================================================== -->
 
     <div
@@ -204,11 +205,21 @@
         class="modal"
     >
 
-        <div class="modal-overlay"></div>
+
+        <div
+            class="modal-overlay"
+            id="modalOverlay"
+        ></div>
 
 
-        <div class="modal-content">
+        <div
+            class="modal-content"
+            role="dialog"
+            aria-modal="true"
+        >
 
+
+            <!-- MODAL HEADER -->
 
             <div class="modal-header">
 
@@ -219,7 +230,7 @@
                     </h2>
 
                     <p>
-                        Заполните информацию о товаре
+                        Информация о товаре
                     </p>
 
                 </div>
@@ -306,7 +317,7 @@
 
 
 
-                <!-- MEMORY -->
+                <!-- MEMORY / VERSION -->
 
                 <div class="form-group">
 
@@ -344,7 +355,126 @@
 
 
 
-                <!-- STOCK -->
+                <!-- ==================================================
+                     CHARACTERISTICS
+                ================================================== -->
+
+                <div class="form-section-title">
+                    Характеристики
+                </div>
+
+
+                <div class="fixed-specs">
+
+
+                    <div class="form-group">
+
+                        <label for="specStorage">
+                            Встроенная память
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="specStorage"
+                            placeholder="Например: 512 GB"
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="specDisplay">
+                            Дисплей
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="specDisplay"
+                            placeholder="Например: 6.73&quot; AMOLED"
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="specProcessor">
+                            Процессор
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="specProcessor"
+                            placeholder="Например: Snapdragon 8 Elite"
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="specCamera">
+                            Фотокамера
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="specCamera"
+                            placeholder="Например: 50 + 50 + 200 Мп"
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="specBattery">
+                            Ёмкость аккумулятора
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="specBattery"
+                            placeholder="Например: 5410 мА·ч"
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="specRam">
+                            Оперативная память
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="specRam"
+                            placeholder="Например: 16 GB"
+                        >
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- ==================================================
+                     STOCK
+                ================================================== -->
 
                 <div class="form-section-title">
                     Наличие
@@ -414,67 +544,17 @@
                 <div class="form-group">
 
                     <label for="productDescription">
-                        Краткое описание
+                        Кратко
                     </label>
 
 
                     <textarea
                         id="productDescription"
                         rows="3"
-                        placeholder="Краткая информация о товаре..."
+                        placeholder="Краткое описание товара..."
                     ></textarea>
 
                 </div>
-
-
-
-                <!-- SPECS -->
-
-                <div class="form-section-title">
-                    Характеристики
-                </div>
-
-
-                <div
-                    id="specsContainer"
-                    class="specs-container"
-                >
-
-                    <div class="spec-input-row">
-
-                        <input
-                            type="text"
-                            class="spec-key"
-                            placeholder="Характеристика"
-                        >
-
-
-                        <input
-                            type="text"
-                            class="spec-value"
-                            placeholder="Значение"
-                        >
-
-
-                        <button
-                            type="button"
-                            class="remove-spec-button"
-                        >
-                            ×
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    id="addSpecButton"
-                    class="add-spec-button"
-                >
-                    + Добавить характеристику
-                </button>
 
 
 
@@ -516,8 +596,7 @@
                     <div
                         id="imagePreview"
                         class="image-preview"
-                    >
-                    </div>
+                    ></div>
 
                 </div>
 
@@ -550,16 +629,13 @@
 
             </form>
 
-
         </div>
 
     </div>
 
 
 
-    <!-- ==================================================
-         SCRIPTS
-    ================================================== -->
+    <!-- SCRIPTS -->
 
     <script src="products-data.js"></script>
 
