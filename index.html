@@ -23,7 +23,9 @@
 <body>
 
 
-    <!-- HEADER -->
+    <!-- ==========================================
+         HEADER
+    =========================================== -->
 
     <header class="header">
 
@@ -43,9 +45,9 @@
 
 
             <button
-                id="addProductButton"
-                class="add-product-button"
                 type="button"
+                id="openAddProductButton"
+                class="header-add-button"
             >
                 + Добавить товар
             </button>
@@ -56,7 +58,9 @@
 
 
 
-    <!-- MAIN -->
+    <!-- ==========================================
+         MAIN
+    =========================================== -->
 
     <main class="main">
 
@@ -83,8 +87,8 @@
 
 
                     <button
-                        id="searchButton"
                         type="button"
+                        id="searchButton"
                     >
                         Найти
                     </button>
@@ -108,58 +112,57 @@
 
 
                     <button
+                        type="button"
                         class="category-button active"
                         data-category="Все"
-                        type="button"
                     >
                         Все товары
                     </button>
 
 
                     <button
+                        type="button"
                         class="category-button"
                         data-category="Смартфоны"
-                        type="button"
                     >
                         Смартфоны
                     </button>
 
 
                     <button
+                        type="button"
                         class="category-button"
                         data-category="Планшеты"
-                        type="button"
                     >
                         Планшеты
                     </button>
 
 
                     <button
+                        type="button"
                         class="category-button"
                         data-category="Смарт-часы"
-                        type="button"
                     >
                         Смарт-часы
                     </button>
 
 
                     <button
+                        type="button"
                         class="category-button"
                         data-category="Фитнес-браслеты"
-                        type="button"
                     >
                         Фитнес-браслеты
                     </button>
 
 
                     <button
+                        type="button"
                         class="category-button"
                         data-category="Аксессуары"
-                        type="button"
                     >
                         Аксессуары
                     </button>
-
 
                 </div>
 
@@ -196,24 +199,17 @@
 
 
 
-    <!-- ==================================================
-         MODAL
-    ================================================== -->
+    <!-- ==========================================
+         ADD / EDIT PRODUCT MODAL
+    =========================================== -->
 
     <div
         id="productModal"
-        class="modal"
+        class="modal-overlay"
     >
 
-
         <div
-            class="modal-overlay"
-            id="modalOverlay"
-        ></div>
-
-
-        <div
-            class="modal-content"
+            class="product-modal"
             role="dialog"
             aria-modal="true"
         >
@@ -225,21 +221,24 @@
 
                 <div>
 
-                    <h2 id="modalTitle">
+                    <div
+                        id="modalTitle"
+                        class="modal-title"
+                    >
                         Добавить товар
-                    </h2>
+                    </div>
 
-                    <p>
+                    <div class="modal-subtitle">
                         Информация о товаре
-                    </p>
+                    </div>
 
                 </div>
 
 
                 <button
-                    id="closeModalButton"
-                    class="modal-close"
                     type="button"
+                    id="closeProductModal"
+                    class="modal-close"
                 >
                     ×
                 </button>
@@ -250,129 +249,94 @@
 
             <!-- FORM -->
 
-            <form id="productForm">
+            <form
+                id="productForm"
+                class="product-form"
+            >
 
 
-                <!-- CATEGORY -->
+                <!-- ОСНОВНОЕ -->
 
-                <div class="form-group">
+                <div class="form-section">
 
-                    <label for="productCategory">
-                        Категория
-                    </label>
-
-
-                    <select
-                        id="productCategory"
-                        required
-                    >
-
-                        <option value="">
-                            Выберите категорию
-                        </option>
-
-                        <option value="Смартфоны">
-                            Смартфоны
-                        </option>
-
-                        <option value="Планшеты">
-                            Планшеты
-                        </option>
-
-                        <option value="Смарт-часы">
-                            Смарт-часы
-                        </option>
-
-                        <option value="Фитнес-браслеты">
-                            Фитнес-браслеты
-                        </option>
-
-                        <option value="Аксессуары">
-                            Аксессуары
-                        </option>
-
-                    </select>
-
-                </div>
+                    <div class="form-section-title">
+                        Основная информация
+                    </div>
 
 
-
-                <!-- NAME -->
-
-                <div class="form-group">
-
-                    <label for="productName">
+                    <label class="form-label">
                         Название товара
+
+                        <input
+                            type="text"
+                            id="productName"
+                            required
+                            placeholder="Например: Xiaomi 17 Ultra"
+                        >
+
                     </label>
 
 
-                    <input
-                        type="text"
-                        id="productName"
-                        placeholder="Например: Xiaomi 17 Ultra"
-                        required
-                    >
+                    <label class="form-label">
+                        Категория
 
-                </div>
+                        <select
+                            id="productCategory"
+                            required
+                        >
 
+                            <option value="Смартфоны">
+                                Смартфоны
+                            </option>
 
+                            <option value="Планшеты">
+                                Планшеты
+                            </option>
 
-                <!-- MEMORY / VERSION -->
+                            <option value="Смарт-часы">
+                                Смарт-часы
+                            </option>
 
-                <div class="form-group">
+                            <option value="Фитнес-браслеты">
+                                Фитнес-браслеты
+                            </option>
 
-                    <label for="productMemory">
-                        Память / версия
+                            <option value="Аксессуары">
+                                Аксессуары
+                            </option>
+
+                        </select>
+
                     </label>
 
 
-                    <input
-                        type="text"
-                        id="productMemory"
-                        placeholder="Например: 16 / 512 GB"
-                    >
-
-                </div>
-
-
-
-                <!-- COLOR -->
-
-                <div class="form-group">
-
-                    <label for="productColor">
+                    <label class="form-label">
                         Цвет
+
+                        <input
+                            type="text"
+                            id="productColor"
+                            placeholder="Например: Black"
+                        >
+
                     </label>
 
-
-                    <input
-                        type="text"
-                        id="productColor"
-                        placeholder="Например: Black"
-                    >
-
                 </div>
 
 
 
-                <!-- ==================================================
-                     CHARACTERISTICS
-                ================================================== -->
+                <!-- ХАРАКТЕРИСТИКИ -->
 
-                <div class="form-section-title">
-                    Характеристики
-                </div>
+                <div class="form-section">
 
-
-                <div class="fixed-specs">
+                    <div class="form-section-title">
+                        Характеристики
+                    </div>
 
 
-                    <div class="form-group">
+                    <label class="form-label">
 
-                        <label for="specStorage">
-                            Встроенная память
-                        </label>
-
+                        Встроенная память
 
                         <input
                             type="text"
@@ -380,33 +344,25 @@
                             placeholder="Например: 512 GB"
                         >
 
-                    </div>
+                    </label>
 
 
+                    <label class="form-label">
 
-                    <div class="form-group">
-
-                        <label for="specDisplay">
-                            Дисплей
-                        </label>
-
+                        Дисплей
 
                         <input
                             type="text"
                             id="specDisplay"
-                            placeholder="Например: 6.73&quot; AMOLED"
+                            placeholder="Например: 6.9 AMOLED"
                         >
 
-                    </div>
+                    </label>
 
 
+                    <label class="form-label">
 
-                    <div class="form-group">
-
-                        <label for="specProcessor">
-                            Процессор
-                        </label>
-
+                        Процессор
 
                         <input
                             type="text"
@@ -414,50 +370,38 @@
                             placeholder="Например: Snapdragon 8 Elite"
                         >
 
-                    </div>
+                    </label>
 
 
+                    <label class="form-label">
 
-                    <div class="form-group">
-
-                        <label for="specCamera">
-                            Фотокамера
-                        </label>
-
+                        Фотокамера
 
                         <input
                             type="text"
                             id="specCamera"
-                            placeholder="Например: 50 + 50 + 200 Мп"
+                            placeholder="Например: 200 Мп"
                         >
 
-                    </div>
+                    </label>
 
 
+                    <label class="form-label">
 
-                    <div class="form-group">
-
-                        <label for="specBattery">
-                            Ёмкость аккумулятора
-                        </label>
-
+                        Ёмкость аккумулятора
 
                         <input
                             type="text"
                             id="specBattery"
-                            placeholder="Например: 5410 мА·ч"
+                            placeholder="Например: 6000 мАч"
                         >
 
-                    </div>
+                    </label>
 
 
+                    <label class="form-label">
 
-                    <div class="form-group">
-
-                        <label for="specRam">
-                            Оперативная память
-                        </label>
-
+                        Оперативная память
 
                         <input
                             type="text"
@@ -465,152 +409,163 @@
                             placeholder="Например: 16 GB"
                         >
 
-                    </div>
-
+                    </label>
 
                 </div>
 
 
 
-                <!-- ==================================================
-                     STOCK
-                ================================================== -->
+                <!-- НАЛИЧИЕ -->
 
-                <div class="form-section-title">
-                    Наличие
-                </div>
+                <div class="form-section">
 
-
-                <div class="form-grid">
+                    <div class="form-section-title">
+                        Наличие
+                    </div>
 
 
-                    <div class="form-group">
+                    <div class="form-grid-2">
 
-                        <label for="productDisplay">
-                            Витрина
+
+                        <label class="form-label">
+
+                            На витрине
+
+                            <input
+                                type="number"
+                                id="productDisplay"
+                                min="0"
+                                value="0"
+                            >
+
                         </label>
 
 
-                        <input
-                            type="number"
-                            id="productDisplay"
-                            value="0"
-                            min="0"
-                        >
+                        <label class="form-label">
+
+                            На складе
+
+                            <input
+                                type="number"
+                                id="productWarehouse"
+                                min="0"
+                                value="0"
+                            >
+
+                        </label>
+
 
                     </div>
 
 
-                    <div class="form-group">
-
-                        <label for="productWarehouse">
-                            Склад
-                        </label>
-
+                    <label class="checkbox-label">
 
                         <input
-                            type="number"
-                            id="productWarehouse"
-                            value="0"
-                            min="0"
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="productLdu">
-                            LDU
-                        </label>
-
-
-                        <input
-                            type="number"
+                            type="checkbox"
                             id="productLdu"
-                            value="0"
-                            min="0"
                         >
 
+                        <span>
+                            Есть LDU / демонстрационный экземпляр
+                        </span>
+
+                    </label>
+
+                </div>
+
+
+
+                <!-- ОПИСАНИЕ -->
+
+                <div class="form-section">
+
+                    <div class="form-section-title">
+                        Дополнительная информация
                     </div>
 
 
-                </div>
+                    <label class="form-label">
 
+                        Краткое описание
 
+                        <textarea
+                            id="productDescription"
+                            rows="4"
+                            placeholder="Краткая информация о товаре..."
+                        ></textarea>
 
-                <!-- DESCRIPTION -->
-
-                <div class="form-group">
-
-                    <label for="productDescription">
-                        Кратко
                     </label>
 
 
-                    <textarea
-                        id="productDescription"
-                        rows="3"
-                        placeholder="Краткое описание товара..."
-                    ></textarea>
+                    <label class="form-label">
 
-                </div>
-
-
-
-                <!-- TIP -->
-
-                <div class="form-group">
-
-                    <label for="productTip">
                         Подсказка продавцу
+
+                        <textarea
+                            id="productTip"
+                            rows="4"
+                            placeholder="Например: Один экземпляр на витрине..."
+                        ></textarea>
+
                     </label>
-
-
-                    <textarea
-                        id="productTip"
-                        rows="3"
-                        placeholder="Например: Один экземпляр на витрине, остальные на складе."
-                    ></textarea>
 
                 </div>
 
 
 
-                <!-- PHOTO -->
+                <!-- ФОТО -->
 
-                <div class="form-group">
+                <div class="form-section">
 
-                    <label for="productImage">
-                        Фото товара
+                    <div class="form-section-title">
+                        Фотография товара
+                    </div>
+
+
+                    <label
+                        for="productPhoto"
+                        class="photo-upload"
+                    >
+
+                        <span class="photo-upload-icon">
+                            +
+                        </span>
+
+                        <span>
+                            Выбрать фотографию
+                        </span>
+
                     </label>
 
 
                     <input
                         type="file"
-                        id="productImage"
+                        id="productPhoto"
                         accept="image/*"
+                        hidden
                     >
 
 
                     <div
-                        id="imagePreview"
-                        class="image-preview"
-                    ></div>
+                        id="photoPreview"
+                        class="photo-preview"
+                    >
+
+                    </div>
 
                 </div>
 
 
 
-                <!-- BUTTONS -->
+                <!-- ACTIONS -->
 
-                <div class="form-buttons">
+                <div class="modal-actions">
 
 
                     <button
                         type="button"
                         id="cancelProductButton"
-                        class="cancel-button"
+                        class="button-secondary"
                     >
                         Отмена
                     </button>
@@ -618,11 +573,10 @@
 
                     <button
                         type="submit"
-                        class="save-product-button"
+                        class="button-primary"
                     >
                         Сохранить товар
                     </button>
-
 
                 </div>
 
@@ -635,7 +589,13 @@
 
 
 
-    <!-- SCRIPTS -->
+    <!-- ==========================================
+         SCRIPTS
+         
+         ВАЖНО:
+         СНАЧАЛА БАЗА ТОВАРОВ
+         ПОТОМ APP.JS
+    =========================================== -->
 
     <script src="products-data.js"></script>
 
