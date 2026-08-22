@@ -43,8 +43,6 @@
 
             </div>
 
-
-
         </div>
 
     </header>
@@ -60,7 +58,9 @@
         <div class="container">
 
 
-            <!-- SEARCH -->
+            <!-- ======================================
+                 SEARCH
+            ======================================= -->
 
             <section class="search-section">
 
@@ -88,11 +88,27 @@
 
                 </div>
 
+
+                <!--
+                    ЕДИНСТВЕННАЯ КНОПКА ДОБАВЛЕНИЯ
+                    JS подключит к ней открытие окна
+                -->
+
+                <button
+                    type="button"
+                    id="addProductButton"
+                    class="add-product-button"
+                >
+                    ＋ Добавить товар с поставки
+                </button>
+
             </section>
 
 
 
-            <!-- CATEGORIES -->
+            <!-- ======================================
+                 CATEGORIES
+            ======================================= -->
 
             <section class="categories">
 
@@ -163,7 +179,9 @@
 
 
 
-            <!-- PRODUCTS -->
+            <!-- ======================================
+                 PRODUCTS
+            ======================================= -->
 
             <section class="products">
 
@@ -193,401 +211,7 @@
 
 
     <!-- ==========================================
-         ADD / EDIT PRODUCT MODAL
-    =========================================== -->
-
-    <div
-        id="productModal"
-        class="modal-overlay"
-    >
-
-        <div
-            class="product-modal"
-            role="dialog"
-            aria-modal="true"
-        >
-
-
-            <!-- MODAL HEADER -->
-
-            <div class="modal-header">
-
-                <div>
-
-                    <div
-                        id="modalTitle"
-                        class="modal-title"
-                    >
-                        Добавить товар
-                    </div>
-
-                    <div class="modal-subtitle">
-                        Информация о товаре
-                    </div>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    id="closeProductModal"
-                    class="modal-close"
-                >
-                    ×
-                </button>
-
-            </div>
-
-
-
-            <!-- FORM -->
-
-            <form
-                id="productForm"
-                class="product-form"
-            >
-
-
-                <!-- ОСНОВНОЕ -->
-
-                <div class="form-section">
-
-                    <div class="form-section-title">
-                        Основная информация
-                    </div>
-
-
-                    <label class="form-label">
-                        Название товара
-
-                        <input
-                            type="text"
-                            id="productName"
-                            required
-                            placeholder="Например: Xiaomi 17 Ultra"
-                        >
-
-                    </label>
-
-
-                    <label class="form-label">
-                        Категория
-
-                        <select
-                            id="productCategory"
-                            required
-                        >
-
-                            <option value="Смартфоны">
-                                Смартфоны
-                            </option>
-
-                            <option value="Планшеты">
-                                Планшеты
-                            </option>
-
-                            <option value="Смарт-часы">
-                                Смарт-часы
-                            </option>
-
-                            <option value="Фитнес-браслеты">
-                                Фитнес-браслеты
-                            </option>
-
-                            <option value="Аксессуары">
-                                Аксессуары
-                            </option>
-
-                        </select>
-
-                    </label>
-
-
-                    <label class="form-label">
-                        Цвет
-
-                        <input
-                            type="text"
-                            id="productColor"
-                            placeholder="Например: Black"
-                        >
-
-                    </label>
-
-                </div>
-
-
-
-                <!-- ХАРАКТЕРИСТИКИ -->
-
-                <div class="form-section">
-
-                    <div class="form-section-title">
-                        Характеристики
-                    </div>
-
-
-                    <label class="form-label">
-
-                        Встроенная память
-
-                        <input
-                            type="text"
-                            id="specStorage"
-                            placeholder="Например: 512 GB"
-                        >
-
-                    </label>
-
-
-                    <label class="form-label">
-
-                        Дисплей
-
-                        <input
-                            type="text"
-                            id="specDisplay"
-                            placeholder="Например: 6.9 AMOLED"
-                        >
-
-                    </label>
-
-
-                    <label class="form-label">
-
-                        Процессор
-
-                        <input
-                            type="text"
-                            id="specProcessor"
-                            placeholder="Например: Snapdragon 8 Elite"
-                        >
-
-                    </label>
-
-
-                    <label class="form-label">
-
-                        Фотокамера
-
-                        <input
-                            type="text"
-                            id="specCamera"
-                            placeholder="Например: 200 Мп"
-                        >
-
-                    </label>
-
-
-                    <label class="form-label">
-
-                        Ёмкость аккумулятора
-
-                        <input
-                            type="text"
-                            id="specBattery"
-                            placeholder="Например: 6000 мАч"
-                        >
-
-                    </label>
-
-
-                    <label class="form-label">
-
-                        Оперативная память
-
-                        <input
-                            type="text"
-                            id="specRam"
-                            placeholder="Например: 16 GB"
-                        >
-
-                    </label>
-
-                </div>
-
-
-
-                <!-- НАЛИЧИЕ -->
-
-                <div class="form-section">
-
-                    <div class="form-section-title">
-                        Наличие
-                    </div>
-
-
-                    <div class="form-grid-2">
-
-
-                        <label class="form-label">
-
-                            На витрине
-
-                            <input
-                                type="number"
-                                id="productDisplay"
-                                min="0"
-                                value="0"
-                            >
-
-                        </label>
-
-
-                        <label class="form-label">
-
-                            На складе
-
-                            <input
-                                type="number"
-                                id="productWarehouse"
-                                min="0"
-                                value="0"
-                            >
-
-                        </label>
-
-
-                    </div>
-
-
-                    <label class="checkbox-label">
-
-                        <input
-                            type="checkbox"
-                            id="productLdu"
-                        >
-
-                        <span>
-                            Есть LDU / демонстрационный экземпляр
-                        </span>
-
-                    </label>
-
-                </div>
-
-
-
-                <!-- ОПИСАНИЕ -->
-
-                <div class="form-section">
-
-                    <div class="form-section-title">
-                        Дополнительная информация
-                    </div>
-
-
-                    <label class="form-label">
-
-                        Краткое описание
-
-                        <textarea
-                            id="productDescription"
-                            rows="4"
-                            placeholder="Краткая информация о товаре..."
-                        ></textarea>
-
-                    </label>
-
-
-                    <label class="form-label">
-
-                        Подсказка продавцу
-
-                        <textarea
-                            id="productTip"
-                            rows="4"
-                            placeholder="Например: Один экземпляр на витрине..."
-                        ></textarea>
-
-                    </label>
-
-                </div>
-
-
-
-                <!-- ФОТО -->
-
-                <div class="form-section">
-
-                    <div class="form-section-title">
-                        Фотография товара
-                    </div>
-
-
-                    <label
-                        for="productPhoto"
-                        class="photo-upload"
-                    >
-
-                        <span class="photo-upload-icon">
-                            +
-                        </span>
-
-                        <span>
-                            Выбрать фотографию
-                        </span>
-
-                    </label>
-
-
-                    <input
-                        type="file"
-                        id="productPhoto"
-                        accept="image/*"
-                        hidden
-                    >
-
-
-                    <div
-                        id="photoPreview"
-                        class="photo-preview"
-                    >
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- ACTIONS -->
-
-                <div class="modal-actions">
-
-
-                    <button
-                        type="button"
-                        id="cancelProductButton"
-                        class="button-secondary"
-                    >
-                        Отмена
-                    </button>
-
-
-                    <button
-                        type="submit"
-                        class="button-primary"
-                    >
-                        Сохранить товар
-                    </button>
-
-                </div>
-
-
-            </form>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- ==========================================
          SCRIPTS
-         
-         ВАЖНО:
-         СНАЧАЛА БАЗА ТОВАРОВ
-         ПОТОМ APP.JS
     =========================================== -->
 
     <script src="products-data.js"></script>
