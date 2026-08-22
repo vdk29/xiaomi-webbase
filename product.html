@@ -23,68 +23,42 @@
 <body>
 
 
-    <!-- =========================================
-         HEADER
-    ========================================== -->
+<header class="header">
 
-    <header class="header">
+    <div class="container header-container">
 
-        <div class="container header-container">
-
-
-            <a
-                href="index.html"
-                class="back-button"
-            >
-                ← Назад
-            </a>
+        <a
+            href="index.html"
+            class="back-button"
+        >
+            ← Назад
+        </a>
 
 
-            <div class="logo">
-                Xiaomi WebBase
-            </div>
-
-
+        <div class="logo">
+            Xiaomi WebBase
         </div>
 
-    </header>
+    </div>
+
+</header>
 
 
-    <!-- =========================================
-         MAIN
-    ========================================== -->
 
-    <main class="main">
+<main class="main">
 
-        <div class="container">
+    <div class="container">
 
+        <div id="productDetails"></div>
 
-            <div id="productDetails">
+    </div>
 
-                <!--
-                    Информация о товаре
-                    загружается через app.js
-                -->
-
-            </div>
+</main>
 
 
-        </div>
 
-    </main>
-
-
-    <!-- =========================================
-         SCRIPTS
-
-         Сначала база товаров,
-         потом основной JS.
-    ========================================== -->
-
-    <script src="products-data.js"></script>
-
-    <script src="app.js"></script>
-
+<script src="products-data.js"></script>
+<script src="app.js"></script>
 
 </body>
 
