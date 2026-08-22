@@ -1,6 +1,12 @@
-/* ========================================
+/* ======================================================
+   XIAOMI WEBBASE
+   STYLE.CSS
+====================================================== */
+
+
+/* ======================================================
    RESET
-======================================== */
+====================================================== */
 
 * {
     box-sizing: border-box;
@@ -8,99 +14,138 @@
     padding: 0;
 }
 
-
-/* ========================================
-   BODY
-======================================== */
+html {
+    width: 100%;
+    min-height: 100%;
+}
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
+    width: 100%;
+    min-height: 100vh;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
     background: #ffffff;
     color: #191919;
 }
 
 
-/* ========================================
+/* ======================================================
    CONTAINER
-======================================== */
+====================================================== */
 
 .container {
     width: 100%;
     max-width: 1100px;
+
     margin: 0 auto;
-    padding: 0 20px;
+
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 
-/* ========================================
+/* ======================================================
    HEADER
-======================================== */
+====================================================== */
 
 .header {
+    width: 100%;
+
     background: #ffffff;
+
     border-bottom: 1px solid #eeeeee;
 }
 
 .header-container {
     min-height: 72px;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     gap: 20px;
 }
 
 .logo {
     font-size: 22px;
     font-weight: 700;
+
     color: #191919;
 }
 
 .subtitle {
-    margin-top: 3px;
+    margin-top: 4px;
+
     font-size: 14px;
+
     color: #777777;
 }
 
 
-/* ========================================
+/* ======================================================
+   СТАРАЯ КНОПКА В HEADER
+   УБИРАЕМ ЕЁ
+====================================================== */
+
+#openAddProductButton {
+    display: none !important;
+}
+
+
+/* ======================================================
    MAIN
-======================================== */
+====================================================== */
 
 .main {
     padding: 45px 0 60px;
 }
 
 
-/* ========================================
+/* ======================================================
    SEARCH
-======================================== */
+====================================================== */
 
 .search-section {
-    margin-bottom: 40px;
+    margin-bottom: 35px;
 }
 
 .search-section h1 {
-    font-size: 32px;
-    font-weight: 600;
     margin-bottom: 18px;
+
+    font-size: 32px;
+    line-height: 1.2;
+
+    font-weight: 600;
 }
 
 .search-box {
-    display: flex;
     width: 100%;
     max-width: 760px;
+
+    display: flex;
 }
 
 .search-box input {
     flex: 1;
+
+    width: 100%;
     height: 52px;
+
     padding: 0 18px;
 
     border: 1px solid #dcdcdc;
     border-right: none;
+
     border-radius: 8px 0 0 8px;
 
+    background: #ffffff;
+
     font-size: 16px;
+
     outline: none;
 }
 
@@ -112,10 +157,13 @@ body {
     width: 110px;
     height: 52px;
 
+    flex-shrink: 0;
+
     border: none;
     border-radius: 0 8px 8px 0;
 
     background: #ff6900;
+
     color: #ffffff;
 
     font-size: 16px;
@@ -123,52 +171,66 @@ body {
 
     cursor: pointer;
 
-    transition:
-        background 0.2s ease,
-        transform 0.1s ease;
+    transition: 0.2s ease;
 }
 
 .search-box button:hover {
     background: #e85d00;
 }
 
-.search-box button:active {
-    transform: scale(0.98);
-}
 
-
-/* ========================================
-   ADMIN / ADD PRODUCT
-======================================== */
-
-.admin-actions {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 40px;
-    flex-wrap: wrap;
-}
+/* ======================================================
+   ADD PRODUCT BUTTON
+   НОВАЯ АККУРАТНАЯ КНОПКА
+====================================================== */
 
 .add-product-button {
-    border: none;
-    background: #191919;
-    color: #ffffff;
+    display: inline-flex;
 
-    padding: 13px 20px;
+    align-items: center;
+    justify-content: center;
+
+    width: auto;
+
+    min-width: 0;
+
+    height: 42px;
+
+    margin: 0 0 28px 0;
+
+    padding: 0 16px;
+
+    border: 1px solid #191919;
 
     border-radius: 8px;
 
-    font-size: 15px;
+    background: #191919;
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
     font-weight: 600;
+
+    line-height: 1;
+
+    white-space: nowrap;
 
     cursor: pointer;
 
     transition:
         background 0.2s ease,
-        transform 0.1s ease;
+        transform 0.1s ease,
+        box-shadow 0.2s ease;
 }
 
 .add-product-button:hover {
     background: #333333;
+
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .add-product-button:active {
@@ -176,88 +238,119 @@ body {
 }
 
 
-/* ========================================
+/* ======================================================
+   ADMIN ACTIONS
+====================================================== */
+
+.admin-actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 30px;
+}
+
+
+/* ======================================================
    CATEGORIES
-======================================== */
+====================================================== */
 
 .categories {
-    margin-bottom: 45px;
+    margin-bottom: 42px;
 }
 
 .categories h2,
 .products h2 {
+    margin-bottom: 17px;
+
     font-size: 22px;
+
     font-weight: 600;
-    margin-bottom: 18px;
 }
 
 .category-list {
     display: flex;
+
     flex-wrap: wrap;
+
     gap: 10px;
 }
 
 .category-button {
-    background: #ffffff;
+    height: 42px;
+
+    padding: 0 17px;
 
     border: 1px solid #dddddd;
 
-    padding: 11px 18px;
-
     border-radius: 7px;
 
-    font-size: 15px;
+    background: #ffffff;
+
+    color: #333333;
+
+    font-family: inherit;
+
+    font-size: 14px;
 
     cursor: pointer;
 
-    transition:
-        all 0.2s ease;
+    transition: 0.2s ease;
 }
 
 .category-button:hover {
     border-color: #ff6900;
+
     color: #ff6900;
 }
 
 .category-button.active {
     background: #ff6900;
+
     border-color: #ff6900;
-    color: #ffffff;
-}
 
-.category-button.active:hover {
-    background: #e85d00;
-    border-color: #e85d00;
     color: #ffffff;
 }
 
 
-/* ========================================
+/* ======================================================
    PRODUCTS
-======================================== */
+====================================================== */
 
 .products {
     margin-top: 10px;
 }
 
+.section-title {
+    margin-bottom: 18px;
+}
+
 .products-list {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
     gap: 18px;
 }
 
 
-/* ========================================
+/* ======================================================
    PRODUCT CARD
-======================================== */
+====================================================== */
 
 .product-card {
+    min-width: 0;
+
+    padding: 20px;
+
     border: 1px solid #e7e7e7;
+
     border-radius: 10px;
 
     background: #ffffff;
-
-    padding: 20px;
 
     cursor: pointer;
 
@@ -280,20 +373,22 @@ body {
     width: 100%;
     height: 190px;
 
+    margin-bottom: 18px;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
 
-    background: #f7f7f7;
+    overflow: hidden;
 
     border-radius: 8px;
 
-    margin-bottom: 18px;
+    background: #f7f7f7;
 
     color: #999999;
-    font-size: 14px;
 
-    overflow: hidden;
+    font-size: 14px;
 }
 
 .product-image img {
@@ -304,25 +399,35 @@ body {
 }
 
 .product-name {
-    font-size: 18px;
-    font-weight: 600;
     margin-bottom: 8px;
+
+    font-size: 18px;
+
+    font-weight: 600;
+
+    line-height: 1.3;
 }
 
 .product-info {
-    color: #666666;
-    font-size: 14px;
     margin-bottom: 18px;
+
+    color: #666666;
+
+    font-size: 14px;
 }
 
 .stock {
-    border-top: 1px solid #eeeeee;
     padding-top: 14px;
+
+    border-top: 1px solid #eeeeee;
 }
 
 .stock-row {
     display: flex;
+
     justify-content: space-between;
+
+    gap: 10px;
 
     margin-bottom: 7px;
 
@@ -339,32 +444,35 @@ body {
 
 .stock-total {
     margin-top: 10px;
+
     font-size: 16px;
 }
 
 .stock-total span:last-child {
     color: #ff6900;
+
     font-size: 18px;
 }
 
 
-/* ========================================
-   EMPTY RESULT
-======================================== */
+/* ======================================================
+   EMPTY
+====================================================== */
 
 .empty-result {
     padding: 30px 0;
+
     color: #777777;
 }
 
 .empty-result strong {
     display: block;
 
+    margin-bottom: 6px;
+
     color: #333333;
 
     font-size: 18px;
-
-    margin-bottom: 6px;
 }
 
 .empty-result p {
@@ -372,43 +480,22 @@ body {
 }
 
 
-/* ========================================
+/* ======================================================
    PRODUCT PAGE
-======================================== */
-
-.back-button {
-    display: inline-flex;
-    align-items: center;
-
-    color: #555555;
-
-    text-decoration: none;
-
-    font-size: 14px;
-    font-weight: 500;
-
-    transition: color 0.2s ease;
-}
-
-.back-button:hover {
-    color: #ff6900;
-}
-
-
-/* ========================================
-   PRODUCT LAYOUT
-======================================== */
+====================================================== */
 
 .product-page {
-    display: grid;
-
-    grid-template-columns: 380px 1fr;
-
-    gap: 55px;
-
+    width: 100%;
     max-width: 1000px;
 
     margin: 10px auto 0;
+
+    display: grid;
+
+    grid-template-columns:
+        380px minmax(0, 1fr);
+
+    gap: 55px;
 }
 
 .product-page-image {
@@ -416,81 +503,98 @@ body {
     height: 430px;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
-    background: #f7f7f7;
+    overflow: hidden;
 
     border-radius: 12px;
+
+    background: #f7f7f7;
 
     color: #999999;
 
     font-size: 14px;
-
-    overflow: hidden;
 }
 
 .product-page-image img {
     width: 100%;
     height: 100%;
+
     object-fit: contain;
 }
 
 .product-page-content {
+    min-width: 0;
+
     padding-top: 5px;
 }
 
 .product-category {
-    color: #888888;
-    font-size: 14px;
     margin-bottom: 7px;
+
+    color: #888888;
+
+    font-size: 14px;
 }
 
 .product-page-content h1 {
-    font-size: 34px;
-    font-weight: 600;
-    line-height: 1.2;
     margin-bottom: 10px;
+
+    font-size: 34px;
+
+    line-height: 1.2;
+
+    font-weight: 600;
 }
 
 .product-memory {
-    font-size: 18px;
-    color: #444444;
     margin-bottom: 8px;
+
+    color: #444444;
+
+    font-size: 18px;
 }
 
 .product-color {
-    color: #777777;
-    font-size: 15px;
     margin-bottom: 30px;
+
+    color: #777777;
+
+    font-size: 15px;
 }
 
 
-/* ========================================
+/* ======================================================
    PRODUCT SECTIONS
-======================================== */
+====================================================== */
 
 .product-stock,
 .product-description,
 .product-specs,
 .product-tip {
-    border-top: 1px solid #eeeeee;
     padding: 24px 0;
+
+    border-top: 1px solid #eeeeee;
 }
 
 .product-page-content h2 {
-    font-size: 20px;
-    font-weight: 600;
     margin-bottom: 16px;
+
+    font-size: 20px;
+
+    font-weight: 600;
 }
 
 
-/* ========================================
-   STOCK CONTROL
-======================================== */
+/* ======================================================
+   STOCK
+====================================================== */
 
 .stock-control {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
 
@@ -505,7 +609,9 @@ body {
 
 .quantity-control {
     display: flex;
+
     align-items: center;
+
     gap: 12px;
 }
 
@@ -523,38 +629,24 @@ body {
 
     border: 1px solid #dddddd;
 
-    background: #ffffff;
-
     border-radius: 6px;
+
+    background: #ffffff;
 
     font-size: 20px;
 
-    line-height: 1;
-
     cursor: pointer;
-
-    transition:
-        background 0.2s ease,
-        border-color 0.2s ease,
-        color 0.2s ease;
 }
 
 .quantity-button:hover {
     border-color: #ff6900;
+
     color: #ff6900;
 }
 
-.quantity-button:active {
-    background: #fff3eb;
-}
-
-
-/* ========================================
-   TOTAL
-======================================== */
-
 .stock-big-row {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
 
@@ -567,11 +659,6 @@ body {
     color: #666666;
 }
 
-.stock-big-row strong {
-    font-size: 16px;
-    color: #191919;
-}
-
 .stock-big-row.total {
     margin-top: 7px;
 
@@ -582,15 +669,17 @@ body {
 
 .stock-big-row.total strong {
     color: #ff6900;
+
     font-size: 22px;
 }
 
 
-/* ========================================
+/* ======================================================
    DESCRIPTION
-======================================== */
+====================================================== */
 
-.product-description p {
+.product-description p,
+.product-tip p {
     color: #555555;
 
     font-size: 15px;
@@ -599,15 +688,15 @@ body {
 }
 
 
-/* ========================================
-   SPECIFICATIONS
-======================================== */
+/* ======================================================
+   SPECS
+====================================================== */
 
 .spec-row {
     display: flex;
 
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
 
     gap: 20px;
 
@@ -631,9 +720,9 @@ body {
 }
 
 
-/* ========================================
+/* ======================================================
    SELLER TIP
-======================================== */
+====================================================== */
 
 .product-tip {
     margin-bottom: 40px;
@@ -644,223 +733,261 @@ body {
 }
 
 .product-tip p {
-    color: #555555;
-
-    font-size: 15px;
-
-    line-height: 1.6;
-
-    background: #fff7f0;
+    padding: 14px 16px;
 
     border-left: 3px solid #ff6900;
 
-    padding: 14px 16px;
-
     border-radius: 0 6px 6px 0;
+
+    background: #fff7f0;
 }
 
 
 /* ======================================================
    MODAL
-   ОКНО ДОБАВЛЕНИЯ ТОВАРА
+   ВАЖНО:
+   JS СОЗДАЁТ #productModalOverlay
 ====================================================== */
 
-.modal-overlay {
-    position: fixed;
+#productModalOverlay {
+    position: fixed !important;
 
-    inset: 0;
+    inset: 0 !important;
 
-    width: 100%;
-    height: 100%;
+    width: 100vw !important;
+    height: 100vh !important;
 
-    background: rgba(0, 0, 0, 0.55);
+    display: flex !important;
 
-    display: flex;
+    align-items: center !important;
+    justify-content: center !important;
 
-    align-items: center;
-    justify-content: center;
+    padding: 20px !important;
 
-    padding: 20px;
+    background: rgba(0, 0, 0, 0.58) !important;
 
-    z-index: 99999;
+    z-index: 999999 !important;
 
     opacity: 0;
+
     visibility: hidden;
+
+    pointer-events: none;
 
     transition:
         opacity 0.2s ease,
         visibility 0.2s ease;
 }
 
-
-/* Открытое окно */
-
-.modal-overlay.active {
+#productModalOverlay.active {
     opacity: 1;
+
     visibility: visible;
+
+    pointer-events: auto;
 }
 
 
-/* ========================================
+/* ======================================================
    MODAL WINDOW
-======================================== */
+====================================================== */
 
-.modal {
-    position: relative;
+#productModalOverlay .modal {
+    position: relative !important;
 
-    width: 100%;
+    width: 100% !important;
 
-    max-width: 650px;
+    max-width: 620px !important;
 
-    max-height: calc(100vh - 40px);
+    max-height: calc(100vh - 40px) !important;
 
-    overflow-y: auto;
+    margin: 0 !important;
 
-    background: #ffffff;
+    padding: 24px !important;
 
-    border-radius: 14px;
+    overflow-y: auto !important;
+
+    border-radius: 14px !important;
+
+    background: #ffffff !important;
 
     box-shadow:
-        0 20px 60px rgba(0, 0, 0, 0.25);
+        0 24px 80px rgba(0, 0, 0, 0.28) !important;
 
-    padding: 28px;
-
-    transform: translateY(15px);
+    transform: translateY(12px);
 
     transition:
         transform 0.2s ease;
 }
 
-.modal-overlay.active .modal {
+#productModalOverlay.active .modal {
     transform: translateY(0);
 }
 
 
-/* ========================================
+/* ======================================================
    MODAL HEADER
-======================================== */
+====================================================== */
 
-.modal-header {
+#productModalOverlay .modal-header {
+    position: sticky;
+
+    top: -24px;
+
+    z-index: 5;
+
     display: flex;
 
     align-items: center;
     justify-content: space-between;
 
-    gap: 20px;
+    gap: 15px;
 
-    margin-bottom: 25px;
+    margin: -24px -24px 22px;
 
-    padding-bottom: 18px;
+    padding: 20px 24px;
+
+    background: #ffffff;
 
     border-bottom: 1px solid #eeeeee;
 }
 
-.modal-header h2 {
-    font-size: 24px;
-    font-weight: 600;
-}
-
-.modal-close {
-    flex-shrink: 0;
-
-    width: 36px;
-    height: 36px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border: none;
-
-    background: #f5f5f5;
-
-    border-radius: 50%;
+#productModalOverlay .modal-header h2 {
+    margin: 0;
 
     font-size: 22px;
 
-    line-height: 1;
-
-    color: #555555;
-
-    cursor: pointer;
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease;
-}
-
-.modal-close:hover {
-    background: #eeeeee;
-    color: #191919;
+    font-weight: 600;
 }
 
 
-/* ========================================
+/* ======================================================
+   CLOSE BUTTON
+====================================================== */
+
+#productModalOverlay .modal-close {
+    position: relative;
+
+    z-index: 20;
+
+    flex-shrink: 0;
+
+    width: 38px !important;
+    height: 38px !important;
+
+    display: flex !important;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 !important;
+
+    border: 1px solid #dddddd !important;
+
+    border-radius: 50% !important;
+
+    background: #f5f5f5 !important;
+
+    color: #333333 !important;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    font-size: 25px !important;
+
+    line-height: 1 !important;
+
+    cursor: pointer !important;
+
+    pointer-events: auto !important;
+
+    appearance: none;
+
+    -webkit-appearance: none;
+}
+
+#productModalOverlay .modal-close:hover {
+    background: #e9e9e9 !important;
+
+    color: #000000 !important;
+}
+
+#productModalOverlay .modal-close:active {
+    transform: scale(0.94);
+}
+
+
+/* ======================================================
    FORM
-======================================== */
+====================================================== */
 
-.product-form {
+#productModalOverlay .product-form {
+    width: 100%;
+
     display: flex;
+
     flex-direction: column;
 
     gap: 18px;
 }
 
-.form-group {
+#productModalOverlay .form-group {
+    width: 100%;
+
     display: flex;
+
     flex-direction: column;
 
     gap: 7px;
 }
 
-.form-group label {
+#productModalOverlay .form-group label {
+    color: #333333;
+
     font-size: 14px;
 
     font-weight: 600;
-
-    color: #333333;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
+#productModalOverlay .form-group input,
+#productModalOverlay .form-group select,
+#productModalOverlay .form-group textarea {
+    width: 100% !important;
+
+    max-width: 100% !important;
 
     border: 1px solid #dcdcdc;
 
-    background: #ffffff;
-
     border-radius: 8px;
 
-    padding: 12px 14px;
+    background: #ffffff;
+
+    color: #191919;
 
     font-family: Arial, Helvetica, sans-serif;
 
     font-size: 15px;
 
-    color: #191919;
-
     outline: none;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
 }
 
-.form-group input,
-.form-group select {
+#productModalOverlay .form-group input,
+#productModalOverlay .form-group select {
     height: 46px;
+
+    padding: 0 13px;
 }
 
-.form-group textarea {
+#productModalOverlay .form-group textarea {
     min-height: 100px;
+
+    padding: 12px 13px;
 
     resize: vertical;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+#productModalOverlay .form-group input:focus,
+#productModalOverlay .form-group select:focus,
+#productModalOverlay .form-group textarea:focus {
     border-color: #ff6900;
 
     box-shadow:
@@ -868,123 +995,115 @@ body {
 }
 
 
-/* ========================================
+/* ======================================================
    CHARACTERISTICS
-======================================== */
+====================================================== */
 
-.characteristics {
-    margin-top: 5px;
+#productModalOverlay .characteristics {
+    width: 100%;
 
-    padding: 20px;
+    margin-top: 3px;
 
-    background: #f8f8f8;
+    padding: 18px;
+
+    border: 1px solid #eeeeee;
 
     border-radius: 10px;
 
-    border: 1px solid #eeeeee;
+    background: #f8f8f8;
 }
 
-.characteristics-title {
-    font-size: 18px;
+#productModalOverlay .characteristics-title {
+    margin-bottom: 16px;
+
+    color: #191919;
+
+    font-size: 17px;
 
     font-weight: 600;
-
-    margin-bottom: 18px;
 }
 
-.characteristics-grid {
-    display: grid;
-
-    grid-template-columns: 1fr 1fr;
-
-    gap: 14px;
-}
-
-
-/* ========================================
-   STOCK FORM
-======================================== */
-
-.stock-form {
-    display: grid;
-
-    grid-template-columns: 1fr 1fr;
-
-    gap: 14px;
-
-    margin-top: 5px;
-}
-
-.stock-form .form-group {
-    gap: 7px;
-}
-
-
-/* ========================================
-   PHOTO
-======================================== */
-
-.photo-upload {
+#productModalOverlay .characteristics-grid {
     width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
+}
+
+
+/* ======================================================
+   STOCK FORM
+====================================================== */
+
+#productModalOverlay .stock-form {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
+}
+
+
+/* ======================================================
+   PHOTO
+====================================================== */
+
+#productModalOverlay .photo-upload {
+    width: 100%;
+
+    display: block;
+
+    padding: 18px;
 
     border: 1px dashed #cccccc;
 
     border-radius: 10px;
 
-    padding: 18px;
-
     background: #fafafa;
 
     text-align: center;
 
-    transition:
-        border-color 0.2s ease,
-        background 0.2s ease;
+    cursor: pointer;
 }
 
-.photo-upload:hover {
+#productModalOverlay .photo-upload:hover {
     border-color: #ff6900;
 
     background: #fffaf6;
 }
 
-.photo-upload input[type="file"] {
-    width: 100%;
-
-    font-size: 14px;
-
+#productModalOverlay .photo-upload input {
     cursor: pointer;
 }
 
-
-/* ========================================
-   PHOTO PREVIEW
-======================================== */
-
-.photo-preview {
+#productModalOverlay .photo-preview {
     display: none;
 
-    margin-top: 15px;
-
     width: 100%;
-
     height: 180px;
 
-    border-radius: 8px;
+    margin-top: 14px;
 
     overflow: hidden;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
 
     background: #f5f5f5;
 }
 
-.photo-preview.active {
+#productModalOverlay .photo-preview.active {
     display: flex;
-
-    align-items: center;
-    justify-content: center;
 }
 
-.photo-preview img {
+#productModalOverlay .photo-preview img {
     width: 100%;
     height: 100%;
 
@@ -992,100 +1111,84 @@ body {
 }
 
 
-/* ========================================
+/* ======================================================
    FORM ACTIONS
-======================================== */
+====================================================== */
 
-.form-actions {
+#productModalOverlay .form-actions {
     display: flex;
 
+    align-items: center;
     justify-content: flex-end;
 
     gap: 10px;
 
-    margin-top: 8px;
+    margin-top: 4px;
 
-    padding-top: 20px;
+    padding-top: 18px;
 
     border-top: 1px solid #eeeeee;
 }
 
-.form-button {
-    min-height: 46px;
+#productModalOverlay .form-button {
+    min-height: 44px;
 
-    padding: 0 20px;
+    padding: 0 18px;
 
     border-radius: 8px;
 
-    font-size: 15px;
+    font-family: inherit;
+
+    font-size: 14px;
 
     font-weight: 600;
 
     cursor: pointer;
-
-    transition:
-        background 0.2s ease,
-        border-color 0.2s ease,
-        color 0.2s ease,
-        transform 0.1s ease;
 }
 
-.form-button:active {
-    transform: scale(0.98);
-}
+#productModalOverlay .form-button.cancel {
+    border: 1px solid #dddddd;
 
-.form-button.cancel {
     background: #ffffff;
 
     color: #555555;
-
-    border: 1px solid #dddddd;
 }
 
-.form-button.cancel:hover {
+#productModalOverlay .form-button.cancel:hover {
     background: #f5f5f5;
 }
 
-.form-button.save {
+#productModalOverlay .form-button.save {
+    border: 1px solid #ff6900;
+
     background: #ff6900;
 
     color: #ffffff;
-
-    border: 1px solid #ff6900;
 }
 
-.form-button.save:hover {
+#productModalOverlay .form-button.save:hover {
     background: #e85d00;
-
-    border-color: #e85d00;
 }
 
 
-/* ========================================
-   DELETE BUTTON
-======================================== */
+/* ======================================================
+   DELETE
+====================================================== */
 
 .delete-product-button {
-    border: none;
+    border: 1px solid #e0b5b1;
+
+    border-radius: 7px;
+
+    padding: 11px 16px;
 
     background: #ffffff;
 
     color: #d93025;
 
-    border: 1px solid #e0b5b1;
-
-    padding: 11px 16px;
-
-    border-radius: 7px;
-
     font-size: 14px;
 
     cursor: pointer;
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        border-color 0.2s ease;
 }
 
 .delete-product-button:hover {
@@ -1095,32 +1198,43 @@ body {
 }
 
 
-/* ========================================
-   SCROLLBAR MODAL
-======================================== */
+/* ======================================================
+   MODAL SCROLLBAR
+====================================================== */
 
-.modal::-webkit-scrollbar {
+#productModalOverlay .modal::-webkit-scrollbar {
     width: 7px;
 }
 
-.modal::-webkit-scrollbar-track {
+#productModalOverlay .modal::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.modal::-webkit-scrollbar-thumb {
-    background: #cccccc;
-
+#productModalOverlay .modal::-webkit-scrollbar-thumb {
     border-radius: 10px;
+
+    background: #cccccc;
 }
 
-.modal::-webkit-scrollbar-thumb:hover {
+#productModalOverlay .modal::-webkit-scrollbar-thumb:hover {
     background: #aaaaaa;
 }
 
 
-/* ========================================
-   DESKTOP / TABLET
-======================================== */
+/* ======================================================
+   СТАРЫЙ HTML-МОДАЛ
+   JS СОЗДАЁТ СВОЙ МОДАЛ.
+   СТАРЫЙ НЕ ПОКАЗЫВАЕМ, ЧТОБЫ НЕ БЫЛО ДУБЛЯ.
+====================================================== */
+
+body > #productModal {
+    display: none !important;
+}
+
+
+/* ======================================================
+   TABLET
+====================================================== */
 
 @media (max-width: 800px) {
 
@@ -1145,15 +1259,14 @@ body {
     }
 
     .products-list {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
     }
 
     .product-page {
         grid-template-columns: 1fr;
 
         gap: 25px;
-
-        margin-top: 0;
     }
 
     .product-page-image {
@@ -1164,29 +1277,36 @@ body {
         font-size: 28px;
     }
 
-    .modal {
-        max-width: 620px;
-    }
-
 }
 
 
-/* ========================================
+/* ======================================================
    MOBILE
-======================================== */
+====================================================== */
 
 @media (max-width: 520px) {
 
     .container {
-        padding: 0 15px;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .main {
+        padding-top: 25px;
     }
 
     .search-section {
-        margin-bottom: 32px;
+        margin-bottom: 28px;
+    }
+
+    .search-section h1 {
+        font-size: 25px;
     }
 
     .search-box {
         display: block;
+
+        max-width: none;
     }
 
     .search-box input {
@@ -1196,7 +1316,7 @@ body {
 
         border-radius: 8px;
 
-        margin-bottom: 10px;
+        margin-bottom: 9px;
     }
 
     .search-box button {
@@ -1205,15 +1325,45 @@ body {
         border-radius: 8px;
     }
 
+
+    /* КНОПКА ДОБАВЛЕНИЯ */
+
+    .add-product-button {
+        width: auto;
+
+        height: 40px;
+
+        margin-bottom: 25px;
+
+        padding: 0 14px;
+
+        border-radius: 7px;
+
+        font-size: 13px;
+    }
+
+
+    /* КАТЕГОРИИ */
+
     .category-list {
         display: grid;
 
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 8px;
     }
 
     .category-button {
         width: 100%;
+
+        padding: 0 8px;
+
+        font-size: 13px;
     }
+
+
+    /* ТОВАРЫ */
 
     .products-list {
         grid-template-columns: 1fr;
@@ -1222,6 +1372,9 @@ body {
     .product-image {
         height: 220px;
     }
+
+
+    /* СТРАНИЦА ТОВАРА */
 
     .product-page {
         gap: 20px;
@@ -1235,97 +1388,109 @@ body {
         font-size: 26px;
     }
 
-    .product-memory {
-        font-size: 17px;
+
+    /* ==================================================
+       MODAL MOBILE
+    ================================================== */
+
+    #productModalOverlay {
+        align-items: flex-start !important;
+
+        padding: 10px !important;
     }
 
-    .spec-row {
-        align-items: flex-start;
+    #productModalOverlay .modal {
+        width: 100% !important;
+
+        max-width: none !important;
+
+        max-height:
+            calc(100vh - 20px) !important;
+
+        padding: 20px !important;
+
+        border-radius: 12px !important;
     }
 
-    .stock-control {
-        padding: 12px 0;
+    #productModalOverlay .modal-header {
+        top: -20px;
+
+        margin:
+            -20px -20px 20px;
+
+        padding:
+            17px 20px;
     }
 
-    .quantity-button {
-        width: 38px;
-        height: 38px;
+    #productModalOverlay .modal-header h2 {
+        font-size: 20px;
+    }
+
+    #productModalOverlay .modal-close {
+        width: 36px !important;
+        height: 36px !important;
     }
 
 
-    /* ====================================
-       MOBILE MODAL
-    ==================================== */
+    /* ХАРАКТЕРИСТИКИ */
 
-    .modal-overlay {
-        align-items: flex-start;
-
-        padding: 10px;
-    }
-
-    .modal {
-        max-height: calc(100vh - 20px);
-
-        padding: 20px;
-
-        border-radius: 12px;
-    }
-
-    .modal-header {
-        margin-bottom: 20px;
-    }
-
-    .modal-header h2 {
-        font-size: 21px;
-    }
-
-    .characteristics {
+    #productModalOverlay .characteristics {
         padding: 15px;
     }
 
-    .characteristics-grid {
+    #productModalOverlay .characteristics-grid {
         grid-template-columns: 1fr;
     }
 
-    .stock-form {
+
+    /* НАЛИЧИЕ */
+
+    #productModalOverlay .stock-form {
         grid-template-columns: 1fr;
     }
 
-    .form-actions {
+
+    /* КНОПКИ */
+
+    #productModalOverlay .form-actions {
         flex-direction: column-reverse;
+
+        align-items: stretch;
     }
 
-    .form-button {
-        width: 100%;
-    }
-
-    .admin-actions {
-        display: block;
-    }
-
-    .add-product-button {
+    #productModalOverlay .form-button {
         width: 100%;
     }
 
 }
 
 
-/* ========================================
-   VERY SMALL PHONES
-======================================== */
+/* ======================================================
+   VERY SMALL PHONE
+====================================================== */
 
 @media (max-width: 360px) {
 
-    .modal {
-        padding: 16px;
+    #productModalOverlay .modal {
+        padding: 16px !important;
     }
 
-    .modal-header h2 {
-        font-size: 19px;
+    #productModalOverlay .modal-header {
+        top: -16px;
+
+        margin:
+            -16px -16px 18px;
+
+        padding:
+            15px 16px;
     }
 
-    .form-group input,
-    .form-group select {
+    #productModalOverlay .modal-header h2 {
+        font-size: 18px;
+    }
+
+    #productModalOverlay .form-group input,
+    #productModalOverlay .form-group select {
         height: 44px;
     }
 
