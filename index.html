@@ -23,200 +23,196 @@
 <body>
 
 
-    <!-- ==========================================
-         HEADER
-    =========================================== -->
+<header class="header">
 
-    <header class="header">
+    <div class="container header-container">
 
-        <div class="container header-container">
+        <div>
 
-            <div>
+            <div class="logo">
+                Xiaomi WebBase
+            </div>
 
-                <div class="logo">
-                    Xiaomi WebBase
-                </div>
-
-                <div class="subtitle">
-                    Внутренняя база магазина
-                </div>
-
+            <div class="subtitle">
+                Внутренняя база магазина
             </div>
 
         </div>
 
-    </header>
 
+        <div class="header-actions">
 
+            <label
+                for="excelInput"
+                class="excel-upload-button"
+            >
+                Загрузить выгрузку 1С
+            </label>
 
-    <!-- ==========================================
-         MAIN
-    =========================================== -->
-
-    <main class="main">
-
-        <div class="container">
-
-
-            <!-- ======================================
-                 SEARCH
-            ======================================= -->
-
-            <section class="search-section">
-
-                <h1>
-                    Поиск товара
-                </h1>
-
-
-                <div class="search-box">
-
-                    <input
-                        type="text"
-                        id="searchInput"
-                        placeholder="Введите название товара..."
-                        autocomplete="off"
-                    >
-
-
-                    <button
-                        type="button"
-                        id="searchButton"
-                    >
-                        Найти
-                    </button>
-
-                </div>
-
-
-                <!--
-                    ЕДИНСТВЕННАЯ КНОПКА ДОБАВЛЕНИЯ
-                    JS подключит к ней открытие окна
-                -->
-
-                <button
-                    type="button"
-                    id="addProductButton"
-                    class="add-product-button"
-                >
-                    ＋ Добавить товар с поставки
-                </button>
-
-            </section>
-
-
-
-            <!-- ======================================
-                 CATEGORIES
-            ======================================= -->
-
-            <section class="categories">
-
-                <h2>
-                    Категории
-                </h2>
-
-
-                <div class="category-list">
-
-
-                    <button
-                        type="button"
-                        class="category-button active"
-                        data-category="Все"
-                    >
-                        Все товары
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="category-button"
-                        data-category="Смартфоны"
-                    >
-                        Смартфоны
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="category-button"
-                        data-category="Планшеты"
-                    >
-                        Планшеты
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="category-button"
-                        data-category="Смарт-часы"
-                    >
-                        Смарт-часы
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="category-button"
-                        data-category="Фитнес-браслеты"
-                    >
-                        Фитнес-браслеты
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="category-button"
-                        data-category="Аксессуары"
-                    >
-                        Аксессуары
-                    </button>
-
-                </div>
-
-            </section>
-
-
-
-            <!-- ======================================
-                 PRODUCTS
-            ======================================= -->
-
-            <section class="products">
-
-                <div class="section-title">
-
-                    <h2>
-                        Товары
-                    </h2>
-
-                </div>
-
-
-                <div
-                    id="productsList"
-                    class="products-list"
-                >
-
-                </div>
-
-            </section>
-
+            <input
+                type="file"
+                id="excelInput"
+                accept=".xlsx,.xls"
+                hidden
+            >
 
         </div>
 
-    </main>
+    </div>
+
+</header>
 
 
 
-    <!-- ==========================================
-         SCRIPTS
-    =========================================== -->
+<main class="main">
 
-    <script src="products-data.js"></script>
+    <div class="container">
 
-    <script src="app.js"></script>
+
+        <!-- ПОИСК -->
+
+        <section class="search-section">
+
+            <h1>
+                Поиск товара
+            </h1>
+
+
+            <div class="search-box">
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Введите название товара..."
+                    autocomplete="off"
+                >
+
+
+                <button
+                    type="button"
+                    id="searchButton"
+                >
+                    Найти
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- КАТЕГОРИИ -->
+
+        <section class="categories">
+
+            <h2>
+                Категории
+            </h2>
+
+
+            <div class="category-list">
+
+                <button
+                    type="button"
+                    class="category-button active"
+                    data-category="Все"
+                >
+                    Все товары
+                </button>
+
+
+                <button
+                    type="button"
+                    class="category-button"
+                    data-category="Смартфоны"
+                >
+                    Смартфоны
+                </button>
+
+
+                <button
+                    type="button"
+                    class="category-button"
+                    data-category="Планшеты"
+                >
+                    Планшеты
+                </button>
+
+
+                <button
+                    type="button"
+                    class="category-button"
+                    data-category="Смарт-часы"
+                >
+                    Смарт-часы
+                </button>
+
+
+                <button
+                    type="button"
+                    class="category-button"
+                    data-category="Фитнес-браслеты"
+                >
+                    Фитнес-браслеты
+                </button>
+
+
+                <button
+                    type="button"
+                    class="category-button"
+                    data-category="Аксессуары"
+                >
+                    Аксессуары
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ТОВАРЫ -->
+
+        <section class="products">
+
+            <div class="section-title">
+
+                <h2>
+                    Товары
+                </h2>
+
+            </div>
+
+
+            <div
+                id="productsList"
+                class="products-list"
+            ></div>
+
+        </section>
+
+
+    </div>
+
+</main>
+
+
+
+<!-- XLSX -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"
+></script>
+
+
+<!-- DATA -->
+
+<script src="products-data.js"></script>
+
+
+<!-- APP -->
+
+<script src="app.js"></script>
 
 
 </body>
