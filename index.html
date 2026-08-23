@@ -103,7 +103,7 @@
 
 
         <!-- ==================================================
-             ЗАГРУЗКА ТАБЛИЦЫ
+             ЗАГРУЗКА БАЗЫ 1С
         ================================================== -->
 
         <section class="import-section">
@@ -114,39 +114,46 @@
                     Загрузка базы из 1С
                 </div>
 
+
                 <div class="import-description">
+
                     Загрузите выгрузку товаров из 1С.
                     Сайт автоматически обработает таблицу
                     и создаст карточки товаров.
+
                 </div>
 
 
                 <label
-                    for="productsFile"
+                    for="fileInput"
                     class="import-button"
                 >
 
-                    Загрузить таблицу
+                    Выбрать файл 1С
 
                 </label>
 
 
                 <input
                     type="file"
-                    id="productsFile"
+                    id="fileInput"
                     accept=".xlsx,.xls,.csv"
                     hidden
                 >
 
 
                 <div
+                    id="fileName"
+                    class="import-file-name"
+                >
+                    Файл не выбран
+                </div>
+
+
+                <div
                     id="importStatus"
                     class="import-status"
-                >
-
-                    Файл ещё не загружен
-
-                </div>
+                ></div>
 
             </div>
 
@@ -168,6 +175,7 @@
                     placeholder="Поиск товара..."
                     autocomplete="off"
                 >
+
 
                 <button
                     type="button"
@@ -257,7 +265,8 @@
             >
 
                 <!--
-                    Товары загружаются через app.js
+                    Сюда JavaScript автоматически
+                    загрузит товары.
                 -->
 
             </div>
@@ -292,15 +301,25 @@
 
 
     <!-- ==================================================
-         SCRIPTS
+         БИБЛИОТЕКА ДЛЯ EXCEL
     ================================================== -->
 
-    <!-- Данные тестового товара -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"
+    ></script>
+
+
+
+    <!-- ==================================================
+         PRODUCTS DATA
+    ================================================== -->
 
     <script src="products-data.js"></script>
 
 
-    <!-- Основная логика -->
+    <!-- ==================================================
+         APP
+    ================================================== -->
 
     <script src="app.js"></script>
 
