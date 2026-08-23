@@ -2,52 +2,31 @@
 // XIAOMI WEBBASE
 // PRODUCTS-DATA.JS
 // ======================================================
-// Единая структура данных товаров.
+// ВРЕМЕННАЯ ТЕСТОВАЯ БАЗА
 //
-// ВАЖНО:
-// Сейчас здесь только ОДИН тестовый товар.
-// Позже этот массив будет автоматически
-// заполняться из таблицы 1С.
+// Сейчас используется ОДИН товар.
+// LocalStorage специально НЕ используется.
 //
-// app.js работает именно с массивом products.
+// На следующем этапе сюда подключим
+// импорт таблицы 1С.
 // ======================================================
 
 
 // ======================================================
-// ВЕРСИЯ БАЗЫ
+// ВЕРСИЯ
 // ======================================================
 
-const PRODUCTS_DATABASE_VERSION = "2026-08-23-v1";
-
-
-// ======================================================
-// КЛЮЧИ LOCAL STORAGE
-// ======================================================
-
-const PRODUCTS_STORAGE_KEY =
-    "xiaomiWebBaseProducts";
-
-const PRODUCTS_VERSION_KEY =
-    "xiaomiWebBaseProductsVersion";
+const PRODUCTS_DATABASE_VERSION =
+    "2026-08-23-test-1";
 
 
 // ======================================================
-// БАЗОВЫЕ ТОВАРЫ
-// ======================================================
-//
-// Сейчас только один товар для настройки системы.
-//
-// Позже ручные товары отсюда уберём,
-// а данные будут загружаться из таблицы 1С.
+// ТЕСТОВЫЙ ТОВАР
 // ======================================================
 
 const products = [
 
     {
-
-        // ------------------------------------------------
-        // ОСНОВНАЯ ИНФОРМАЦИЯ
-        // ------------------------------------------------
 
         id: 1001,
 
@@ -60,9 +39,7 @@ const products = [
         color: "Black",
 
 
-        // ------------------------------------------------
-        // ОСТАТКИ
-        // ------------------------------------------------
+        // Остатки
 
         quantity: 3,
 
@@ -73,19 +50,15 @@ const products = [
         ldu: 1,
 
 
-        // ------------------------------------------------
-        // ОПИСАНИЕ
-        // ------------------------------------------------
+        // Описание
 
         description:
-            "Тестовый товар для настройки Xiaomi WebBase. " +
-            "Позже информация будет загружаться автоматически " +
-            "из таблицы 1С.",
+            "Тестовый товар Xiaomi 17. " +
+            "Этот товар используется для настройки системы " +
+            "перед подключением загрузки таблицы 1С.",
 
 
-        // ------------------------------------------------
-        // ХАРАКТЕРИСТИКИ
-        // ------------------------------------------------
+        // Характеристики
 
         specs: {
 
@@ -107,14 +80,10 @@ const products = [
         },
 
 
-        // ------------------------------------------------
-        // ПОДСКАЗКА ПРОДАВЦУ
-        // ------------------------------------------------
+        // Подсказка продавцу
 
         tip:
-            "Тестовая карточка. " +
-            "После подключения таблицы 1С " +
-            "данные будут формироваться автоматически."
+            "Тестовая карточка товара."
 
     }
 
@@ -122,176 +91,41 @@ const products = [
 
 
 // ======================================================
-// СОХРАНЕНИЕ БАЗЫ
+// НОРМАЛИЗАЦИЯ ЧИСЕЛ
 // ======================================================
 
-function saveProducts() {
+function normalizeNumber(value) {
 
-    try {
-
-        localStorage.setItem(
-
-            PRODUCTS_STORAGE_KEY,
-
-            JSON.stringify(products)
-
-        );
+    const result =
+        Number(value);
 
 
-        localStorage.setItem(
+    if (
+        Number.isFinite(result)
+    ) {
 
-            PRODUCTS_VERSION_KEY,
-
-            PRODUCTS_DATABASE_VERSION
-
-        );
-
-
-        console.log(
-            "Xiaomi WebBase: база товаров сохранена."
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "Xiaomi WebBase: ошибка сохранения базы:",
-            error
-        );
+        return result;
 
     }
+
+
+    return 0;
 
 }
 
 
 // ======================================================
-// ЗАГРУЗКА БАЗЫ
-// ======================================================
-
-function loadProducts() {
-
-    try {
-
-        const savedVersion =
-            localStorage.getItem(
-                PRODUCTS_VERSION_KEY
-            );
-
-
-        // ------------------------------------------------
-        // Если версия изменилась —
-        // удаляем старую локальную базу.
-        // ------------------------------------------------
-
-        if (
-            savedVersion &&
-            savedVersion !==
-                PRODUCTS_DATABASE_VERSION
-        ) {
-
-            localStorage.removeItem(
-                PRODUCTS_STORAGE_KEY
-            );
-
-            localStorage.removeItem(
-                PRODUCTS_VERSION_KEY
-            );
-
-        }
-
-
-        const savedProducts =
-            localStorage.getItem(
-                PRODUCTS_STORAGE_KEY
-            );
-
-
-        // ------------------------------------------------
-        // Если сохранённой базы нет —
-        // оставляем тестовый товар.
-        // ------------------------------------------------
-
-        if (!savedProducts) {
-
-            console.log(
-                "Xiaomi WebBase: используется базовая база товаров."
-            );
-
-            return;
-
-        }
-
-
-        const parsedProducts =
-            JSON.parse(
-                savedProducts
-            );
-
-
-        // ------------------------------------------------
-        // Проверяем структуру.
-        // ------------------------------------------------
-
-        if (
-            !Array.isArray(
-                parsedProducts
-            )
-        ) {
-
-            console.warn(
-                "Xiaomi WebBase: сохранённая база имеет неверный формат."
-            );
-
-            return;
-
-        }
-
-
-        // ------------------------------------------------
-        // Загружаем сохранённые товары.
-        // ------------------------------------------------
-
-        products.length = 0;
-
-        products.push(
-            ...parsedProducts
-        );
-
-
-        console.log(
-
-            "Xiaomi WebBase: из LocalStorage загружено",
-            products.length,
-            "товаров."
-
-        );
-
-
-    } catch (error) {
-
-        console.error(
-
-            "Xiaomi WebBase: ошибка загрузки базы:",
-            error
-
-        );
-
-    }
-
-}
-
-
-// ======================================================
-// ПОДГОТОВКА ТОВАРА
+// НОРМАЛИЗАЦИЯ ТОВАРА
 // ======================================================
 //
-// Эта функция пригодится при импорте таблицы 1С.
-//
-// Она приводит значения к нормальному формату,
-// чтобы app.js всегда получал одинаковую структуру.
+// Эта функция будет использоваться,
+// когда подключим таблицу 1С.
 // ======================================================
 
-function normalizeProduct(product, index = 0) {
+function normalizeProduct(
+    product,
+    index = 0
+) {
 
     if (
         !product ||
@@ -304,14 +138,14 @@ function normalizeProduct(product, index = 0) {
 
 
     const display =
-        Number(
-            product.display || 0
+        normalizeNumber(
+            product.display
         );
 
 
     const warehouse =
-        Number(
-            product.warehouse || 0
+        normalizeNumber(
+            product.warehouse
         );
 
 
@@ -357,8 +191,8 @@ function normalizeProduct(product, index = 0) {
 
 
         ldu:
-            Number(
-                product.ldu || 0
+            normalizeNumber(
+                product.ldu
             ),
 
 
@@ -370,7 +204,9 @@ function normalizeProduct(product, index = 0) {
         specs:
             product.specs &&
             typeof product.specs === "object"
+
                 ? product.specs
+
                 : {},
 
 
@@ -384,19 +220,12 @@ function normalizeProduct(product, index = 0) {
 
 
 // ======================================================
-// ПОДГОТОВКА МАССИВА ТОВАРОВ
-// ======================================================
-//
-// Позже сюда можно будет передать товары,
-// полученные из таблицы 1С.
-//
-// Например:
-//
-// const imported = rows.map(normalizeProduct);
-//
+// НОРМАЛИЗАЦИЯ МАССИВА
 // ======================================================
 
-function normalizeProducts(list) {
+function normalizeProducts(
+    list
+) {
 
     if (
         !Array.isArray(list)
@@ -410,33 +239,49 @@ function normalizeProducts(list) {
     return list
 
         .map(
-            (product, index) =>
-                normalizeProduct(
+            (
+                product,
+                index
+            ) => {
+
+                return normalizeProduct(
                     product,
                     index
-                )
+                );
+
+            }
         )
 
         .filter(
-            product =>
-                product !== null
+            product => {
+
+                return (
+                    product !== null
+                );
+
+            }
         );
 
 }
 
 
 // ======================================================
-// ЗАМЕНА ТЕКУЩЕЙ БАЗЫ
+// ЗАМЕНА БАЗЫ
 // ======================================================
 //
-// Эта функция понадобится для импортера 1С.
+// ЭТО БУДЕТ НУЖНО ДЛЯ ИМПОРТА 1С.
 //
-// Сейчас мы её не вызываем.
+// Когда загрузим таблицу:
+//
+// replaceProducts(товарыИзТаблицы);
+//
 // ======================================================
 
-function replaceProducts(newProducts) {
+function replaceProducts(
+    newProducts
+) {
 
-    const normalized =
+    const normalizedProducts =
         normalizeProducts(
             newProducts
         );
@@ -444,25 +289,25 @@ function replaceProducts(newProducts) {
 
     products.length = 0;
 
+
     products.push(
-        ...normalized
+        ...normalizedProducts
     );
-
-
-    saveProducts();
 
 
     console.log(
-
-        "Xiaomi WebBase: база заменена.",
-        products.length,
-        "товаров."
-
+        "Xiaomi WebBase: база заменена."
     );
 
 
-    // Если app.js уже загружен,
-    // обновляем список на экране.
+    console.log(
+        "Товаров:",
+        products.length
+    );
+
+
+    // Если список уже существует
+    // на странице — обновляем его.
 
     if (
         typeof renderProducts ===
@@ -479,14 +324,30 @@ function replaceProducts(newProducts) {
 
 
 // ======================================================
-// ОЧИСТКА БАЗЫ
+// ДОБАВЛЕНИЕ ТОВАРА
 // ======================================================
 
-function clearProducts() {
+function addProduct(
+    product
+) {
 
-    products.length = 0;
+    const normalized =
+        normalizeProduct(
+            product,
+            products.length
+        );
 
-    saveProducts();
+
+    if (!normalized) {
+
+        return false;
+
+    }
+
+
+    products.push(
+        normalized
+    );
 
 
     if (
@@ -501,29 +362,80 @@ function clearProducts() {
     }
 
 
-    console.log(
-        "Xiaomi WebBase: база товаров очищена."
-    );
+    return true;
 
 }
 
 
 // ======================================================
-// ИНИЦИАЛИЗАЦИЯ
+// УДАЛЕНИЕ ТОВАРА
 // ======================================================
 
-loadProducts();
+function removeProduct(
+    productId
+) {
+
+    const index =
+        products.findIndex(
+            product =>
+                String(product.id) ===
+                String(productId)
+        );
+
+
+    if (
+        index === -1
+    ) {
+
+        return false;
+
+    }
+
+
+    products.splice(
+        index,
+        1
+    );
+
+
+    if (
+        typeof renderProducts ===
+        "function"
+    ) {
+
+        renderProducts(
+            products
+        );
+
+    }
+
+
+    return true;
+
+}
 
 
 // ======================================================
-// ПРОВЕРКА
+// ГОТОВО
 // ======================================================
 
 console.log(
-    "Xiaomi WebBase: products-data.js подключён."
+    "======================================"
 );
 
 console.log(
-    "Товаров в базе:",
+    "Xiaomi WebBase"
+);
+
+console.log(
+    "products-data.js подключён"
+);
+
+console.log(
+    "Товаров:",
     products.length
+);
+
+console.log(
+    "======================================"
 );
