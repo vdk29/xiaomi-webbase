@@ -1,168 +1,307 @@
 // ======================================================
 // XIAOMI WEBBASE
 // APP.JS
-// ======================================================
-// Основная логика сайта
-// Данные товаров находятся в products-data.js
+// Версия с загрузкой базы из 1С
 // ======================================================
 
 
 // ======================================================
-// ЗАПУСК ПОСЛЕ ЗАГРУЗКИ HTML
+// ELEMENTS
 // ======================================================
 
-document.addEventListener("DOMContentLoaded", () => {
+const productsList =
+    document.getElementById("productsList");
 
-    console.log("Xiaomi WebBase: app.js запущен");
+const searchInput =
+    document.getElementById("searchInput");
+
+const searchButton =
+    document.getElementById("searchButton");
+
+const productDetails =
+    document.getElementById("productDetails");
+
+const categoryButtons =
+    document.querySelectorAll(".category-button");
+
+const fileInput =
+    document.getElementById("fileInput");
+
+const fileName =
+    document.getElementById("fileName");
+
+const importStatus =
+    document.getElementById("importStatus");
 
 
-    // ==================================================
-    // ELEMENTS
-    // ==================================================
+// ======================================================
+// НАСТРОЙКИ
+// ======================================================
 
-    const productsList =
-        document.getElementById("productsList");
+const PRODUCTS_STORAGE_KEY =
+    "xiaomiWebBaseProducts";
 
-    const searchInput =
-        document.getElementById("searchInput");
-
-    const searchButton =
-        document.getElementById("searchButton");
-
-    const productDetails =
-        document.getElementById("productDetails");
-
-    const categoryButtons =
-        document.querySelectorAll(".category-button");
+const PRODUCTS_IMPORT_VERSION =
+    "1";
 
 
-    // ==================================================
-    // ПРОВЕРКА PRODUCTS
-    // ==================================================
+// ======================================================
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// ======================================================
+
+function number(value) {
 
     if (
-        typeof products === "undefined"
+        value === null ||
+        value === undefined ||
+        value === ""
     ) {
-
-        console.error(
-            "products-data.js не загрузился"
-        );
-
-        if (productsList) {
-
-            productsList.innerHTML = `
-                <div class="empty-result">
-
-                    <strong>
-                        Ошибка загрузки базы
-                    </strong>
-
-                    <p>
-                        Файл products-data.js
-                        не найден или содержит ошибку.
-                    </p>
-
-                </div>
-            `;
-
-        }
-
-        return;
-    }
-
-
-    console.log(
-        "Загружено товаров:",
-        products.length
-    );
-
-
-    // ==================================================
-    // ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ
-    // ==================================================
-
-    function num(value) {
-
-        const result = Number(value);
-
-        if (Number.isFinite(result)) {
-
-            return result;
-
-        }
 
         return 0;
 
     }
 
 
-    // ==================================================
-    // ОСТАТКИ
-    // ==================================================
+    if (typeof value === "number") {
 
-    function getStock(product) {
-
-        const display =
-            num(product.display);
-
-        const warehouse =
-            num(product.warehouse);
-
-        return {
-
-            display: display,
-
-            warehouse: warehouse,
-
-            total:
-                display + warehouse
-
-        };
+        return Number.isFinite(value)
+            ? value
+            : 0;
 
     }
 
 
-    // ==================================================
-    // ГЛАВНАЯ — ОТОБРАЖЕНИЕ ТОВАРОВ
-    // ==================================================
+    const text =
+        String(value)
+            .replace(/\s/g, "")
+            .replace(",", ".");
 
-    function renderProducts(list) {
 
-        if (!productsList) {
+    const result =
+        Number(text);
+
+
+    return Number.isFinite(result)
+        ? result
+        : 0;
+
+}
+
+
+// ======================================================
+// ЭКРАНИРОВАНИЕ HTML
+// ======================================================
+
+function escapeHTML(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return "";
+
+    }
+
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+// ======================================================
+// ПОЛУЧЕНИЕ ОСТАТКОВ
+// ======================================================
+
+function getStock(product) {
+
+    const display =
+        number(product.display);
+
+    const warehouse =
+        number(product.warehouse);
+
+
+    return {
+
+        display,
+
+        warehouse,
+
+        total:
+            display + warehouse
+
+    };
+
+}
+
+
+// ======================================================
+// СОХРАНЕНИЕ БАЗЫ
+// ======================================================
+
+function saveProducts() {
+
+    try {
+
+        localStorage.setItem(
+            PRODUCTS_STORAGE_KEY,
+            JSON.stringify(products)
+        );
+
+        localStorage.setItem(
+            "xiaomiWebBaseProductsVersion",
+            PRODUCTS_IMPORT_VERSION
+        );
+
+        console.log(
+            "База товаров сохранена:",
+            products.length
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Ошибка сохранения базы:",
+            error
+        );
+
+    }
+
+}
+
+
+// ======================================================
+// ЗАГРУЗКА СОХРАНЁННОЙ БАЗЫ
+// ======================================================
+
+function loadSavedProducts() {
+
+    try {
+
+        const saved =
+            localStorage.getItem(
+                PRODUCTS_STORAGE_KEY
+            );
+
+
+        if (!saved) {
 
             return;
 
         }
 
 
-        productsList.innerHTML = "";
+        const parsed =
+            JSON.parse(saved);
 
 
         if (
-            !Array.isArray(list) ||
-            list.length === 0
+            !Array.isArray(parsed)
         ) {
-
-            productsList.innerHTML = `
-                <div class="empty-result">
-
-                    <strong>
-                        Ничего не найдено
-                    </strong>
-
-                    <p>
-                        Попробуйте изменить запрос.
-                    </p>
-
-                </div>
-            `;
 
             return;
 
         }
 
 
-        list.forEach(product => {
+        /*
+         * Не загружаем пустую базу.
+         */
+
+        if (
+            parsed.length === 0
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+         * Заменяем содержимое
+         * массива products.
+         */
+
+        products.length = 0;
+
+
+        products.push(
+            ...parsed
+        );
+
+
+        console.log(
+            "Сохранённая база загружена:",
+            products.length,
+            "товаров"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Ошибка загрузки сохранённой базы:",
+            error
+        );
+
+    }
+
+}
+
+
+// ======================================================
+// РЕНДЕР ТОВАРОВ
+// ======================================================
+
+function renderProducts(
+    list = products
+) {
+
+    if (!productsList) {
+
+        return;
+
+    }
+
+
+    productsList.innerHTML = "";
+
+
+    if (
+        !Array.isArray(list) ||
+        list.length === 0
+    ) {
+
+        productsList.innerHTML = `
+
+            <div class="empty-result">
+
+                <strong>
+                    Товаров нет
+                </strong>
+
+                <p>
+                    Загрузите таблицу из 1С
+                    или добавьте товары в базу.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    list.forEach(
+        product => {
 
             const stock =
                 getStock(product);
@@ -195,14 +334,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     <div class="product-category">
 
-                        ${product.category || ""}
+                        ${escapeHTML(
+                            product.category || ""
+                        )}
 
                     </div>
 
 
                     <div class="product-name">
 
-                        ${product.name || "Без названия"}
+                        ${escapeHTML(
+                            product.name ||
+                            "Без названия"
+                        )}
 
                     </div>
 
@@ -214,7 +358,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
                                 <div class="product-info">
 
-                                    ${product.memory || ""}
+                                    ${escapeHTML(
+                                        product.memory || ""
+                                    )}
 
                                     ${
                                         product.memory &&
@@ -223,7 +369,9 @@ document.addEventListener("DOMContentLoaded", () => {
                                             : ""
                                     }
 
-                                    ${product.color || ""}
+                                    ${escapeHTML(
+                                        product.color || ""
+                                    )}
 
                                 </div>
 
@@ -279,58 +427,63 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
 
 
-            // ==================================================
-            // ОТКРЫТИЕ ТОВАРА
-            // ==================================================
-
             card.addEventListener(
                 "click",
-                () => {
+                function () {
 
                     window.location.href =
-                        `product.html?id=${encodeURIComponent(product.id)}`;
+                        "product.html?id=" +
+                        encodeURIComponent(
+                            product.id
+                        );
 
                 }
             );
 
 
-            productsList.appendChild(card);
+            productsList.appendChild(
+                card
+            );
 
-        });
+        }
+    );
+
+}
+
+
+// ======================================================
+// ПОИСК
+// ======================================================
+
+function searchProducts() {
+
+    if (!searchInput) {
+
+        return;
 
     }
 
 
-    // ==================================================
-    // ПОИСК
-    // ==================================================
-
-    function searchProducts() {
-
-        if (!searchInput) {
-
-            return;
-
-        }
+    const query =
+        searchInput.value
+            .trim()
+            .toLowerCase();
 
 
-        const query =
-            searchInput.value
-                .trim()
-                .toLowerCase();
+    if (!query) {
+
+        renderProducts(
+            products
+        );
+
+        return;
+
+    }
 
 
-        if (!query) {
-
-            renderProducts(products);
-
-            return;
-
-        }
-
-
-        const result =
-            products.filter(product => {
+    const result =
+        products.filter(
+            product => {
 
                 const text = `
 
@@ -346,92 +499,108 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     ${product.description || ""}
 
+                    ${product.tip || ""}
+
                 `.toLowerCase();
 
 
-                return text.includes(query);
-
-            });
-
-
-        renderProducts(result);
-
-    }
-
-
-    // ==================================================
-    // КНОПКА ПОИСКА
-    // ==================================================
-
-    if (searchButton) {
-
-        searchButton.addEventListener(
-            "click",
-            searchProducts
-        );
-
-    }
-
-
-    // ==================================================
-    // ENTER В ПОИСКЕ
-    // ==================================================
-
-    if (searchInput) {
-
-        searchInput.addEventListener(
-            "keydown",
-            event => {
-
-                if (event.key === "Enter") {
-
-                    searchProducts();
-
-                }
+                return text.includes(
+                    query
+                );
 
             }
         );
 
 
-        // Живой поиск
+    renderProducts(
+        result
+    );
 
-        searchInput.addEventListener(
-            "input",
-            searchProducts
-        );
-
-    }
+}
 
 
-    // ==================================================
-    // КАТЕГОРИИ
-    // ==================================================
+// ======================================================
+// SEARCH BUTTON
+// ======================================================
 
-    categoryButtons.forEach(button => {
+if (searchButton) {
+
+    searchButton.addEventListener(
+        "click",
+        searchProducts
+    );
+
+}
+
+
+// ======================================================
+// ENTER
+// ======================================================
+
+if (searchInput) {
+
+    searchInput.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                searchProducts();
+
+            }
+
+        }
+    );
+
+}
+
+
+// ======================================================
+// LIVE SEARCH
+// ======================================================
+
+if (searchInput) {
+
+    searchInput.addEventListener(
+        "input",
+        searchProducts
+    );
+
+}
+
+
+// ======================================================
+// КАТЕГОРИИ
+// ======================================================
+
+categoryButtons.forEach(
+    button => {
 
         button.addEventListener(
             "click",
-            () => {
+            function () {
 
                 const category =
                     button.dataset.category;
 
 
-                // Убираем active
+                categoryButtons.forEach(
+                    item => {
 
-                categoryButtons.forEach(item => {
+                        item.classList.remove(
+                            "active"
+                        );
 
-                    item.classList.remove("active");
-
-                });
-
-
-                // Добавляем active
-
-                button.classList.add("active");
+                    }
+                );
 
 
-                // Очищаем поиск
+                button.classList.add(
+                    "active"
+                );
+
 
                 if (searchInput) {
 
@@ -440,444 +609,1442 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
 
-                // Все товары
+                if (
+                    category === "Все"
+                ) {
 
-                if (category === "Все") {
-
-                    renderProducts(products);
+                    renderProducts(
+                        products
+                    );
 
                     return;
 
                 }
 
 
-                // Фильтр категории
-
                 const filtered =
-                    products.filter(product => {
+                    products.filter(
+                        product => {
 
-                        return (
-                            product.category === category
-                        );
+                            return (
+                                product.category ===
+                                category
+                            );
 
-                    });
+                        }
+                    );
 
 
-                renderProducts(filtered);
+                renderProducts(
+                    filtered
+                );
 
             }
         );
 
-    });
+    }
+);
 
 
-    // ==================================================
-    // СТРАНИЦА ТОВАРА
-    // ==================================================
+// ======================================================
+// ОБРАБОТКА ФАЙЛА 1С
+// ======================================================
 
-    function renderProductPage() {
+if (fileInput) {
 
-        if (!productDetails) {
+    fileInput.addEventListener(
+        "change",
+        handleFileImport
+    );
 
-            return;
+}
+
+
+// ======================================================
+// HANDLE FILE IMPORT
+// ======================================================
+
+async function handleFileImport(event) {
+
+    const file =
+        event.target.files[0];
+
+
+    if (!file) {
+
+        return;
+
+    }
+
+
+    if (fileName) {
+
+        fileName.textContent =
+            file.name;
+
+    }
+
+
+    setImportStatus(
+        "Читаем файл...",
+        "loading"
+    );
+
+
+    try {
+
+        const extension =
+            file.name
+                .split(".")
+                .pop()
+                .toLowerCase();
+
+
+        let rows = [];
+
+
+        // ------------------------------------------
+        // EXCEL
+        // ------------------------------------------
+
+        if (
+            extension === "xlsx" ||
+            extension === "xls"
+        ) {
+
+            if (
+                typeof XLSX === "undefined"
+            ) {
+
+                throw new Error(
+                    "Библиотека Excel не загрузилась."
+                );
+
+            }
+
+
+            const buffer =
+                await file.arrayBuffer();
+
+
+            const workbook =
+                XLSX.read(
+                    buffer,
+                    {
+                        type: "array"
+                    }
+                );
+
+
+            const firstSheet =
+                workbook.Sheets[
+                    workbook.SheetNames[0]
+                ];
+
+
+            rows =
+                XLSX.utils.sheet_to_json(
+                    firstSheet,
+                    {
+                        defval: ""
+                    }
+                );
 
         }
 
 
-        const params =
-            new URLSearchParams(
-                window.location.search
+        // ------------------------------------------
+        // CSV
+        // ------------------------------------------
+
+        else if (
+            extension === "csv"
+        ) {
+
+            const text =
+                await file.text();
+
+
+            rows =
+                parseCSV(
+                    text
+                );
+
+        }
+
+
+        else {
+
+            throw new Error(
+                "Поддерживаются только XLSX, XLS и CSV."
+            );
+
+        }
+
+
+        console.log(
+            "Строк в исходной таблице:",
+            rows.length
+        );
+
+
+        if (
+            rows.length === 0
+        ) {
+
+            throw new Error(
+                "В таблице нет данных."
+            );
+
+        }
+
+
+        // ------------------------------------------
+        // ПРЕОБРАЗУЕМ ТАБЛИЦУ
+        // ------------------------------------------
+
+        const importedProducts =
+            convertRowsToProducts(
+                rows
             );
 
 
-        const id =
-            params.get("id");
-
-
-        const product =
-            products.find(item => {
-
-                return String(item.id) === String(id);
-
-            });
-
-
-        if (!product) {
-
-            productDetails.innerHTML = `
-
-                <div class="empty-result">
-
-                    <strong>
-                        Товар не найден
-                    </strong>
-
-                    <p>
-                        Проверьте ссылку на товар.
-                    </p>
-
-                </div>
-
-            `;
-
-            return;
-
-        }
-
-
-        renderProduct(product);
-
-    }
-
-
-    // ==================================================
-    // ХАРАКТЕРИСТИКИ
-    // ==================================================
-
-    function renderSpecs(product) {
-
         if (
-            !product.specs ||
-            typeof product.specs !== "object"
+            importedProducts.length === 0
         ) {
 
-            return `
-                <p>
-                    Характеристики пока не добавлены.
-                </p>
-            `;
+            throw new Error(
+                "Не удалось найти товары в таблице."
+            );
 
         }
 
 
-        const entries =
-            Object.entries(product.specs);
+        // ------------------------------------------
+        // ЗАМЕНЯЕМ БАЗУ
+        // ------------------------------------------
+
+        products.length = 0;
 
 
-        if (entries.length === 0) {
-
-            return `
-                <p>
-                    Характеристики пока не добавлены.
-                </p>
-            `;
-
-        }
+        products.push(
+            ...importedProducts
+        );
 
 
-        return entries.map(
-            ([key, value]) => {
+        saveProducts();
 
-                return `
 
-                    <div class="spec-row">
+        // ------------------------------------------
+        // ПОКАЗЫВАЕМ
+        // ------------------------------------------
 
-                        <span>
-                            ${key}
-                        </span>
+        renderProducts(
+            products
+        );
 
-                        <strong>
-                            ${value}
-                        </strong>
 
-                    </div>
+        setImportStatus(
+            `Готово. Загружено товаров: ${products.length}`,
+            "success"
+        );
 
-                `;
 
-            }
-        ).join("");
+        console.log(
+            "Импорт завершён:",
+            products
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Ошибка импорта:",
+            error
+        );
+
+
+        setImportStatus(
+            "Ошибка: " +
+            error.message,
+            "error"
+        );
 
     }
 
 
-    // ==================================================
-    // КАРТОЧКА ТОВАРА
-    // ==================================================
+    /*
+     * Позволяет повторно выбрать тот же файл.
+     */
 
-    function renderProduct(product) {
+    fileInput.value = "";
 
-        if (!productDetails) {
+}
 
-            return;
+
+// ======================================================
+// СТАТУС ИМПОРТА
+// ======================================================
+
+function setImportStatus(
+    text,
+    type
+) {
+
+    if (!importStatus) {
+
+        return;
+
+    }
+
+
+    importStatus.textContent =
+        text;
+
+
+    importStatus.className =
+        "import-status";
+
+
+    if (type) {
+
+        importStatus.classList.add(
+            type
+        );
+
+    }
+
+}
+
+
+// ======================================================
+// CSV PARSER
+// ======================================================
+
+function parseCSV(text) {
+
+    const lines =
+        text
+            .replace(/\r/g, "")
+            .split("\n")
+            .filter(
+                line =>
+                    line.trim() !== ""
+            );
+
+
+    if (
+        lines.length === 0
+    ) {
+
+        return [];
+
+    }
+
+
+    const delimiter =
+        lines[0].includes(";")
+            ? ";"
+            : ",";
+
+
+    const headers =
+        parseCSVLine(
+            lines[0],
+            delimiter
+        );
+
+
+    const result = [];
+
+
+    for (
+        let i = 1;
+        i < lines.length;
+        i++
+    ) {
+
+        const values =
+            parseCSVLine(
+                lines[i],
+                delimiter
+            );
+
+
+        const row = {};
+
+
+        headers.forEach(
+            (header, index) => {
+
+                row[header] =
+                    values[index] || "";
+
+            }
+        );
+
+
+        result.push(
+            row
+        );
+
+    }
+
+
+    return result;
+
+}
+
+
+// ======================================================
+// CSV LINE
+// ======================================================
+
+function parseCSVLine(
+    line,
+    delimiter
+) {
+
+    const result = [];
+
+    let current = "";
+
+    let insideQuotes = false;
+
+
+    for (
+        let i = 0;
+        i < line.length;
+        i++
+    ) {
+
+        const char =
+            line[i];
+
+
+        if (
+            char === '"'
+        ) {
+
+            if (
+                insideQuotes &&
+                line[i + 1] === '"'
+            ) {
+
+                current += '"';
+
+                i++;
+
+            } else {
+
+                insideQuotes =
+                    !insideQuotes;
+
+            }
 
         }
 
+        else if (
+            char === delimiter &&
+            !insideQuotes
+        ) {
 
-        const stock =
-            getStock(product);
+            result.push(
+                current.trim()
+            );
+
+            current = "";
+
+        }
+
+        else {
+
+            current += char;
+
+        }
+
+    }
 
 
-        const specsHTML =
-            renderSpecs(product);
+    result.push(
+        current.trim()
+    );
 
+
+    return result;
+
+}
+
+
+// ======================================================
+// НОРМАЛИЗАЦИЯ НАЗВАНИЯ КОЛОНКИ
+// ======================================================
+
+function normalizeColumnName(
+    value
+) {
+
+    return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, " ")
+        .replace(/ё/g, "е");
+
+}
+
+
+// ======================================================
+// ПОИСК КОЛОНКИ
+// ======================================================
+
+function findColumn(
+    row,
+    variants
+) {
+
+    const keys =
+        Object.keys(row);
+
+
+    for (
+        const key of keys
+    ) {
+
+        const normalized =
+            normalizeColumnName(
+                key
+            );
+
+
+        for (
+            const variant of variants
+        ) {
+
+            if (
+                normalized ===
+                normalizeColumnName(
+                    variant
+                )
+            ) {
+
+                return key;
+
+            }
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+// ======================================================
+// ПОЛУЧЕНИЕ ЗНАЧЕНИЯ КОЛОНКИ
+// ======================================================
+
+function getColumnValue(
+    row,
+    variants
+) {
+
+    const column =
+        findColumn(
+            row,
+            variants
+        );
+
+
+    if (!column) {
+
+        return "";
+
+    }
+
+
+    return row[column];
+
+}
+
+
+// ======================================================
+// ПРЕОБРАЗОВАНИЕ СТРОК 1С В ТОВАРЫ
+// ======================================================
+
+function convertRowsToProducts(
+    rows
+) {
+
+    const result = [];
+
+
+    rows.forEach(
+        (row, index) => {
+
+            /*
+             * ----------------------------------------
+             * НАЗВАНИЕ
+             * ----------------------------------------
+             */
+
+            const name =
+                getColumnValue(
+                    row,
+                    [
+                        "Номенклатура",
+                        "Товар",
+                        "Наименование",
+                        "Название",
+                        "Наименование товара"
+                    ]
+                );
+
+
+            /*
+             * Если строки без названия —
+             * пропускаем.
+             */
+
+            if (
+                !String(name).trim()
+            ) {
+
+                return;
+
+            }
+
+
+            /*
+             * ----------------------------------------
+             * КАТЕГОРИЯ
+             * ----------------------------------------
+             */
+
+            let category =
+                getColumnValue(
+                    row,
+                    [
+                        "Категория",
+                        "Группа",
+                        "Группа товаров",
+                        "Вид номенклатуры",
+                        "Тип номенклатуры"
+                    ]
+                );
+
+
+            category =
+                normalizeCategory(
+                    category,
+                    name
+                );
+
+
+            /*
+             * ----------------------------------------
+             * АРТИКУЛ
+             * ----------------------------------------
+             */
+
+            const article =
+                getColumnValue(
+                    row,
+                    [
+                        "Артикул",
+                        "Код",
+                        "Код товара",
+                        "Номенклатурный номер"
+                    ]
+                );
+
+
+            /*
+             * ----------------------------------------
+             * ЦВЕТ
+             * ----------------------------------------
+             */
+
+            const color =
+                getColumnValue(
+                    row,
+                    [
+                        "Цвет",
+                        "Цвет товара",
+                        "Цвет изделия"
+                    ]
+                );
+
+
+            /*
+             * ----------------------------------------
+             * ПАМЯТЬ
+             * ----------------------------------------
+             */
+
+            const memory =
+                getColumnValue(
+                    row,
+                    [
+                        "Память",
+                        "Объем памяти",
+                        "Память/объем",
+                        "Характеристика"
+                    ]
+                );
+
+
+            /*
+             * ----------------------------------------
+             * ОБЩИЙ ОСТАТОК
+             * ----------------------------------------
+             */
+
+            const quantity =
+                number(
+                    getColumnValue(
+                        row,
+                        [
+                            "Количество",
+                            "Остаток",
+                            "Остаток товара",
+                            "Количество остаток",
+                            "Кол-во"
+                        ]
+                    )
+                );
+
+
+            /*
+             * ----------------------------------------
+             * ВИТРИНА
+             * ----------------------------------------
+             *
+             * Если в таблице есть отдельная колонка
+             * витрины — используем её.
+             */
+
+            let display =
+                number(
+                    getColumnValue(
+                        row,
+                        [
+                            "Витрина",
+                            "На витрине",
+                            "Витринный остаток",
+                            "Количество на витрине"
+                        ]
+                    )
+                );
+
+
+            /*
+             * ----------------------------------------
+             * СКЛАД
+             * ----------------------------------------
+             */
+
+            let warehouse =
+                number(
+                    getColumnValue(
+                        row,
+                        [
+                            "Склад",
+                            "На складе",
+                            "Остаток на складе",
+                            "Количество на складе"
+                        ]
+                    )
+                );
+
+
+            /*
+             * Если отдельных колонок витрина/склад
+             * нет, считаем весь остаток складом.
+             */
+
+            const hasDisplayColumn =
+                findColumn(
+                    row,
+                    [
+                        "Витрина",
+                        "На витрине",
+                        "Витринный остаток",
+                        "Количество на витрине"
+                    ]
+                );
+
+
+            const hasWarehouseColumn =
+                findColumn(
+                    row,
+                    [
+                        "Склад",
+                        "На складе",
+                        "Остаток на складе",
+                        "Количество на складе"
+                    ]
+                );
+
+
+            if (
+                !hasDisplayColumn &&
+                !hasWarehouseColumn
+            ) {
+
+                warehouse =
+                    quantity;
+
+            }
+
+
+            /*
+             * ----------------------------------------
+             * LDU
+             * ----------------------------------------
+             */
+
+            const ldu =
+                number(
+                    getColumnValue(
+                        row,
+                        [
+                            "LDU",
+                            "ЛДУ",
+                            "Демо",
+                            "Демонстрационный",
+                            "Демонстрация"
+                        ]
+                    )
+                );
+
+
+            /*
+             * ----------------------------------------
+             * DESCRIPTION
+             * ----------------------------------------
+             */
+
+            const description =
+                getColumnValue(
+                    row,
+                    [
+                        "Описание",
+                        "Описание товара",
+                        "Комментарий"
+                    ]
+                );
+
+
+            /*
+             * ----------------------------------------
+             * ID
+             * ----------------------------------------
+             */
+
+            const id =
+                article
+                    ? String(article)
+                    : String(
+                        100000 + index
+                    );
+
+
+            /*
+             * ----------------------------------------
+             * СОЗДАЁМ ТОВАР
+             * ----------------------------------------
+             */
+
+            const product = {
+
+                id,
+
+                name:
+                    String(name).trim(),
+
+                category,
+
+                memory:
+                    String(memory || "").trim(),
+
+                color:
+                    String(color || "").trim(),
+
+                quantity:
+                    display + warehouse,
+
+                ldu,
+
+                display,
+
+                warehouse,
+
+                description:
+                    String(
+                        description || ""
+                    ).trim(),
+
+                specs: {},
+
+                tip:
+                    ""
+
+            };
+
+
+            /*
+             * Добавляем дополнительные данные
+             * из таблицы в характеристики.
+             */
+
+            if (article) {
+
+                product.specs["Артикул"] =
+                    String(article);
+
+            }
+
+
+            if (memory) {
+
+                product.specs["Память"] =
+                    String(memory);
+
+            }
+
+
+            if (color) {
+
+                product.specs["Цвет"] =
+                    String(color);
+
+            }
+
+
+            if (ldu > 0) {
+
+                product.specs["LDU"] =
+                    ldu + " шт.";
+
+            }
+
+
+            result.push(
+                product
+            );
+
+        }
+    );
+
+
+    return result;
+
+}
+
+
+// ======================================================
+// ОПРЕДЕЛЕНИЕ КАТЕГОРИИ
+// ======================================================
+
+function normalizeCategory(
+    category,
+    name
+) {
+
+    const text =
+        (
+            String(category || "") +
+            " " +
+            String(name || "")
+        )
+        .toLowerCase();
+
+
+    if (
+        text.includes("смартфон") ||
+        text.includes("iphone") ||
+        text.includes("redmi") ||
+        text.includes("xiaomi 17")
+    ) {
+
+        return "Смартфоны";
+
+    }
+
+
+    if (
+        text.includes("планшет") ||
+        text.includes("pad")
+    ) {
+
+        return "Планшеты";
+
+    }
+
+
+    if (
+        text.includes("watch") ||
+        text.includes("часы")
+    ) {
+
+        return "Смарт-часы";
+
+    }
+
+
+    if (
+        text.includes("band") ||
+        text.includes("браслет")
+    ) {
+
+        return "Фитнес-браслеты";
+
+    }
+
+
+    if (
+        category &&
+        String(category).trim()
+    ) {
+
+        return String(
+            category
+        ).trim();
+
+    }
+
+
+    return "Другое";
+
+}
+
+
+// ======================================================
+// СТРАНИЦА ТОВАРА
+// ======================================================
+
+function renderProductPage() {
+
+    if (!productDetails) {
+
+        return;
+
+    }
+
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    const id =
+        params.get("id");
+
+
+    const product =
+        products.find(
+            item =>
+                String(item.id) ===
+                String(id)
+        );
+
+
+    if (!product) {
 
         productDetails.innerHTML = `
 
-            <div class="product-page">
-
-
-                <div class="product-page-image">
-
-                    <span>
-                        Фото товара
-                    </span>
-
-                </div>
-
-
-                <div class="product-page-content">
-
-
-                    <div class="product-category">
-
-                        ${product.category || ""}
-
-                    </div>
-
-
-                    <h1>
-
-                        ${product.name || "Без названия"}
-
-                    </h1>
-
-
-                    ${
-                        product.memory
-                            ? `
-
-                                <div class="product-memory">
-
-                                    ${product.memory}
-
-                                </div>
-
-                            `
-                            : ""
-                    }
-
-
-                    ${
-                        product.color
-                            ? `
-
-                                <div class="product-color">
-
-                                    Цвет:
-
-                                    <strong>
-                                        ${product.color}
-                                    </strong>
-
-                                </div>
-
-                            `
-                            : ""
-                    }
-
-
-                    <!-- ==============================
-                         НАЛИЧИЕ
-                    =============================== -->
-
-                    <div class="product-stock">
-
-                        <h2>
-                            Наличие
-                        </h2>
-
-
-                        <div class="stock-control">
-
-                            <span>
-                                Витрина
-                            </span>
-
-
-                            <div class="quantity-control">
-
-                                <button
-                                    type="button"
-                                    class="quantity-button"
-                                    data-type="display"
-                                    data-action="minus"
-                                >
-                                    −
-                                </button>
-
-
-                                <strong>
-                                    ${stock.display}
-                                </strong>
-
-
-                                <button
-                                    type="button"
-                                    class="quantity-button"
-                                    data-type="display"
-                                    data-action="plus"
-                                >
-                                    +
-                                </button>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="stock-control">
-
-                            <span>
-                                Склад
-                            </span>
-
-
-                            <div class="quantity-control">
-
-                                <button
-                                    type="button"
-                                    class="quantity-button"
-                                    data-type="warehouse"
-                                    data-action="minus"
-                                >
-                                    −
-                                </button>
-
-
-                                <strong>
-                                    ${stock.warehouse}
-                                </strong>
-
-
-                                <button
-                                    type="button"
-                                    class="quantity-button"
-                                    data-type="warehouse"
-                                    data-action="plus"
-                                >
-                                    +
-                                </button>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="stock-big-row total">
-
-                            <span>
-                                Всего
-                            </span>
-
-                            <strong>
-                                ${stock.total}
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- ==============================
-                         ОПИСАНИЕ
-                    =============================== -->
-
-                    <div class="product-description">
-
-                        <h2>
-                            Кратко
-                        </h2>
-
-
-                        <p>
-
-                            ${
-                                product.description ||
-                                "Описание пока не добавлено."
-                            }
-
-                        </p>
-
-                    </div>
-
-
-                    <!-- ==============================
-                         ХАРАКТЕРИСТИКИ
-                    =============================== -->
-
-                    <div class="product-specs">
-
-                        <h2>
-                            Характеристики
-                        </h2>
-
-
-                        ${specsHTML}
-
-                    </div>
-
-
-                    <!-- ==============================
-                         ПОДСКАЗКА
-                    =============================== -->
-
-                    <div class="product-tip">
-
-                        <h2>
-                            Подсказка продавцу
-                        </h2>
-
-
-                        <p>
-
-                            ${
-                                product.tip ||
-                                "Подсказка пока не добавлена."
-                            }
-
-                        </p>
-
-                    </div>
-
-
-                </div>
+            <div class="empty-result">
+
+                <strong>
+                    Товар не найден
+                </strong>
+
+                <p>
+                    Проверьте ссылку на товар.
+                </p>
 
             </div>
 
         `;
 
-
-        document.title =
-            `${product.name || "Товар"} — Xiaomi WebBase`;
-
-
-        setupQuantityButtons(product);
+        return;
 
     }
 
 
-    // ==================================================
-    // КНОПКИ + / -
-    // ==================================================
+    renderProduct(
+        product
+    );
 
-    function setupQuantityButtons(product) {
-
-        const buttons =
-            document.querySelectorAll(
-                ".quantity-button"
-            );
+}
 
 
-        buttons.forEach(button => {
+// ======================================================
+// ХАРАКТЕРИСТИКИ
+// ======================================================
+
+function renderSpecs(
+    product
+) {
+
+    if (
+        !product.specs ||
+        typeof product.specs !== "object"
+    ) {
+
+        return `
+            <p>
+                Характеристики пока не добавлены.
+            </p>
+        `;
+
+    }
+
+
+    const entries =
+        Object.entries(
+            product.specs
+        );
+
+
+    if (
+        entries.length === 0
+    ) {
+
+        return `
+            <p>
+                Характеристики пока не добавлены.
+            </p>
+        `;
+
+    }
+
+
+    return entries
+        .map(
+            ([key, value]) => `
+
+                <div class="spec-row">
+
+                    <span>
+                        ${escapeHTML(key)}
+                    </span>
+
+                    <strong>
+                        ${escapeHTML(value)}
+                    </strong>
+
+                </div>
+
+            `
+        )
+        .join("");
+
+}
+
+
+// ======================================================
+// КАРТОЧКА ТОВАРА
+// ======================================================
+
+function renderProduct(
+    product
+) {
+
+    if (!productDetails) {
+
+        return;
+
+    }
+
+
+    const stock =
+        getStock(product);
+
+
+    const specsHTML =
+        renderSpecs(product);
+
+
+    productDetails.innerHTML = `
+
+        <div class="product-page">
+
+
+            <div class="product-page-image">
+
+                <span>
+                    Фото товара
+                </span>
+
+            </div>
+
+
+            <div class="product-page-content">
+
+
+                <div class="product-category">
+
+                    ${escapeHTML(
+                        product.category || ""
+                    )}
+
+                </div>
+
+
+                <h1>
+
+                    ${escapeHTML(
+                        product.name ||
+                        "Без названия"
+                    )}
+
+                </h1>
+
+
+                ${
+                    product.memory
+                        ? `
+
+                            <div class="product-memory">
+
+                                ${escapeHTML(
+                                    product.memory
+                                )}
+
+                            </div>
+
+                        `
+                        : ""
+                }
+
+
+                ${
+                    product.color
+                        ? `
+
+                            <div class="product-color">
+
+                                Цвет:
+
+                                <strong>
+                                    ${escapeHTML(
+                                        product.color
+                                    )}
+                                </strong>
+
+                            </div>
+
+                        `
+                        : ""
+                }
+
+
+                <!-- ==================================
+                     НАЛИЧИЕ
+                ================================== -->
+
+                <div class="product-stock">
+
+                    <h2>
+                        Наличие
+                    </h2>
+
+
+                    <div class="stock-control">
+
+                        <span>
+                            Витрина
+                        </span>
+
+
+                        <div class="quantity-control">
+
+                            <button
+                                type="button"
+                                class="quantity-button"
+                                data-type="display"
+                                data-action="minus"
+                            >
+                                −
+                            </button>
+
+
+                            <strong>
+                                ${stock.display}
+                            </strong>
+
+
+                            <button
+                                type="button"
+                                class="quantity-button"
+                                data-type="display"
+                                data-action="plus"
+                            >
+                                +
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stock-control">
+
+                        <span>
+                            Склад
+                        </span>
+
+
+                        <div class="quantity-control">
+
+                            <button
+                                type="button"
+                                class="quantity-button"
+                                data-type="warehouse"
+                                data-action="minus"
+                            >
+                                −
+                            </button>
+
+
+                            <strong>
+                                ${stock.warehouse}
+                            </strong>
+
+
+                            <button
+                                type="button"
+                                class="quantity-button"
+                                data-type="warehouse"
+                                data-action="plus"
+                            >
+                                +
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stock-big-row total">
+
+                        <span>
+                            Всего
+                        </span>
+
+                        <strong>
+                            ${stock.total}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ==================================
+                     ОПИСАНИЕ
+                ================================== -->
+
+                <div class="product-description">
+
+                    <h2>
+                        Кратко
+                    </h2>
+
+
+                    <p>
+
+                        ${escapeHTML(
+                            product.description ||
+                            "Описание пока не добавлено."
+                        )}
+
+                    </p>
+
+                </div>
+
+
+                <!-- ==================================
+                     ХАРАКТЕРИСТИКИ
+                ================================== -->
+
+                <div class="product-specs">
+
+                    <h2>
+                        Характеристики
+                    </h2>
+
+
+                    ${specsHTML}
+
+                </div>
+
+
+                <!-- ==================================
+                     ПОДСКАЗКА
+                ================================== -->
+
+                <div class="product-tip">
+
+                    <h2>
+                        Подсказка продавцу
+                    </h2>
+
+
+                    <p>
+
+                        ${escapeHTML(
+                            product.tip ||
+                            "Подсказка пока не добавлена."
+                        )}
+
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.title =
+        `${product.name} — Xiaomi WebBase`;
+
+
+    setupQuantityButtons(
+        product
+    );
+
+}
+
+
+// ======================================================
+// КНОПКИ ОСТАТКА
+// ======================================================
+
+function setupQuantityButtons(
+    product
+) {
+
+    const buttons =
+        document.querySelectorAll(
+            ".quantity-button"
+        );
+
+
+    buttons.forEach(
+        button => {
 
             button.addEventListener(
                 "click",
-                event => {
-
-                    event.preventDefault();
-
-                    event.stopPropagation();
-
+                function () {
 
                     const type =
                         button.dataset.type;
@@ -898,17 +2065,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
                     let value =
-                        num(product[type]);
+                        number(
+                            product[type]
+                        );
 
 
-                    if (action === "plus") {
+                    if (
+                        action === "plus"
+                    ) {
 
                         value++;
 
                     }
 
 
-                    if (action === "minus") {
+                    if (
+                        action === "minus"
+                    ) {
 
                         value =
                             Math.max(
@@ -924,96 +2097,140 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
                     product.quantity =
-                        num(product.display) +
-                        num(product.warehouse);
+                        number(product.display) +
+                        number(product.warehouse);
 
 
-                    // ==================================================
-                    // СОХРАНЕНИЕ
-                    // ==================================================
-
-                    try {
-
-                        localStorage.setItem(
-                            "xiaomiWebBaseProducts",
-                            JSON.stringify(products)
-                        );
-
-                    } catch (error) {
-
-                        console.error(
-                            "Ошибка сохранения:",
-                            error
-                        );
-
-                    }
+                    saveProducts();
 
 
-                    // ==================================================
-                    // ПЕРЕРИСОВЫВАЕМ КАРТОЧКУ
-                    // ==================================================
-
-                    renderProduct(product);
+                    renderProduct(
+                        product
+                    );
 
                 }
             );
 
-        });
-
-    }
-
-
-    // ==================================================
-    // КНОПКА НАЗАД
-    // ==================================================
-
-    document.addEventListener(
-        "click",
-        event => {
-
-            const button =
-                event.target.closest(
-                    "[data-back]"
-                );
-
-
-            if (!button) {
-
-                return;
-
-            }
-
-
-            event.preventDefault();
-
-
-            if (
-                window.history.length > 1
-            ) {
-
-                window.history.back();
-
-            } else {
-
-                window.location.href =
-                    "index.html";
-
-            }
-
         }
     );
 
+}
 
-    // ==================================================
-    // ЗАПУСК
-    // ==================================================
 
-    if (productsList) {
+// ======================================================
+// КНОПКА НАЗАД
+// ======================================================
 
-        renderProducts(products);
+document.addEventListener(
+    "click",
+    function (event) {
+
+        const button =
+            event.target.closest(
+                "[data-back]"
+            );
+
+
+        if (!button) {
+
+            return;
+
+        }
+
+
+        if (
+            window.history.length > 1
+        ) {
+
+            window.history.back();
+
+        } else {
+
+            window.location.href =
+                "index.html";
+
+        }
+
+    }
+);
+
+
+// ======================================================
+// START
+// ======================================================
+
+function initApp() {
+
+    /*
+     * Проверяем products-data.js
+     */
+
+    if (
+        typeof products === "undefined"
+    ) {
+
+        console.error(
+            "Ошибка: products-data.js не подключен."
+        );
+
+
+        if (productsList) {
+
+            productsList.innerHTML = `
+
+                <div class="empty-result">
+
+                    <strong>
+                        Ошибка загрузки базы
+                    </strong>
+
+                    <p>
+                        Файл products-data.js
+                        не подключён или содержит ошибку.
+                    </p>
+
+                </div>
+
+            `;
+
+        }
+
+
+        return;
 
     }
 
+
+    /*
+     * Сначала загружаем сохранённую базу.
+     */
+
+    loadSavedProducts();
+
+
+    console.log(
+        "Xiaomi WebBase:",
+        products.length,
+        "товаров"
+    );
+
+
+    /*
+     * Главная страница.
+     */
+
+    if (productsList) {
+
+        renderProducts(
+            products
+        );
+
+    }
+
+
+    /*
+     * Страница товара.
+     */
 
     if (productDetails) {
 
@@ -1021,9 +2238,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
+}
 
-    console.log(
-        "Xiaomi WebBase успешно запущен"
+
+// ======================================================
+// ЗАПУСК
+// ======================================================
+
+if (
+    document.readyState === "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initApp
     );
 
-});
+} else {
+
+    initApp();
+
+}
