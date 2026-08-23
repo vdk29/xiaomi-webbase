@@ -38,13 +38,11 @@
 
         <div class="header-inner">
 
-
             <div class="logo">
 
                 <span class="logo-letter">
                     X
                 </span>
-
 
                 <div class="logo-text">
 
@@ -62,11 +60,8 @@
 
 
             <div class="header-info">
-
                 База товаров
-
             </div>
-
 
         </div>
 
@@ -93,15 +88,65 @@
                     XIAOMI STORE
                 </div>
 
-
                 <h1>
                     Товары
                 </h1>
 
-
                 <p>
                     Наличие товаров на витрине и складе
                 </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==================================================
+             ЗАГРУЗКА ТАБЛИЦЫ
+        ================================================== -->
+
+        <section class="import-section">
+
+            <div class="import-box">
+
+                <div class="import-title">
+                    Загрузка базы из 1С
+                </div>
+
+                <div class="import-description">
+                    Загрузите выгрузку товаров из 1С.
+                    Сайт автоматически обработает таблицу
+                    и создаст карточки товаров.
+                </div>
+
+
+                <label
+                    for="productsFile"
+                    class="import-button"
+                >
+
+                    Загрузить таблицу
+
+                </label>
+
+
+                <input
+                    type="file"
+                    id="productsFile"
+                    accept=".xlsx,.xls,.csv"
+                    hidden
+                >
+
+
+                <div
+                    id="importStatus"
+                    class="import-status"
+                >
+
+                    Файл ещё не загружен
+
+                </div>
 
             </div>
 
@@ -117,14 +162,12 @@
 
             <div class="search-box">
 
-
                 <input
                     type="search"
                     id="searchInput"
                     placeholder="Поиск товара..."
                     autocomplete="off"
                 >
-
 
                 <button
                     type="button"
@@ -135,7 +178,6 @@
                     Поиск
 
                 </button>
-
 
             </div>
 
@@ -148,7 +190,6 @@
         ================================================== -->
 
         <section class="categories-section">
-
 
             <div class="category-buttons">
 
@@ -210,19 +251,16 @@
 
         <section class="products-section">
 
-
             <div
                 id="productsList"
                 class="products-grid"
             >
 
                 <!--
-                    Товары автоматически
-                    добавляются через app.js
+                    Товары загружаются через app.js
                 -->
 
             </div>
-
 
         </section>
 
@@ -237,37 +275,32 @@
 
     <footer class="app-footer">
 
-
         <div class="footer-inner">
-
 
             <span>
                 Xiaomi WebBase
             </span>
 
-
             <span>
                 База наличия
             </span>
 
-
         </div>
-
 
     </footer>
 
 
 
     <!-- ==================================================
-         JAVASCRIPT
+         SCRIPTS
     ================================================== -->
 
-    <!--
-        СНАЧАЛА данные товаров.
-        ПОТОМ логика приложения.
-    -->
+    <!-- Данные тестового товара -->
 
     <script src="products-data.js"></script>
+
+
+    <!-- Основная логика -->
 
     <script src="app.js"></script>
 
