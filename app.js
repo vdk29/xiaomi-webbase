@@ -1,7 +1,5 @@
-console.log("================================");
-console.log("APP.JS РАБОТАЕТ");
-console.log("products:", products);
-console.log("================================");
+console.log("APP.JS OK");
+console.log("PRODUCTS:", products);
 
 
 const productsList =
@@ -10,48 +8,65 @@ const productsList =
 
 if (productsList) {
 
-    productsList.innerHTML = `
+    productsList.innerHTML = "";
 
-        <div style="
-            padding: 30px;
-            margin: 20px;
-            background: white;
-            color: black;
-            border: 3px solid orange;
-            border-radius: 15px;
-            font-size: 20px;
-        ">
 
-            <h2>
-                ТЕСТОВЫЙ ТОВАР
-            </h2>
+    products.forEach(function(product) {
 
-            <p>
-                ${products[0].name}
-            </p>
+        const card =
+            document.createElement("div");
 
-            <p>
-                ${products[0].memory}
-            </p>
 
-            <p>
-                Цвет: ${products[0].color}
-            </p>
+        card.className =
+            "product-card";
 
-            <p>
-                Витрина: ${products[0].display}
-            </p>
 
-            <p>
-                Склад: ${products[0].warehouse}
-            </p>
+        card.innerHTML = `
 
-            <p>
-                Всего: ${products[0].quantity}
-            </p>
+            <div class="product-image">
+                Фото товара
+            </div>
 
-        </div>
+            <div class="product-card-content">
 
-    `;
+                <div class="product-category">
+                    ${product.category}
+                </div>
+
+                <div class="product-name">
+                    ${product.name}
+                </div>
+
+                <div class="product-info">
+                    ${product.memory} · ${product.color}
+                </div>
+
+                <div class="stock">
+
+                    <div class="stock-row">
+                        <span>Витрина</span>
+                        <strong>${product.display}</strong>
+                    </div>
+
+                    <div class="stock-row">
+                        <span>Склад</span>
+                        <strong>${product.warehouse}</strong>
+                    </div>
+
+                    <div class="stock-row stock-total">
+                        <span>Всего</span>
+                        <strong>${product.quantity}</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        productsList.appendChild(card);
+
+    });
 
 }
