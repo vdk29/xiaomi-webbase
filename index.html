@@ -10,7 +10,14 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Xiaomi WebBase</title>
+    <meta
+        name="theme-color"
+        content="#111111"
+    >
+
+    <title>
+        Xiaomi WebBase
+    </title>
 
     <link
         rel="stylesheet"
@@ -23,76 +30,103 @@
 <body>
 
 
-<header class="header">
+    <!-- ==================================================
+         HEADER
+    ================================================== -->
 
-    <div class="container header-container">
+    <header class="app-header">
 
-        <div>
+        <div class="header-inner">
 
             <div class="logo">
-                Xiaomi WebBase
+
+                <span class="logo-letter">
+                    X
+                </span>
+
+                <div class="logo-text">
+
+                    <strong>
+                        Xiaomi
+                    </strong>
+
+                    <span>
+                        WebBase
+                    </span>
+
+                </div>
+
             </div>
 
-            <div class="subtitle">
-                Внутренняя база магазина
+
+            <div class="header-info">
+
+                База товаров
+
             </div>
 
         </div>
 
-
-        <div class="header-actions">
-
-            <label
-                for="excelInput"
-                class="excel-upload-button"
-            >
-                Загрузить выгрузку 1С
-            </label>
-
-            <input
-                type="file"
-                id="excelInput"
-                accept=".xlsx,.xls"
-                hidden
-            >
-
-        </div>
-
-    </div>
-
-</header>
+    </header>
 
 
 
-<main class="main">
+    <!-- ==================================================
+         MAIN
+    ================================================== -->
 
-    <div class="container">
+    <main class="app-main">
 
 
-        <!-- ПОИСК -->
+        <!-- ==================================================
+             PAGE HEADER
+        ================================================== -->
+
+        <section class="page-header">
+
+            <div>
+
+                <div class="page-label">
+                    XIAOMI STORE
+                </div>
+
+                <h1>
+                    Товары
+                </h1>
+
+                <p>
+                    Наличие товаров на витрине и складе
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==================================================
+             SEARCH
+        ================================================== -->
 
         <section class="search-section">
-
-            <h1>
-                Поиск товара
-            </h1>
-
 
             <div class="search-box">
 
                 <input
-                    type="text"
+                    type="search"
                     id="searchInput"
-                    placeholder="Введите название товара..."
+                    placeholder="Поиск товара..."
                     autocomplete="off"
                 >
-
 
                 <button
                     type="button"
                     id="searchButton"
+                    class="search-button"
                 >
-                    Найти
+
+                    Поиск
+
                 </button>
 
             </div>
@@ -101,23 +135,21 @@
 
 
 
-        <!-- КАТЕГОРИИ -->
+        <!-- ==================================================
+             CATEGORIES
+        ================================================== -->
 
-        <section class="categories">
+        <section class="categories-section">
 
-            <h2>
-                Категории
-            </h2>
+            <div class="category-buttons">
 
-
-            <div class="category-list">
 
                 <button
                     type="button"
                     class="category-button active"
                     data-category="Все"
                 >
-                    Все товары
+                    Все
                 </button>
 
 
@@ -157,62 +189,75 @@
                 </button>
 
 
-                <button
-                    type="button"
-                    class="category-button"
-                    data-category="Аксессуары"
-                >
-                    Аксессуары
-                </button>
-
             </div>
 
         </section>
 
 
 
-        <!-- ТОВАРЫ -->
+        <!-- ==================================================
+             PRODUCTS
+        ================================================== -->
 
-        <section class="products">
-
-            <div class="section-title">
-
-                <h2>
-                    Товары
-                </h2>
-
-            </div>
-
+        <section class="products-section">
 
             <div
                 id="productsList"
-                class="products-list"
-            ></div>
+                class="products-grid"
+            >
+
+                <!--
+                    Сюда JavaScript автоматически
+                    загрузит товары из product-data.js
+                -->
+
+            </div>
 
         </section>
 
 
-    </div>
-
-</main>
+    </main>
 
 
 
-<!-- XLSX -->
+    <!-- ==================================================
+         FOOTER
+    ================================================== -->
 
-<script
-    src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"
-></script>
+    <footer class="app-footer">
+
+        <div class="footer-inner">
+
+            <span>
+                Xiaomi WebBase
+            </span>
+
+            <span>
+                База наличия
+            </span>
+
+        </div>
+
+    </footer>
 
 
-<!-- DATA -->
 
-<script src="products-data.js"></script>
+    <!-- ==================================================
+         SCRIPTS
+    ================================================== -->
 
+    <!--
+        СНАЧАЛА загружаются данные товаров.
+        ПОТОМ загружается app.js.
 
-<!-- APP -->
+        Это важно!
+        app.js использует массив products
+        из product-data.js.
+    -->
 
-<script src="app.js"></script>
+    <script src="product-data.js"></script>
+
+    <script src="app.js"></script>
 
 
 </body>
