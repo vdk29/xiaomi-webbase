@@ -255,8 +255,23 @@
         из product-data.js.
     -->
 
-    <script src="product-data.js?v=3"></script>
-<script src="app.js?v=3"></script>
+    <script>
+    document.getElementById("productsList").innerHTML = `
+        <div style="
+            background: white;
+            color: black;
+            padding: 30px;
+            margin: 30px;
+            border: 5px solid orange;
+            border-radius: 15px;
+            font-size: 24px;
+        ">
+            JAVASCRIPT РАБОТАЕТ
+            <br><br>
+            Xiaomi 17 Ultra
+        </div>
+    `;
+</script>
 
 
 </body>
