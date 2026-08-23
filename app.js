@@ -2,20 +2,9 @@
 // XIAOMI WEBBASE
 // APP.JS
 // ======================================================
-// Вся логика приложения.
-// Данные товаров находятся отдельно в product-data.js.
+// Логика сайта.
+// Товары находятся в product-data.js
 // ======================================================
-
-
-// ======================================================
-// НАСТРОЙКИ
-// ======================================================
-
-const PRODUCTS_STORAGE_KEY =
-    "xiaomiWebBaseProducts";
-
-const PRODUCTS_VERSION_KEY =
-    "xiaomiWebBaseProductsVersion";
 
 
 // ======================================================
@@ -39,191 +28,16 @@ const categoryButtons =
 
 
 // ======================================================
-// LOCAL STORAGE
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
 // ======================================================
 
-function saveProducts() {
+function number(value) {
 
-    try {
+    const result = Number(value);
 
-        localStorage.setItem(
-            PRODUCTS_STORAGE_KEY,
-            JSON.stringify(products)
-        );
-
-        localStorage.setItem(
-            PRODUCTS_VERSION_KEY,
-            PRODUCTS_DATABASE_VERSION
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Ошибка сохранения базы товаров:",
-            error
-        );
-
-    }
-
-}
-
-
-// ======================================================
-// ЗАГРУЗКА ТОВАРОВ
-// ======================================================
-
-function loadProducts() {
-
-    const savedVersion =
-        localStorage.getItem(
-            PRODUCTS_VERSION_KEY
-        );
-
-
-    // --------------------------------------------------
-    // Если версия базы изменилась —
-    // удаляем старую локальную базу.
-    // --------------------------------------------------
-
-    if (
-        savedVersion !==
-        PRODUCTS_DATABASE_VERSION
-    ) {
-
-        localStorage.removeItem(
-            PRODUCTS_STORAGE_KEY
-        );
-
-        localStorage.setItem(
-            PRODUCTS_VERSION_KEY,
-            PRODUCTS_DATABASE_VERSION
-        );
-
-        return;
-
-    }
-
-
-    const savedProducts =
-        localStorage.getItem(
-            PRODUCTS_STORAGE_KEY
-        );
-
-
-    if (!savedProducts) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const parsedProducts =
-            JSON.parse(savedProducts);
-
-
-        if (
-            Array.isArray(parsedProducts)
-        ) {
-
-            products.length = 0;
-
-            products.push(
-                ...parsedProducts
-            );
-
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Ошибка загрузки товаров:",
-            error
-        );
-
-        localStorage.removeItem(
-            PRODUCTS_STORAGE_KEY
-        );
-
-    }
-
-}
-
-
-// ======================================================
-// СОХРАНЕНИЕ БАЗЫ ПРИ ПЕРВОМ ЗАПУСКЕ
-// ======================================================
-
-function initializeProductsDatabase() {
-
-    const savedVersion =
-        localStorage.getItem(
-            PRODUCTS_VERSION_KEY
-        );
-
-
-    const savedProducts =
-        localStorage.getItem(
-            PRODUCTS_STORAGE_KEY
-        );
-
-
-    if (
-        !savedVersion ||
-        !savedProducts
-    ) {
-
-        saveProducts();
-
-    }
-
-}
-
-
-// ======================================================
-// БЕЗОПАСНОЕ ЗНАЧЕНИЕ
-// ======================================================
-
-function safeNumber(value) {
-
-    const number =
-        Number(value);
-
-
-    if (
-        Number.isNaN(number)
-    ) {
-
-        return 0;
-
-    }
-
-
-    return number;
-
-}
-
-
-// ======================================================
-// ОБНОВЛЕНИЕ TOTAL
-// ======================================================
-
-function updateProductTotal(product) {
-
-    product.display =
-        safeNumber(product.display);
-
-    product.warehouse =
-        safeNumber(product.warehouse);
-
-    product.ldu =
-        safeNumber(product.ldu);
-
-    product.quantity =
-        product.display +
-        product.warehouse;
-
+    return Number.isFinite(result)
+        ? result
+        : 0;
 }
 
 
@@ -231,287 +45,34 @@ function updateProductTotal(product) {
 // ПОЛУЧЕНИЕ ОСТАТКОВ
 // ======================================================
 
-function getProductStock(product) {
+function getStock(product) {
 
     const display =
-        safeNumber(product.display);
+        number(product.display);
 
     const warehouse =
-        safeNumber(product.warehouse);
-
-    const total =
-        display +
-        warehouse;
-
+        number(product.warehouse);
 
     return {
-        display,
-        warehouse,
-        total
+
+        display: display,
+
+        warehouse: warehouse,
+
+        total:
+            display + warehouse
+
     };
 
 }
 
 
 // ======================================================
-// ЭКРАН ПУСТОГО РЕЗУЛЬТАТА
-// ======================================================
-
-function renderEmptyResult(
-    title = "Ничего не найдено",
-    text = "Попробуйте изменить запрос"
-) {
-
-    if (!productsList) {
-
-        return;
-
-    }
-
-
-    productsList.innerHTML = `
-
-        <div class="empty-result">
-
-            <strong>
-                ${title}
-            </strong>
-
-            <p>
-                ${text}
-            </p>
-
-        </div>
-
-    `;
-
-}
-
-
-// ======================================================
-// СОЗДАНИЕ КАРТОЧКИ
-// ======================================================
-
-function createProductCard(product) {
-
-    const stock =
-        getProductStock(product);
-
-
-    const card =
-        document.createElement("div");
-
-
-    card.className =
-        "product-card";
-
-
-    card.dataset.productId =
-        product.id;
-
-
-    const memory =
-        product.memory
-            ? product.memory
-            : "";
-
-
-    const color =
-        product.color
-            ? product.color
-            : "";
-
-
-    let productInfo = "";
-
-
-    if (
-        memory &&
-        color
-    ) {
-
-        productInfo =
-            `${memory} · ${color}`;
-
-    } else if (memory) {
-
-        productInfo =
-            memory;
-
-    } else if (color) {
-
-        productInfo =
-            color;
-
-    }
-
-
-    // --------------------------------------------------
-    // СТАТУС НАЛИЧИЯ
-    // --------------------------------------------------
-
-    let stockStatus =
-        "Нет в наличии";
-
-
-    if (
-        stock.total > 0
-    ) {
-
-        if (
-            stock.display > 0 &&
-            stock.warehouse > 0
-        ) {
-
-            stockStatus =
-                "Витрина + склад";
-
-        } else if (
-            stock.display > 0
-        ) {
-
-            stockStatus =
-                "На витрине";
-
-        } else if (
-            stock.warehouse > 0
-        ) {
-
-            stockStatus =
-                "На складе";
-
-        }
-
-    }
-
-
-    card.innerHTML = `
-
-        <div class="product-image">
-
-            <span>
-                Фото товара
-            </span>
-
-        </div>
-
-
-        <div class="product-card-content">
-
-            <div class="product-category">
-
-                ${product.category || ""}
-
-            </div>
-
-
-            <div class="product-name">
-
-                ${product.name || "Без названия"}
-
-            </div>
-
-
-            ${
-                productInfo
-                    ? `
-                        <div class="product-info">
-                            ${productInfo}
-                        </div>
-                    `
-                    : ""
-            }
-
-
-            <div class="stock-status">
-
-                ${stockStatus}
-
-            </div>
-
-
-            <div class="stock">
-
-                <div class="stock-row">
-
-                    <span>
-                        Витрина
-                    </span>
-
-                    <strong>
-                        ${stock.display}
-                    </strong>
-
-                </div>
-
-
-                <div class="stock-row">
-
-                    <span>
-                        Склад
-                    </span>
-
-                    <strong>
-                        ${stock.warehouse}
-                    </strong>
-
-                </div>
-
-
-                <div class="stock-row stock-total">
-
-                    <span>
-                        Всего
-                    </span>
-
-                    <strong>
-                        ${stock.total}
-                    </strong>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    `;
-
-
-    card.addEventListener(
-        "click",
-        () => {
-
-            openProduct(
-                product.id
-            );
-
-        }
-    );
-
-
-    return card;
-
-}
-
-
-// ======================================================
-// ОТКРЫТИЕ ТОВАРА
-// ======================================================
-
-function openProduct(productId) {
-
-    window.location.href =
-        `product.html?id=${encodeURIComponent(productId)}`;
-
-}
-
-
-// ======================================================
-// РЕНДЕР СПИСКА ТОВАРОВ
+// РЕНДЕР ТОВАРОВ
 // ======================================================
 
 function renderProducts(
-    productsToRender = products
+    list = products
 ) {
 
     if (!productsList) {
@@ -525,88 +86,174 @@ function renderProducts(
 
 
     if (
-        !Array.isArray(productsToRender) ||
-        productsToRender.length === 0
+        !Array.isArray(list) ||
+        list.length === 0
     ) {
 
-        renderEmptyResult();
+        productsList.innerHTML = `
+
+            <div class="empty-result">
+
+                <strong>
+                    Ничего не найдено
+                </strong>
+
+                <p>
+                    Попробуйте изменить поиск
+                    или выбрать другую категорию.
+                </p>
+
+            </div>
+
+        `;
 
         return;
 
     }
 
 
-    const fragment =
-        document.createDocumentFragment();
-
-
-    productsToRender.forEach(
+    list.forEach(
         product => {
 
-            updateProductTotal(
-                product
-            );
+            const stock =
+                getStock(product);
 
 
             const card =
-                createProductCard(
-                    product
-                );
+                document.createElement("div");
 
 
-            fragment.appendChild(
+            card.className =
+                "product-card";
+
+
+            card.dataset.id =
+                product.id;
+
+
+            card.innerHTML = `
+
+                <div class="product-image">
+
+                    <span>
+                        Фото товара
+                    </span>
+
+                </div>
+
+
+                <div class="product-card-content">
+
+                    <div class="product-category">
+
+                        ${product.category || ""}
+
+                    </div>
+
+
+                    <div class="product-name">
+
+                        ${product.name || "Без названия"}
+
+                    </div>
+
+
+                    ${
+                        product.memory ||
+                        product.color
+                            ? `
+
+                                <div class="product-info">
+
+                                    ${
+                                        product.memory || ""
+                                    }
+
+                                    ${
+                                        product.memory &&
+                                        product.color
+                                            ? " · "
+                                            : ""
+                                    }
+
+                                    ${
+                                        product.color || ""
+                                    }
+
+                                </div>
+
+                            `
+                            : ""
+                    }
+
+
+                    <div class="stock">
+
+                        <div class="stock-row">
+
+                            <span>
+                                Витрина
+                            </span>
+
+                            <strong>
+                                ${stock.display}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="stock-row">
+
+                            <span>
+                                Склад
+                            </span>
+
+                            <strong>
+                                ${stock.warehouse}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="stock-row stock-total">
+
+                            <span>
+                                Всего
+                            </span>
+
+                            <strong>
+                                ${stock.total}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            card.addEventListener(
+                "click",
+                function () {
+
+                    window.location.href =
+                        "product.html?id=" +
+                        encodeURIComponent(
+                            product.id
+                        );
+
+                }
+            );
+
+
+            productsList.appendChild(
                 card
             );
 
         }
     );
-
-
-    productsList.appendChild(
-        fragment
-    );
-
-}
-
-
-// ======================================================
-// ПОИСКОВЫЙ ТЕКСТ
-// ======================================================
-
-function getProductSearchText(product) {
-
-    const specsText =
-        product.specs
-            ? Object.entries(
-                product.specs
-            )
-                .map(
-                    ([key, value]) =>
-                        `${key} ${value}`
-                )
-                .join(" ")
-            : "";
-
-
-    return `
-
-        ${product.id || ""}
-
-        ${product.name || ""}
-
-        ${product.category || ""}
-
-        ${product.memory || ""}
-
-        ${product.color || ""}
-
-        ${product.description || ""}
-
-        ${product.tip || ""}
-
-        ${specsText}
-
-    `.toLowerCase();
 
 }
 
@@ -641,17 +288,30 @@ function searchProducts() {
     }
 
 
-    const results =
+    const result =
         products.filter(
             product => {
 
-                const searchText =
-                    getProductSearchText(
-                        product
-                    );
+                const text = `
+
+                    ${product.id || ""}
+
+                    ${product.name || ""}
+
+                    ${product.category || ""}
+
+                    ${product.memory || ""}
+
+                    ${product.color || ""}
+
+                    ${product.description || ""}
+
+                    ${product.tip || ""}
+
+                `.toLowerCase();
 
 
-                return searchText.includes(
+                return text.includes(
                     query
                 );
 
@@ -660,14 +320,14 @@ function searchProducts() {
 
 
     renderProducts(
-        results
+        result
     );
 
 }
 
 
 // ======================================================
-// ПОИСК ПО КНОПКЕ
+// SEARCH BUTTON
 // ======================================================
 
 if (searchButton) {
@@ -681,14 +341,14 @@ if (searchButton) {
 
 
 // ======================================================
-// ПОИСК ENTER
+// SEARCH ENTER
 // ======================================================
 
 if (searchInput) {
 
     searchInput.addEventListener(
         "keydown",
-        event => {
+        function (event) {
 
             if (
                 event.key === "Enter"
@@ -705,7 +365,7 @@ if (searchInput) {
 
 
 // ======================================================
-// ЖИВОЙ ПОИСК
+// LIVE SEARCH
 // ======================================================
 
 if (searchInput) {
@@ -722,84 +382,30 @@ if (searchInput) {
 // КАТЕГОРИИ
 // ======================================================
 
-function setActiveCategory(
-    activeButton
-) {
-
-    categoryButtons.forEach(
-        button => {
-
-            button.classList.remove(
-                "active"
-            );
-
-        }
-    );
-
-
-    if (activeButton) {
-
-        activeButton.classList.add(
-            "active"
-        );
-
-    }
-
-}
-
-
-// ======================================================
-// ФИЛЬТР КАТЕГОРИИ
-// ======================================================
-
-function filterByCategory(
-    category
-) {
-
-    if (
-        category === "Все"
-    ) {
-
-        renderProducts(
-            products
-        );
-
-        return;
-
-    }
-
-
-    const filteredProducts =
-        products.filter(
-            product =>
-                product.category === category
-        );
-
-
-    renderProducts(
-        filteredProducts
-    );
-
-}
-
-
-// ======================================================
-// КНОПКИ КАТЕГОРИЙ
-// ======================================================
-
 categoryButtons.forEach(
     button => {
 
         button.addEventListener(
             "click",
-            () => {
+            function () {
 
                 const category =
                     button.dataset.category;
 
 
-                setActiveCategory(
-                    button
+                categoryButtons.forEach(
+                    item => {
+
+                        item.classList.remove(
+                            "active"
+                        );
+
+                    }
+                );
+
+
+                button.classList.add(
+                    "active"
                 );
 
 
@@ -810,8 +416,34 @@ categoryButtons.forEach(
                 }
 
 
-                filterByCategory(
-                    category
+                if (
+                    category === "Все"
+                ) {
+
+                    renderProducts(
+                        products
+                    );
+
+                    return;
+
+                }
+
+
+                const filtered =
+                    products.filter(
+                        product => {
+
+                            return (
+                                product.category ===
+                                category
+                            );
+
+                        }
+                    );
+
+
+                renderProducts(
+                    filtered
                 );
 
             }
@@ -822,108 +454,17 @@ categoryButtons.forEach(
 
 
 // ======================================================
-// ПОИСК ПО КАТЕГОРИИ + ЗАПРОСУ
+// СТРАНИЦА ТОВАРА
 // ======================================================
 
-function filterProducts(
-    category = "Все",
-    query = ""
-) {
+function renderProductPage() {
 
-    const normalizedQuery =
-        query
-            .trim()
-            .toLowerCase();
+    if (!productDetails) {
 
-
-    return products.filter(
-        product => {
-
-            const categoryMatch =
-                category === "Все" ||
-                product.category === category;
-
-
-            if (!categoryMatch) {
-
-                return false;
-
-            }
-
-
-            if (!normalizedQuery) {
-
-                return true;
-
-            }
-
-
-            return getProductSearchText(
-                product
-            ).includes(
-                normalizedQuery
-            );
-
-        }
-    );
-
-}
-
-
-// ======================================================
-// СБРОС ФИЛЬТРОВ
-// ======================================================
-
-function resetFilters() {
-
-    if (searchInput) {
-
-        searchInput.value = "";
+        return;
 
     }
 
-
-    categoryButtons.forEach(
-        button => {
-
-            button.classList.remove(
-                "active"
-            );
-
-        }
-    );
-
-
-    const allButton =
-        Array.from(
-            categoryButtons
-        ).find(
-            button =>
-                button.dataset.category === "Все"
-        );
-
-
-    if (allButton) {
-
-        allButton.classList.add(
-            "active"
-        );
-
-    }
-
-
-    renderProducts(
-        products
-    );
-
-}
-
-
-// ======================================================
-// PRODUCT PAGE
-// ======================================================
-
-function getProductFromURL() {
 
     const params =
         new URLSearchParams(
@@ -937,38 +478,11 @@ function getProductFromURL() {
         );
 
 
-    if (
-        !id
-    ) {
-
-        return null;
-
-    }
-
-
-    return products.find(
-        product =>
-            Number(product.id) === id
-    ) || null;
-
-}
-
-
-// ======================================================
-// РЕНДЕР СТРАНИЦЫ ТОВАРА
-// ======================================================
-
-function renderProductPage() {
-
-    if (!productDetails) {
-
-        return;
-
-    }
-
-
     const product =
-        getProductFromURL();
+        products.find(
+            item =>
+                Number(item.id) === id
+        );
 
 
     if (!product) {
@@ -977,13 +491,12 @@ function renderProductPage() {
 
             <div class="empty-result">
 
-                <h1>
+                <strong>
                     Товар не найден
-                </h1>
+                </strong>
 
                 <p>
-                    Возможно, товар был удалён
-                    или ссылка устарела.
+                    Проверьте ссылку на товар.
                 </p>
 
             </div>
@@ -1006,9 +519,7 @@ function renderProductPage() {
 // ХАРАКТЕРИСТИКИ
 // ======================================================
 
-function renderSpecs(
-    product
-) {
+function renderSpecs(product) {
 
     if (
         !product.specs ||
@@ -1016,11 +527,9 @@ function renderSpecs(
     ) {
 
         return `
-
             <p>
                 Характеристики пока не добавлены.
             </p>
-
         `;
 
     }
@@ -1037,11 +546,9 @@ function renderSpecs(
     ) {
 
         return `
-
             <p>
                 Характеристики пока не добавлены.
             </p>
-
         `;
 
     }
@@ -1071,81 +578,17 @@ function renderSpecs(
 
 
 // ======================================================
-// СТАТУС ТОВАРА
+// РЕНДЕР КАРТОЧКИ ТОВАРА
 // ======================================================
 
-function getProductStatus(
-    product
-) {
+function renderProduct(product) {
 
     const stock =
-        getProductStock(
-            product
-        );
+        getStock(product);
 
 
-    if (
-        stock.total === 0
-    ) {
-
-        return "Нет в наличии";
-
-    }
-
-
-    if (
-        stock.display > 0 &&
-        stock.warehouse > 0
-    ) {
-
-        return "Есть на витрине и складе";
-
-    }
-
-
-    if (
-        stock.display > 0
-    ) {
-
-        return "Есть на витрине";
-
-    }
-
-
-    return "Есть на складе";
-
-}
-
-
-// ======================================================
-// РЕНДЕР ТОВАРА
-// ======================================================
-
-function renderProduct(
-    product
-) {
-
-    updateProductTotal(
-        product
-    );
-
-
-    const stock =
-        getProductStock(
-            product
-        );
-
-
-    const status =
-        getProductStatus(
-            product
-        );
-
-
-    const specsHTML =
-        renderSpecs(
-            product
-        );
+    let specsHTML =
+        renderSpecs(product);
 
 
     productDetails.innerHTML = `
@@ -1182,11 +625,13 @@ function renderProduct(
                 ${
                     product.memory
                         ? `
+
                             <div class="product-memory">
 
                                 ${product.memory}
 
                             </div>
+
                         `
                         : ""
                 }
@@ -1195,6 +640,7 @@ function renderProduct(
                 ${
                     product.color
                         ? `
+
                             <div class="product-color">
 
                                 Цвет:
@@ -1204,21 +650,15 @@ function renderProduct(
                                 </strong>
 
                             </div>
+
                         `
                         : ""
                 }
 
 
-                <div class="product-status">
-
-                    ${status}
-
-                </div>
-
-
-                <!-- ================================= -->
-                <!-- НАЛИЧИЕ -->
-                <!-- ================================= -->
+                <!-- ==================================
+                     НАЛИЧИЕ
+                ================================== -->
 
                 <div class="product-stock">
 
@@ -1246,9 +686,7 @@ function renderProduct(
                             </button>
 
 
-                            <strong
-                                id="displayQuantity"
-                            >
+                            <strong>
                                 ${stock.display}
                             </strong>
 
@@ -1286,9 +724,7 @@ function renderProduct(
                             </button>
 
 
-                            <strong
-                                id="warehouseQuantity"
-                            >
+                            <strong>
                                 ${stock.warehouse}
                             </strong>
 
@@ -1313,10 +749,8 @@ function renderProduct(
                             Всего
                         </span>
 
-                        <strong id="totalQuantity">
-
+                        <strong>
                             ${stock.total}
-
                         </strong>
 
                     </div>
@@ -1324,9 +758,9 @@ function renderProduct(
                 </div>
 
 
-                <!-- ================================= -->
-                <!-- DESCRIPTION -->
-                <!-- ================================= -->
+                <!-- ==================================
+                     ОПИСАНИЕ
+                ================================== -->
 
                 <div class="product-description">
 
@@ -1347,9 +781,9 @@ function renderProduct(
                 </div>
 
 
-                <!-- ================================= -->
-                <!-- SPECS -->
-                <!-- ================================= -->
+                <!-- ==================================
+                     ХАРАКТЕРИСТИКИ
+                ================================== -->
 
                 <div class="product-specs">
 
@@ -1363,9 +797,9 @@ function renderProduct(
                 </div>
 
 
-                <!-- ================================= -->
-                <!-- TIP -->
-                <!-- ================================= -->
+                <!-- ==================================
+                     ПОДСКАЗКА
+                ================================== -->
 
                 <div class="product-tip">
 
@@ -1394,7 +828,7 @@ function renderProduct(
 
 
     document.title =
-        `${product.name || "Товар"} — Xiaomi WebBase`;
+        `${product.name} — Xiaomi WebBase`;
 
 
     setupQuantityButtons(
@@ -1405,12 +839,10 @@ function renderProduct(
 
 
 // ======================================================
-// КНОПКИ КОЛИЧЕСТВА
+// ИЗМЕНЕНИЕ ОСТАТКА
 // ======================================================
 
-function setupQuantityButtons(
-    product
-) {
+function setupQuantityButtons(product) {
 
     const buttons =
         document.querySelectorAll(
@@ -1423,7 +855,7 @@ function setupQuantityButtons(
 
             button.addEventListener(
                 "click",
-                () => {
+                function () {
 
                     const type =
                         button.dataset.type;
@@ -1443,8 +875,8 @@ function setupQuantityButtons(
                     }
 
 
-                    const currentValue =
-                        safeNumber(
+                    let value =
+                        number(
                             product[type]
                         );
 
@@ -1453,8 +885,7 @@ function setupQuantityButtons(
                         action === "plus"
                     ) {
 
-                        product[type] =
-                            currentValue + 1;
+                        value++;
 
                     }
 
@@ -1463,21 +894,43 @@ function setupQuantityButtons(
                         action === "minus"
                     ) {
 
-                        product[type] =
+                        value =
                             Math.max(
                                 0,
-                                currentValue - 1
+                                value - 1
                             );
 
                     }
 
 
-                    updateProductTotal(
-                        product
-                    );
+                    product[type] =
+                        value;
 
 
-                    saveProducts();
+                    product.quantity =
+                        number(product.display) +
+                        number(product.warehouse);
+
+
+                    // ----------------------------------
+                    // Сохраняем локально
+                    // ----------------------------------
+
+                    try {
+
+                        localStorage.setItem(
+                            "xiaomiWebBaseProducts",
+                            JSON.stringify(products)
+                        );
+
+                    } catch (error) {
+
+                        console.error(
+                            "Не удалось сохранить изменения:",
+                            error
+                        );
+
+                    }
 
 
                     renderProduct(
@@ -1494,20 +947,20 @@ function setupQuantityButtons(
 
 
 // ======================================================
-// НАВИГАЦИЯ НАЗАД
+// НАЗАД
 // ======================================================
 
 document.addEventListener(
     "click",
-    event => {
+    function (event) {
 
-        const backButton =
+        const button =
             event.target.closest(
                 "[data-back]"
             );
 
 
-        if (!backButton) {
+        if (!button) {
 
             return;
 
@@ -1532,143 +985,59 @@ document.addEventListener(
 
 
 // ======================================================
-// ESC — НАЗАД
-// ======================================================
-
-document.addEventListener(
-    "keydown",
-    event => {
-
-        if (
-            event.key !== "Escape"
-        ) {
-
-            return;
-
-        }
-
-
-        if (
-            productDetails &&
-            productDetails.innerHTML.trim()
-        ) {
-
-            if (
-                window.history.length > 1
-            ) {
-
-                window.history.back();
-
-            }
-
-        }
-
-    }
-);
-
-
-// ======================================================
-// ПРОВЕРКА ДАННЫХ
-// ======================================================
-
-function validateProducts() {
-
-    if (
-        !Array.isArray(products)
-    ) {
-
-        console.error(
-            "PRODUCTS ERROR: products не является массивом."
-        );
-
-        return false;
-
-    }
-
-
-    const ids =
-        new Set();
-
-
-    products.forEach(
-        product => {
-
-            if (
-                product.id === undefined ||
-                product.id === null
-            ) {
-
-                console.warn(
-                    "Товар без ID:",
-                    product
-                );
-
-                return;
-
-            }
-
-
-            if (
-                ids.has(
-                    product.id
-                )
-            ) {
-
-                console.warn(
-                    "Обнаружен повторяющийся ID товара:",
-                    product.id
-                );
-
-            }
-
-
-            ids.add(
-                product.id
-            );
-
-
-            updateProductTotal(
-                product
-            );
-
-        }
-    );
-
-
-    return true;
-
-}
-
-
-// ======================================================
-// ОБЩАЯ ИНИЦИАЛИЗАЦИЯ
+// START
 // ======================================================
 
 function initApp() {
 
-    console.log(
-        "Xiaomi WebBase запускается..."
-    );
-
+    // ----------------------------------------------
+    // Проверяем, что product-data.js загрузился
+    // ----------------------------------------------
 
     if (
-        !validateProducts()
+        typeof products === "undefined"
     ) {
+
+        console.error(
+            "ОШИБКА: массив products не найден. Проверь подключение product-data.js"
+        );
+
+        if (productsList) {
+
+            productsList.innerHTML = `
+
+                <div class="empty-result">
+
+                    <strong>
+                        Ошибка загрузки базы
+                    </strong>
+
+                    <p>
+                        Файл product-data.js
+                        не подключён или содержит ошибку.
+                    </p>
+
+                </div>
+
+            `;
+
+        }
 
         return;
 
     }
 
 
-    loadProducts();
+    console.log(
+        "Xiaomi WebBase:",
+        products.length,
+        "товаров загружено"
+    );
 
 
-    initializeProductsDatabase();
-
-
-    // --------------------------------------------------
-    // Главная страница
-    // --------------------------------------------------
+    // ----------------------------------------------
+    // Главная
+    // ----------------------------------------------
 
     if (productsList) {
 
@@ -1679,9 +1048,9 @@ function initApp() {
     }
 
 
-    // --------------------------------------------------
+    // ----------------------------------------------
     // Страница товара
-    // --------------------------------------------------
+    // ----------------------------------------------
 
     if (productDetails) {
 
@@ -1689,16 +1058,11 @@ function initApp() {
 
     }
 
-
-    console.log(
-        `Xiaomi WebBase: загружено товаров — ${products.length}`
-    );
-
 }
 
 
 // ======================================================
-// START
+// ЗАПУСК
 // ======================================================
 
 if (
