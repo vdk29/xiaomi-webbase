@@ -7,12 +7,15 @@ const products = [
         color: "Black",
         display: 1,
         warehouse: 2,
-        quantity: 3
+        quantity: 3,
+        description: "Флагманский смартфон Xiaomi 17 Ultra.",
+        specs: {
+            "Память": "16 / 512 GB",
+            "Цвет": "Black"
+        },
+        tip: "Один экземпляр на витрине, два на складе."
     }
 ];
 
-console.log("================================");
-console.log("PRODUCT-DATA.JS РАБОТАЕТ");
-console.log("ТОВАРОВ:", products.length);
-console.log("ТОВАР:", products[0]);
-console.log("================================");
+console.log("PRODUCT-DATA OK");
+console.log(products);
