@@ -10,7 +10,14 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Товар — Xiaomi WebBase</title>
+    <meta
+        name="theme-color"
+        content="#111111"
+    >
+
+    <title>
+        Товар — Xiaomi WebBase
+    </title>
 
     <link
         rel="stylesheet"
@@ -23,47 +30,131 @@
 <body>
 
 
-<header class="header">
+    <!-- ==================================================
+         HEADER
+    ================================================== -->
 
-    <div class="container header-container">
+    <header class="app-header">
 
-        <a
-    href="index.html"
-    class="back-button"
->
-    <span class="back-arrow">‹</span>
-    <span>Назад</span>
-</a>
+        <div class="header-inner">
+
+            <button
+                type="button"
+                class="back-button"
+                data-back
+            >
+
+                ←
+
+                <span>
+                    Назад
+                </span>
+
+            </button>
 
 
-        <div class="logo">
-            Xiaomi WebBase
+            <div class="logo">
+
+                <span class="logo-letter">
+                    X
+                </span>
+
+                <div class="logo-text">
+
+                    <strong>
+                        Xiaomi
+                    </strong>
+
+                    <span>
+                        WebBase
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="header-info">
+
+                Товар
+
+            </div>
+
         </div>
 
-    </div>
-
-</header>
+    </header>
 
 
 
-<main class="main">
+    <!-- ==================================================
+         MAIN
+    ================================================== -->
 
-    <div class="container">
-
-        <div id="productDetails"></div>
-
-    </div>
-
-</main>
+    <main class="app-main product-main">
 
 
+        <!-- ==================================================
+             PRODUCT DETAILS
+        ================================================== -->
 
-<!-- ==================================================
-     SCRIPTS
-================================================== -->
+        <section
+            id="productDetails"
+            class="product-details"
+        >
 
-<script src="products-data.js"></script>
-<script src="app.js"></script>
+            <!--
+                Информация о товаре автоматически
+                загружается через app.js
+                по ID из адресной строки.
+
+                Например:
+
+                product.html?id=1001
+            -->
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- ==================================================
+         FOOTER
+    ================================================== -->
+
+    <footer class="app-footer">
+
+        <div class="footer-inner">
+
+            <span>
+                Xiaomi WebBase
+            </span>
+
+            <span>
+                Карточка товара
+            </span>
+
+        </div>
+
+    </footer>
+
+
+
+    <!-- ==================================================
+         SCRIPTS
+    ================================================== -->
+
+    <!--
+        Сначала загружаем базу товаров.
+        Потом приложение.
+
+        ПОРЯДОК НЕ МЕНЯТЬ.
+    -->
+
+    <script src="product-data.js"></script>
+
+    <script src="app.js"></script>
 
 
 </body>
