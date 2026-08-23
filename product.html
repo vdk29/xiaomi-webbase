@@ -12,7 +12,7 @@
 
     <meta
         name="theme-color"
-        content="#111111"
+        content="#ffffff"
     >
 
     <title>
@@ -36,7 +36,9 @@
 
     <header class="app-header">
 
+
         <div class="header-inner">
+
 
             <button
                 type="button"
@@ -44,7 +46,10 @@
                 data-back
             >
 
-                ←
+                <span class="back-arrow">
+                    ←
+                </span>
+
 
                 <span>
                     Назад
@@ -53,17 +58,20 @@
             </button>
 
 
+
             <div class="logo">
 
                 <span class="logo-letter">
                     X
                 </span>
 
+
                 <div class="logo-text">
 
                     <strong>
                         Xiaomi
                     </strong>
+
 
                     <span>
                         WebBase
@@ -74,11 +82,13 @@
             </div>
 
 
+
             <div class="header-info">
 
                 Товар
 
             </div>
+
 
         </div>
 
@@ -103,11 +113,10 @@
         >
 
             <!--
-                Информация о товаре автоматически
-                загружается через app.js
-                по ID из адресной строки.
+                Карточка товара автоматически
+                создаётся через app.js.
 
-                Например:
+                Пример:
 
                 product.html?id=1001
             -->
@@ -125,35 +134,39 @@
 
     <footer class="app-footer">
 
+
         <div class="footer-inner">
+
 
             <span>
                 Xiaomi WebBase
             </span>
 
+
             <span>
                 Карточка товара
             </span>
 
+
         </div>
+
 
     </footer>
 
 
 
     <!-- ==================================================
-         SCRIPTS
+         JAVASCRIPT
     ================================================== -->
 
     <!--
-        Сначала загружаем базу товаров.
-        Потом приложение.
-
-        ПОРЯДОК НЕ МЕНЯТЬ.
+        СНАЧАЛА загружаются данные.
+        ПОТОМ загружается логика приложения.
     -->
 
-    <script src="product-data.js?v=3"></script>
-<script src="app.js?v=3"></script>
+    <script src="products-data.js"></script>
+
+    <script src="app.js"></script>
 
 
 </body>
