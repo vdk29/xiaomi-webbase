@@ -1,9 +1,7 @@
 // ======================================================
 // XIAOMI WEBBASE
 // APP.JS
-// ======================================================
-// ИМПОРТ ВЫГРУЗКИ 1С
-// АВТОМАТИЧЕСКИЙ ПОИСК КОЛОНОК
+// ПОЛНЫЙ АНАЛИЗАТОР ВЫГРУЗКИ 1С
 // ======================================================
 
 
@@ -11,17 +9,10 @@
 // ELEMENTS
 // ======================================================
 
-const productsList =
-    document.getElementById("productsList");
-
-const searchInput =
-    document.getElementById("searchInput");
-
-const searchButton =
-    document.getElementById("searchButton");
-
-const productDetails =
-    document.getElementById("productDetails");
+const productsList = document.getElementById("productsList");
+const searchInput = document.getElementById("searchInput");
+const searchButton = document.getElementById("searchButton");
+const productDetails = document.getElementById("productDetails");
 
 const categoryButtons =
     document.querySelectorAll(".category-button");
@@ -37,22 +28,19 @@ const importStatus =
 
 
 // ======================================================
-// IMPORT CONFIG
+// НАСТРОЙКИ ИМПОРТА 1С
 // ======================================================
 //
-// ВАЖНО
+// Заголовок находится на 6-й строке.
+// Индекс строки = 5.
 //
-// headerRow = 5
-// потому что заголовок находится на 6-й строке.
+// Номенклатура = 0
+// Витрина = 4
 //
-// Но колонки теперь НЕ считаются постоянными.
-// Код сам найдёт:
+// Склад определяем автоматически по заголовку.
+// Если автоматически определить не получится,
+// используется колонка 6.
 //
-// Номенклатура
-// Витрина
-// Склад ТЦ Европолис ОВ
-//
-// ======================================================
 
 const IMPORT_CONFIG = {
 
@@ -63,21 +51,6 @@ const IMPORT_CONFIG = {
     displayColumn: 4,
 
     warehouseColumn: 6
-
-};
-
-
-// ======================================================
-// ДИНАМИЧЕСКИЕ КОЛОНКИ
-// ======================================================
-
-let detectedColumns = {
-
-    name: IMPORT_CONFIG.nameColumn,
-
-    display: IMPORT_CONFIG.displayColumn,
-
-    warehouse: IMPORT_CONFIG.warehouseColumn
 
 };
 
@@ -108,12 +81,11 @@ function number(value) {
     }
 
 
-    let text =
-        String(value)
-            .trim()
-            .replace(/\u00A0/g, "")
-            .replace(/\s/g, "")
-            .replace(",", ".");
+    let text = String(value)
+        .trim()
+        .replace(/\u00A0/g, " ")
+        .replace(/\s/g, "")
+        .replace(",", ".");
 
 
     if (!text) {
@@ -122,6 +94,9 @@ function number(value) {
 
     }
 
+
+    // Убираем всё кроме цифр,
+    // минуса и точки.
 
     text =
         text.replace(/[^\d.-]/g, "");
@@ -172,7 +147,7 @@ function escapeHTML(value) {
 
 
 // ======================================================
-// CLEAN PRODUCT NAME
+// УДАЛЕНИЕ СЛУЖЕБНЫХ ПРЕФИКСОВ
 // ======================================================
 
 function cleanProductName(name) {
@@ -186,7 +161,7 @@ function cleanProductName(name) {
 
 
 // ======================================================
-// NUMBER STRING
+// ПРОВЕРКА НА ЧИСЛОВУЮ СТРОКУ
 // ======================================================
 
 function looksLikeNumber(value) {
@@ -194,13 +169,11 @@ function looksLikeNumber(value) {
     const text =
         normalizeText(value);
 
-
     if (!text) {
 
         return false;
 
     }
-
 
     return /^[-+]?\d+(?:[.,]\d+)?$/.test(text);
 
@@ -208,91 +181,172 @@ function looksLikeNumber(value) {
 
 
 // ======================================================
-// ПОИСК КОЛОНКИ ПО ЗАГОЛОВКУ
+// АВТОМАТИЧЕСКИЙ ПОИСК КОЛОНКИ СКЛАДА
 // ======================================================
 
-function findColumnByHeader(headers, variants) {
+function detectWarehouseColumn(headerRow) {
 
-    if (!Array.isArray(headers)) {
+    if (!Array.isArray(headerRow)) {
 
-        return -1;
+        return IMPORT_CONFIG.warehouseColumn;
 
     }
 
 
-    const normalizedHeaders =
-        headers.map(
-            header =>
-                normalizeText(header)
-        );
+    console.log("");
+    console.log(
+        "========== ПОИСК КОЛОНКИ СКЛАДА =========="
+    );
 
 
-    // --------------------------------------------------
-    // Сначала точное совпадение
-    // --------------------------------------------------
+    headerRow.forEach(
+        (value, index) => {
 
-    for (const variant of variants) {
-
-        const target =
-            normalizeText(variant);
-
-
-        const index =
-            normalizedHeaders.indexOf(target);
-
-
-        if (index !== -1) {
-
-            return index;
+            console.log(
+                `Колонка ${index}:`,
+                JSON.stringify(value)
+            );
 
         }
+    );
 
-    }
+
+    const warehouseWords = [
+
+        "склад",
+
+        "остаток склад",
+
+        "складской остаток",
+
+        "остатки склад",
+
+        "количество склад",
+
+        "остаток",
+
+        "количество на складе"
+
+    ];
 
 
     // --------------------------------------------------
-    // Затем поиск по содержимому
+    // Сначала ищем точное совпадение / начало
     // --------------------------------------------------
 
     for (
         let i = 0;
-        i < normalizedHeaders.length;
+        i < headerRow.length;
         i++
     ) {
 
         const header =
-            normalizedHeaders[i];
+            normalizeText(
+                headerRow[i]
+            );
 
 
-        for (const variant of variants) {
+        if (!header) {
 
-            const target =
-                normalizeText(variant);
+            continue;
+
+        }
 
 
-            if (
-                header.includes(target)
-            ) {
+        if (
+            warehouseWords.some(
+                word =>
+                    header === word ||
+                    header.startsWith(word + " ")
+            )
+        ) {
 
-                return i;
+            console.log(
+                "Найдена колонка склада:",
+                i,
+                "→",
+                headerRow[i]
+            );
 
-            }
+
+            console.log(
+                "=========================================="
+            );
+
+
+            return i;
 
         }
 
     }
 
 
-    return -1;
+    // --------------------------------------------------
+    // Более широкий поиск
+    // --------------------------------------------------
+
+    for (
+        let i = 0;
+        i < headerRow.length;
+        i++
+    ) {
+
+        const header =
+            normalizeText(
+                headerRow[i]
+            );
+
+
+        if (
+            header.includes("склад")
+        ) {
+
+            console.log(
+                "Найдена колонка склада по слову 'склад':",
+                i,
+                "→",
+                headerRow[i]
+            );
+
+
+            console.log(
+                "=========================================="
+            );
+
+
+            return i;
+
+        }
+
+    }
+
+
+    console.warn(
+        "Колонка склада автоматически не найдена."
+    );
+
+
+    console.warn(
+        "Используется запасная колонка:",
+        IMPORT_CONFIG.warehouseColumn
+    );
+
+
+    console.log(
+        "=========================================="
+    );
+
+
+    return IMPORT_CONFIG.warehouseColumn;
 
 }
 
 
 // ======================================================
-// ОПРЕДЕЛЕНИЕ КОЛОНОК 1С
+// ДИАГНОСТИКА EXCEL
 // ======================================================
 
-function detectImportColumns(headers) {
+function debugExcelRows(rows) {
 
     console.log("");
     console.log(
@@ -300,7 +354,7 @@ function detectImportColumns(headers) {
     );
 
     console.log(
-        "ПОИСК КОЛОНОК 1С"
+        "ДИАГНОСТИКА ВЫГРУЗКИ 1С"
     );
 
     console.log(
@@ -308,123 +362,59 @@ function detectImportColumns(headers) {
     );
 
 
-    // --------------------------------------------------
-    // НОМЕНКЛАТУРА
-    // --------------------------------------------------
+    const header =
+        rows[
+            IMPORT_CONFIG.headerRow
+        ];
 
-    let nameColumn =
-        findColumnByHeader(
-            headers,
-            [
-                "Номенклатура",
-                "Наименование",
-                "Название"
-            ]
+
+    console.log(
+        "ЗАГОЛОВОК ПО КОЛОНКАМ:"
+    );
+
+
+    if (Array.isArray(header)) {
+
+        header.forEach(
+            (value, index) => {
+
+                console.log(
+                    `Колонка ${index}:`,
+                    JSON.stringify(value)
+                );
+
+            }
         );
-
-
-    // --------------------------------------------------
-    // ВИТРИНА
-    // --------------------------------------------------
-
-    let displayColumn =
-        findColumnByHeader(
-            headers,
-            [
-                "Витрина"
-            ]
-        );
-
-
-    // --------------------------------------------------
-    // СКЛАД
-    // --------------------------------------------------
-
-    let warehouseColumn =
-        findColumnByHeader(
-            headers,
-            [
-                "Склад ТЦ Европолис ОВ",
-                "Склад ТЦ Европолис",
-                "Склад Европолис ОВ",
-                "Склад Европолис",
-                "Склад"
-            ]
-        );
-
-
-    // --------------------------------------------------
-    // FALLBACK
-    //
-    // Если заголовок почему-то не найден,
-    // используем старые индексы.
-    // --------------------------------------------------
-
-    if (nameColumn === -1) {
-
-        nameColumn =
-            IMPORT_CONFIG.nameColumn;
 
     }
 
 
-    if (displayColumn === -1) {
+    console.log("");
+    console.log(
+        "ПЕРВЫЕ 10 СТРОК ПОСЛЕ ЗАГОЛОВКА:"
+    );
 
-        displayColumn =
-            IMPORT_CONFIG.displayColumn;
+
+    for (
+        let i = IMPORT_CONFIG.headerRow + 1;
+        i < Math.min(
+            rows.length,
+            IMPORT_CONFIG.headerRow + 11
+        );
+        i++
+    ) {
+
+        console.log(
+            `Строка ${i}:`,
+            rows[i]
+        );
 
     }
-
-
-    if (warehouseColumn === -1) {
-
-        warehouseColumn =
-            IMPORT_CONFIG.warehouseColumn;
-
-    }
-
-
-    detectedColumns = {
-
-        name: nameColumn,
-
-        display: displayColumn,
-
-        warehouse: warehouseColumn
-
-    };
-
-
-    console.log(
-        "Номенклатура:",
-        nameColumn,
-        "→",
-        headers[nameColumn]
-    );
-
-
-    console.log(
-        "Витрина:",
-        displayColumn,
-        "→",
-        headers[displayColumn]
-    );
-
-
-    console.log(
-        "Склад:",
-        warehouseColumn,
-        "→",
-        headers[warehouseColumn]
-    );
 
 
     console.log(
         "=========================================="
     );
-
-
-    return detectedColumns;
 
 }
 
@@ -516,7 +506,7 @@ function isAccessory(name) {
 
 
 // ======================================================
-// SECTION
+// РАЗДЕЛЫ 1С
 // ======================================================
 
 function detectSection(name) {
@@ -691,7 +681,7 @@ function detectSection(name) {
 
 
 // ======================================================
-// SERVICE ROW
+// СЛУЖЕБНАЯ СТРОКА
 // ======================================================
 
 function isServiceRow(name) {
@@ -759,7 +749,7 @@ function isServiceRow(name) {
 
 
 // ======================================================
-// SUBGROUP
+// ПОДГРУППЫ
 // ======================================================
 
 function isSubGroup(name) {
@@ -800,7 +790,7 @@ function isSubGroup(name) {
 
 
 // ======================================================
-// PRODUCT TYPE
+// ТИП ТОВАРА
 // ======================================================
 
 function detectProductType(name) {
@@ -1006,7 +996,7 @@ function detectProductType(name) {
 
 
 // ======================================================
-// SECTION → CATEGORY
+// РАЗДЕЛ → КАТЕГОРИЯ
 // ======================================================
 
 function sectionToCategory(section) {
@@ -1024,13 +1014,10 @@ function sectionToCategory(section) {
 
 
 // ======================================================
-// CLASSIFY
+// ФИНАЛЬНАЯ КЛАССИФИКАЦИЯ
 // ======================================================
 
-function classifyProduct(
-    name,
-    section
-) {
+function classifyProduct(name, section) {
 
     const cleaned =
         cleanProductName(name);
@@ -1058,9 +1045,7 @@ function classifyProduct(
 
     if (section) {
 
-        return sectionToCategory(
-            section
-        );
+        return sectionToCategory(section);
 
     }
 
@@ -1071,13 +1056,10 @@ function classifyProduct(
 
 
 // ======================================================
-// REAL PRODUCT ROW
+// РЕАЛЬНЫЙ ТОВАР
 // ======================================================
 
-function isRealProductRow(
-    row,
-    name
-) {
+function isRealProductRow(row, name) {
 
     if (!Array.isArray(row)) {
 
@@ -1126,13 +1108,13 @@ function isRealProductRow(
 
     const display =
         number(
-            row[detectedColumns.display]
+            row[IMPORT_CONFIG.displayColumn]
         );
 
 
     const warehouse =
         number(
-            row[detectedColumns.warehouse]
+            row[IMPORT_CONFIG.warehouseColumn]
         );
 
 
@@ -1172,21 +1154,22 @@ function isRealProductRow(
 
 
 // ======================================================
-// CREATE PRODUCT
+// СОЗДАНИЕ ТОВАРА
 // ======================================================
 
 function createProduct(
     row,
     name,
     category,
-    id
+    id,
+    warehouseColumn
 ) {
 
     const display =
         Math.max(
             0,
             number(
-                row[detectedColumns.display]
+                row[IMPORT_CONFIG.displayColumn]
             )
         );
 
@@ -1195,7 +1178,7 @@ function createProduct(
         Math.max(
             0,
             number(
-                row[detectedColumns.warehouse]
+                row[warehouseColumn]
             )
         );
 
@@ -1237,7 +1220,7 @@ function createProduct(
 
 
 // ======================================================
-// MAIN 1C ANALYZER
+// ГЛАВНЫЙ АНАЛИЗАТОР 1С
 // ======================================================
 
 function analyze1CTable(rows) {
@@ -1252,17 +1235,13 @@ function analyze1CTable(rows) {
                 ? rows.length
                 : 0,
 
-        sections:
-            0,
+        sections: 0,
 
-        subGroups:
-            0,
+        subGroups: 0,
 
-        ignored:
-            0,
+        ignored: 0,
 
-        realProducts:
-            0,
+        realProducts: 0,
 
         categories: {}
 
@@ -1283,6 +1262,26 @@ function analyze1CTable(rows) {
         };
 
     }
+
+
+    // ==================================================
+    // ОПРЕДЕЛЯЕМ КОЛОНКУ СКЛАДА
+    // ==================================================
+
+    const header =
+        rows[
+            IMPORT_CONFIG.headerRow
+        ];
+
+
+    const warehouseColumn =
+        detectWarehouseColumn(header);
+
+
+    console.log(
+        "ИСПОЛЬЗУЕМАЯ КОЛОНКА СКЛАДА:",
+        warehouseColumn
+    );
 
 
     let currentSection = null;
@@ -1317,7 +1316,9 @@ function analyze1CTable(rows) {
 
         const rawName =
             String(
-                row[detectedColumns.name] ?? ""
+                row[
+                    IMPORT_CONFIG.nameColumn
+                ] ?? ""
             ).trim();
 
 
@@ -1335,13 +1336,11 @@ function analyze1CTable(rows) {
 
 
         // ==================================================
-        // SECTION
+        // РАЗДЕЛ
         // ==================================================
 
         const section =
-            detectSection(
-                normalized
-            );
+            detectSection(normalized);
 
 
         if (section) {
@@ -1363,7 +1362,7 @@ function analyze1CTable(rows) {
 
 
         // ==================================================
-        // SUBGROUP
+        // ПОДГРУППА
         // ==================================================
 
         if (
@@ -1384,7 +1383,7 @@ function analyze1CTable(rows) {
 
 
         // ==================================================
-        // REAL PRODUCT
+        // РЕАЛЬНЫЙ ТОВАР
         // ==================================================
 
         if (
@@ -1408,7 +1407,7 @@ function analyze1CTable(rows) {
 
 
         // ==================================================
-        // CATEGORY
+        // КАТЕГОРИЯ
         // ==================================================
 
         const category =
@@ -1419,7 +1418,7 @@ function analyze1CTable(rows) {
 
 
         // ==================================================
-        // PRODUCT
+        // ТОВАР
         // ==================================================
 
         const product =
@@ -1427,7 +1426,8 @@ function analyze1CTable(rows) {
                 row,
                 rawName,
                 category,
-                productId++
+                productId++,
+                warehouseColumn
             );
 
 
@@ -1443,8 +1443,7 @@ function analyze1CTable(rows) {
             !stats.categories[category]
         ) {
 
-            stats.categories[category] =
-                0;
+            stats.categories[category] = 0;
 
         }
 
@@ -1458,6 +1457,10 @@ function analyze1CTable(rows) {
 
     }
 
+
+    // ==================================================
+    // ИТОГ
+    // ==================================================
 
     console.log("");
 
@@ -1511,6 +1514,12 @@ function analyze1CTable(rows) {
 
 
     console.log(
+        "Колонка склада:",
+        warehouseColumn
+    );
+
+
+    console.log(
         "=========================================="
     );
 
@@ -1544,7 +1553,9 @@ function prepareProduct(
 
 
     const prepared = {
+
         ...product
+
     };
 
 
@@ -1724,8 +1735,7 @@ function renderProducts(
     }
 
 
-    productsList.innerHTML =
-        "";
+    productsList.innerHTML = "";
 
 
     if (
@@ -1750,6 +1760,7 @@ function renderProducts(
 
         `;
 
+
         return;
 
     }
@@ -1763,9 +1774,7 @@ function renderProducts(
 
 
             const card =
-                document.createElement(
-                    "div"
-                );
+                document.createElement("div");
 
 
             card.className =
@@ -2049,8 +2058,7 @@ categoryButtons.forEach(
 
                 if (searchInput) {
 
-                    searchInput.value =
-                        "";
+                    searchInput.value = "";
 
                 }
 
@@ -2144,14 +2152,13 @@ function renderProductPage() {
 
         `;
 
+
         return;
 
     }
 
 
-    renderProduct(
-        product
-    );
+    renderProduct(product);
 
 }
 
@@ -2688,7 +2695,6 @@ if (fileInput) {
 
 
                         console.log("");
-
                         console.log(
                             "=========================================="
                         );
@@ -2713,167 +2719,19 @@ if (fileInput) {
 
 
                         // ==================================================
-                        // HEADER
+                        // ПОДРОБНАЯ ДИАГНОСТИКА
                         // ==================================================
 
-                        const headers =
+                        debugExcelRows(
+                            rows
+                        );
+
+
+                        console.log(
+                            "Заголовок:",
                             rows[
                                 IMPORT_CONFIG.headerRow
-                            ] || [];
-
-
-                        console.log(
-                            "ЗАГОЛОВОК 1С:",
-                            headers
-                        );
-
-
-                        // ==================================================
-                        // ОПРЕДЕЛЯЕМ КОЛОНКИ
-                        // ==================================================
-
-                        detectImportColumns(
-                            headers
-                        );
-
-
-                        // ==================================================
-                        // ПРОВЕРКА КОЛОНОК
-                        // ==================================================
-
-                        console.log("");
-
-                        console.log(
-                            "========== ПРОВЕРКА КОЛОНОК =========="
-                        );
-
-
-                        console.log(
-                            "Номенклатура:",
-                            detectedColumns.name,
-                            "→",
-                            headers[
-                                detectedColumns.name
                             ]
-                        );
-
-
-                        console.log(
-                            "Витрина:",
-                            detectedColumns.display,
-                            "→",
-                            headers[
-                                detectedColumns.display
-                            ]
-                        );
-
-
-                        console.log(
-                            "Склад:",
-                            detectedColumns.warehouse,
-                            "→",
-                            headers[
-                                detectedColumns.warehouse
-                            ]
-                        );
-
-
-                        console.log(
-                            "======================================"
-                        );
-
-
-                        // ==================================================
-                        // ПОКАЗЫВАЕМ ПЕРВУЮ СТРОКУ ТОВАРА
-                        // ==================================================
-
-                        console.log("");
-
-                        console.log(
-                            "========== ПЕРВАЯ СТРОКА =========="
-                        );
-
-
-                        for (
-                            let i =
-                                IMPORT_CONFIG.headerRow + 1;
-
-                            i < rows.length;
-
-                            i++
-                        ) {
-
-                            const row =
-                                rows[i];
-
-
-                            if (
-                                !Array.isArray(row)
-                            ) {
-
-                                continue;
-
-                            }
-
-
-                            const name =
-                                String(
-                                    row[
-                                        detectedColumns.name
-                                    ] ?? ""
-                                ).trim();
-
-
-                            if (!name) {
-
-                                continue;
-
-                            }
-
-
-                            console.log(
-                                "Название:",
-                                name
-                            );
-
-
-                            console.log(
-                                "Витрина:",
-                                row[
-                                    detectedColumns.display
-                                ]
-                            );
-
-
-                            console.log(
-                                "Склад:",
-                                row[
-                                    detectedColumns.warehouse
-                                ]
-                            );
-
-
-                            console.log(
-                                "ВСЯ СТРОКА:",
-                                row.map(
-                                    (
-                                        value,
-                                        index
-                                    ) => ({
-                                        index,
-                                        value
-                                    })
-                                )
-                            );
-
-
-                            break;
-
-                        }
-
-
-                        console.log(
-                            "===================================="
                         );
 
 
@@ -2908,7 +2766,7 @@ if (fileInput) {
 
 
                         // ==================================================
-                        // ЗАМЕНА БАЗЫ
+                        // ЗАМЕНЯЕМ БАЗУ
                         // ==================================================
 
                         products.length = 0;
@@ -3001,69 +2859,6 @@ if (fileInput) {
                         console.log(
                             "Категории:",
                             analysis.stats.categories
-                        );
-
-
-                        // ==================================================
-                        // ПРОВЕРКА СКЛАДА
-                        // ==================================================
-
-                        const totalDisplay =
-                            products.reduce(
-                                (
-                                    sum,
-                                    product
-                                ) =>
-                                    sum +
-                                    number(
-                                        product.display
-                                    ),
-                                0
-                            );
-
-
-                        const totalWarehouse =
-                            products.reduce(
-                                (
-                                    sum,
-                                    product
-                                ) =>
-                                    sum +
-                                    number(
-                                        product.warehouse
-                                    ),
-                                0
-                            );
-
-
-                        console.log("");
-
-                        console.log(
-                            "========== ИТОГ ОСТАТКОВ =========="
-                        );
-
-
-                        console.log(
-                            "Всего на витрине:",
-                            totalDisplay
-                        );
-
-
-                        console.log(
-                            "Всего на складе:",
-                            totalWarehouse
-                        );
-
-
-                        console.log(
-                            "Всего товара:",
-                            totalDisplay +
-                            totalWarehouse
-                        );
-
-
-                        console.log(
-                            "==================================="
                         );
 
 
