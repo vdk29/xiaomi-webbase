@@ -1,6 +1,7 @@
 // ======================================================
 // XIAOMI WEBBASE
 // APP.JS
+// НОВЫЙ АНАЛИЗАТОР ВЫГРУЗКИ 1С
 // ======================================================
 
 
@@ -34,6 +35,30 @@ const importStatus =
 
 
 // ======================================================
+// CONSTANTS
+// ======================================================
+
+const STORAGE_KEY =
+    "xiaomiWebBaseProducts";
+
+
+const CATEGORY_NAMES = [
+
+    "Смартфоны",
+    "Планшеты",
+    "Смарт-часы",
+    "Фитнес-браслеты",
+    "Наушники",
+    "Телевизоры",
+    "Камеры",
+    "Пылесосы",
+    "Аксессуары",
+    "Другое"
+
+];
+
+
+// ======================================================
 // NUMBER
 // ======================================================
 
@@ -47,7 +72,9 @@ function number(value) {
         return 0;
     }
 
-    if (typeof value === "number") {
+    if (
+        typeof value === "number"
+    ) {
 
         return Number.isFinite(value)
             ? value
@@ -58,14 +85,29 @@ function number(value) {
     let text =
         String(value)
             .trim()
+            .replace(/\u00A0/g, " ")
             .replace(/\s/g, "")
             .replace(",", ".");
+
 
     if (!text) {
         return 0;
     }
 
-    const result = Number(text);
+
+    // Убираем нечисловые символы,
+    // кроме точки и минуса.
+
+    text =
+        text.replace(
+            /[^0-9.-]/g,
+            ""
+        );
+
+
+    const result =
+        Number(text);
+
 
     return Number.isFinite(result)
         ? result
@@ -81,10 +123,25 @@ function number(value) {
 function normalizeText(value) {
 
     return String(value ?? "")
+        .replace(/\u00A0/g, " ")
         .trim()
         .toLowerCase()
         .replace(/ё/g, "е")
         .replace(/\s+/g, " ");
+
+}
+
+
+// ======================================================
+// CLEAN NAME
+// ======================================================
+
+function cleanName(value) {
+
+    return String(value ?? "")
+        .replace(/\u00A0/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
 
 }
 
@@ -106,133 +163,108 @@ function escapeHTML(value) {
 
 
 // ======================================================
-// PF / ПФ
+// LOG
 // ======================================================
 
-function isPFRow(name) {
+function analyzerLog(...args) {
 
-    const text =
-        normalizeText(name);
-
-    if (!text) {
-        return false;
-    }
-
-    if (
-        text === "пф" ||
-        text === "pf"
-    ) {
-        return true;
-    }
-
-    if (
-        text.startsWith("пф ") ||
-        text.startsWith("pf ")
-    ) {
-        return true;
-    }
-
-    return false;
-
-}
-
-
-// ======================================================
-// ACCESSORIES
-// ======================================================
-//
-// ВАЖНО:
-// "наушники" здесь НЕ считаются аксессуаром,
-// потому что у нас есть отдельная категория Наушники.
-//
-// Также "фитнес-браслет" и "умные часы"
-// НЕ считаются аксессуарами.
-//
-// ======================================================
-
-function isAccessoryName(name) {
-
-    const text =
-        normalizeText(name);
-
-    if (!text) {
-        return false;
-    }
-
-
-    const accessoryWords = [
-
-        "чехол",
-        "case",
-
-        "защитное стекло",
-        "защитная пленка",
-        "защитная плёнка",
-
-        "стекло для",
-        "пленка для",
-        "плёнка для",
-
-        "клавиатура",
-        "keyboard",
-
-        "зарядное устройство",
-        "зарядка",
-        "зарядный блок",
-        "зарядный адаптер",
-        "charger",
-
-        "кабель",
-        "cable",
-
-        "ремешок",
-        "strap",
-
-        "переходник",
-        "adapter",
-
-        "держатель",
-        "holder",
-
-        "стилус",
-        "stylus",
-
-        "аксессуар",
-        "аксессуары",
-
-        "подставка",
-
-        "power bank",
-        "powerbank",
-
-        "внешний аккумулятор",
-
-        "сетевой адаптер",
-
-        "зарядная станция",
-
-        "док-станция",
-        "dock station"
-
-    ];
-
-
-    return accessoryWords.some(
-        word =>
-            text.includes(word)
+    console.log(
+        "[1C ANALYZER]",
+        ...args
     );
 
 }
 
 
 // ======================================================
-// EXPLICIT PRODUCT TYPE
+// CATEGORY FROM WORDS
+// ======================================================
+//
+// ВАЖНО:
+//
+// Здесь НЕТ Redmi.
+// Нет Xiaomi.
+// Нет Mi Band.
+// Нет названий моделей.
+//
+// Только реальные названия типов товара.
+//
 // ======================================================
 
-function detectExplicitProductCategory(name) {
+function categoryFromExplicitName(name) {
 
     const text =
         normalizeText(name);
+
+
+    if (!text) {
+        return null;
+    }
+
+
+    // --------------------------------------------------
+    // АКСЕССУАРЫ
+    // --------------------------------------------------
+
+    const accessoryWords = [
+
+        "чехол",
+        "стекло",
+        "пленка",
+        "плёнка",
+
+        "защитная пленка",
+        "защитная плёнка",
+        "защитное стекло",
+
+        "зарядное устройство",
+        "зарядка",
+        "зарядный",
+
+        "кабель",
+
+        "ремешок",
+
+        "переходник",
+
+        "держатель",
+
+        "клавиатура",
+
+        "стилус",
+
+        "силиконовый чехол",
+
+        "аксессуар",
+        "аксессуары"
+
+    ];
+
+
+    if (
+        accessoryWords.some(
+            word =>
+                text.includes(word)
+        )
+    ) {
+
+        return "Аксессуары";
+
+    }
+
+
+    // --------------------------------------------------
+    // НАУШНИКИ
+    // --------------------------------------------------
+
+    if (
+        text.includes("наушник") ||
+        text.includes("гарнитур")
+    ) {
+
+        return "Наушники";
+
+    }
 
 
     // --------------------------------------------------
@@ -243,8 +275,7 @@ function detectExplicitProductCategory(name) {
         text.includes("фитнес-браслет") ||
         text.includes("фитнес браслет") ||
         text.includes("фитнес-браслеты") ||
-        text.includes("fitness band") ||
-        text.includes("smart band")
+        text.includes("фитнес браслеты")
     ) {
 
         return "Фитнес-браслеты";
@@ -258,10 +289,10 @@ function detectExplicitProductCategory(name) {
 
     if (
         text.includes("умные часы") ||
+        text.includes("умные час") ||
         text.includes("смарт-часы") ||
         text.includes("смарт часы") ||
-        text.includes("smart watch") ||
-        text.includes("smartwatch")
+        text.includes("смарт-час")
     ) {
 
         return "Смарт-часы";
@@ -274,8 +305,7 @@ function detectExplicitProductCategory(name) {
     // --------------------------------------------------
 
     if (
-        text.includes("смартфон") ||
-        text.includes("smartphone")
+        text.includes("смартфон")
     ) {
 
         return "Смартфоны";
@@ -297,29 +327,11 @@ function detectExplicitProductCategory(name) {
 
 
     // --------------------------------------------------
-    // НАУШНИКИ
-    // --------------------------------------------------
-
-    if (
-        text.includes("наушник") ||
-        text.includes("earbuds") ||
-        text.includes("headphones") ||
-        text.includes("headset")
-    ) {
-
-        return "Наушники";
-
-    }
-
-
-    // --------------------------------------------------
     // ТЕЛЕВИЗОР
     // --------------------------------------------------
 
     if (
-        text.includes("телевизор") ||
-        text.includes("телевизоры") ||
-        text.includes("tv ")
+        text.includes("телевизор")
     ) {
 
         return "Телевизоры";
@@ -332,8 +344,7 @@ function detectExplicitProductCategory(name) {
     // --------------------------------------------------
 
     if (
-        text.includes("камера") ||
-        text.includes("camera")
+        text.includes("камера")
     ) {
 
         return "Камеры";
@@ -360,21 +371,17 @@ function detectExplicitProductCategory(name) {
 
 
 // ======================================================
-// CATEGORY HEADER
+// SECTION HEADER DETECTOR
 // ======================================================
 //
-// Ключевая функция.
+// Примеры:
 //
-// Она распознаёт:
 // 01 смартфоны Xiaomi 71
-// 17 планшеты 20
-// 50 умные часы
-// фитнес-браслеты 30
+// 17 планшеты 23
+// Умные часы 50
+// Фитнес-браслеты 20
 //
-// Но НЕ распознаёт:
-// Redmi Note 15
-// Redmi Pad 2
-// Xiaomi Smart Band 11
+// Такие строки НЕ являются товарами.
 //
 // ======================================================
 
@@ -383,19 +390,49 @@ function detectSectionHeader(name) {
     const text =
         normalizeText(name);
 
+
     if (!text) {
         return null;
     }
 
 
-    // ==================================================
-    // ЯВНЫЕ СЛУЖЕБНЫЕ РАЗДЕЛЫ
-    // ==================================================
+    // --------------------------------------------------
+    // Удаляем начальный номер
+    // --------------------------------------------------
+
+    let clean =
+        text.replace(
+            /^\d+\s*/,
+            ""
+        );
+
+
+    // --------------------------------------------------
+    // Удаляем конечное количество
+    // --------------------------------------------------
+
+    clean =
+        clean.replace(
+            /\s+\d+\s*$/,
+            ""
+        );
+
+
+    clean =
+        clean
+            .replace(
+                /\s*[-–—:]\s*$/,
+                ""
+            )
+            .trim();
+
+
+    // --------------------------------------------------
+    // СМАРТФОНЫ
+    // --------------------------------------------------
 
     if (
-        text === "смартфоны" ||
-        text === "смартфоны xiaomi" ||
-        text === "xiaomi смартфоны"
+        /\bсмартфон(ы)?\b/.test(clean)
     ) {
 
         return "Смартфоны";
@@ -403,10 +440,12 @@ function detectSectionHeader(name) {
     }
 
 
+    // --------------------------------------------------
+    // ПЛАНШЕТЫ
+    // --------------------------------------------------
+
     if (
-        text === "планшеты" ||
-        text === "планшеты xiaomi" ||
-        text === "xiaomi планшеты"
+        /\bпланшет(ы)?\b/.test(clean)
     ) {
 
         return "Планшеты";
@@ -414,10 +453,14 @@ function detectSectionHeader(name) {
     }
 
 
+    // --------------------------------------------------
+    // ЧАСЫ
+    // --------------------------------------------------
+
     if (
-        text === "умные часы" ||
-        text === "смарт часы" ||
-        text === "смарт-часы"
+        clean.includes("умные часы") ||
+        clean.includes("смарт часы") ||
+        clean.includes("смарт-часы")
     ) {
 
         return "Смарт-часы";
@@ -425,9 +468,13 @@ function detectSectionHeader(name) {
     }
 
 
+    // --------------------------------------------------
+    // БРАСЛЕТЫ
+    // --------------------------------------------------
+
     if (
-        text === "фитнес-браслеты" ||
-        text === "фитнес браслеты"
+        clean.includes("фитнес браслет") ||
+        clean.includes("фитнес-браслет")
     ) {
 
         return "Фитнес-браслеты";
@@ -435,8 +482,12 @@ function detectSectionHeader(name) {
     }
 
 
+    // --------------------------------------------------
+    // НАУШНИКИ
+    // --------------------------------------------------
+
     if (
-        text === "наушники"
+        /^наушник/.test(clean)
     ) {
 
         return "Наушники";
@@ -444,8 +495,12 @@ function detectSectionHeader(name) {
     }
 
 
+    // --------------------------------------------------
+    // ТВ
+    // --------------------------------------------------
+
     if (
-        text === "телевизоры"
+        /^телевизор/.test(clean)
     ) {
 
         return "Телевизоры";
@@ -453,8 +508,12 @@ function detectSectionHeader(name) {
     }
 
 
+    // --------------------------------------------------
+    // КАМЕРЫ
+    // --------------------------------------------------
+
     if (
-        text === "камеры"
+        /^камер/.test(clean)
     ) {
 
         return "Камеры";
@@ -462,8 +521,12 @@ function detectSectionHeader(name) {
     }
 
 
+    // --------------------------------------------------
+    // ПЫЛЕСОСЫ
+    // --------------------------------------------------
+
     if (
-        text === "пылесосы"
+        /^пылесос/.test(clean)
     ) {
 
         return "Пылесосы";
@@ -471,8 +534,12 @@ function detectSectionHeader(name) {
     }
 
 
+    // --------------------------------------------------
+    // АКСЕССУАРЫ
+    // --------------------------------------------------
+
     if (
-        text === "аксессуары"
+        /^аксессуар/.test(clean)
     ) {
 
         return "Аксессуары";
@@ -480,170 +547,7 @@ function detectSectionHeader(name) {
     }
 
 
-    // ==================================================
-    // СТРОКИ ТИПА:
-    //
-    // 01 смартфоны Xiaomi 71
-    // 02 планшеты 17
-    // 05 умные часы 50
-    //
-    // ==================================================
-
-    const categoryPatterns = [
-
-        {
-            category: "Смартфоны",
-            regex: /\bсмартфон(?:ы)?\b/
-        },
-
-        {
-            category: "Планшеты",
-            regex: /\bпланшет(?:ы)?\b/
-        },
-
-        {
-            category: "Смарт-часы",
-            regex: /\b(?:умные\s+часы|смарт[\s-]+часы)\b/
-        },
-
-        {
-            category: "Фитнес-браслеты",
-            regex: /\bфитнес[\s-]+браслет(?:ы)?\b/
-        },
-
-        {
-            category: "Наушники",
-            regex: /\bнаушник(?:и)?\b/
-        },
-
-        {
-            category: "Телевизоры",
-            regex: /\bтелевизор(?:ы)?\b/
-        },
-
-        {
-            category: "Камеры",
-            regex: /\bкамер(?:а|ы)\b/
-        },
-
-        {
-            category: "Пылесосы",
-            regex: /\bпылесос(?:ы)?\b/
-        },
-
-        {
-            category: "Аксессуары",
-            regex: /\bаксессуар(?:ы)?\b/
-        }
-
-    ];
-
-
-    // ==================================================
-    // ТОЛЬКО ЕСЛИ СТРОКА ПОХОЖА НА РАЗДЕЛ
-    // ==================================================
-    //
-    // Важный момент:
-    // слово "смартфон" само по себе недостаточно.
-    //
-    // Строка должна выглядеть как служебная:
-    //
-    // 01 смартфоны Xiaomi 71
-    // 17 планшеты 20
-    //
-    // ==================================================
-
-    const beginsWithNumber =
-        /^\d+\s+/.test(text);
-
-    const endsWithNumber =
-        /\s+\d+(?:[.,]\d+)?$/.test(text);
-
-    const hasDash =
-        /[-–—]\s*\d+\s*$/.test(text);
-
-
-    if (
-        beginsWithNumber &&
-        endsWithNumber
-    ) {
-
-        for (const item of categoryPatterns) {
-
-            if (
-                item.regex.test(text)
-            ) {
-
-                return item.category;
-
-            }
-
-        }
-
-    }
-
-
-    if (hasDash) {
-
-        for (const item of categoryPatterns) {
-
-            if (
-                item.regex.test(text)
-            ) {
-
-                return item.category;
-
-            }
-
-        }
-
-    }
-
-
     return null;
-
-}
-
-
-// ======================================================
-// SUBGROUP
-// ======================================================
-
-function isSubGroupRow(name) {
-
-    const text =
-        normalizeText(name);
-
-    if (!text) {
-        return true;
-    }
-
-
-    const patterns = [
-
-        /^для\s+/,
-
-        /^карточка\s+для\s+/,
-
-        /^аксессуары\s+для\s+/,
-
-        /^чехлы\s+для\s+/,
-
-        /^стекла\s+для\s+/,
-
-        /^пленки\s+для\s+/,
-
-        /^пленки\s+для\s+/,
-
-        /^плёнки\s+для\s+/
-
-    ];
-
-
-    return patterns.some(
-        pattern =>
-            pattern.test(text)
-    );
 
 }
 
@@ -657,25 +561,27 @@ function isServiceRow(name) {
     const text =
         normalizeText(name);
 
+
     if (!text) {
         return true;
     }
 
 
+    const exact = [
+
+        "итого",
+        "всего",
+        "остаток",
+        "остатки",
+        "номенклатура",
+        "товары",
+        "товар"
+
+    ];
+
+
     if (
-        isPFRow(text)
-    ) {
-
-        return true;
-
-    }
-
-
-    if (
-        text === "итого" ||
-        text === "всего" ||
-        text === "остаток" ||
-        text === "остатки"
+        exact.includes(text)
     ) {
 
         return true;
@@ -689,42 +595,681 @@ function isServiceRow(name) {
 
 
 // ======================================================
-// DETECT PRODUCT CATEGORY
+// SUBGROUP
+// ======================================================
+//
+// НЕ товар:
+//
+// Для Redmi Note 15
+// Для Redmi Pad 2
+// Аксессуары для Redmi
+//
 // ======================================================
 
-function detectCategory(
+function isSubgroup(name) {
+
+    const text =
+        normalizeText(name);
+
+
+    if (!text) {
+        return true;
+    }
+
+
+    if (
+        /^для\s+/.test(text)
+    ) {
+
+        return true;
+
+    }
+
+
+    if (
+        /^аксессуары\s+для\s+/.test(text)
+    ) {
+
+        return true;
+
+    }
+
+
+    if (
+        /^чехлы\s+для\s+/.test(text)
+    ) {
+
+        return true;
+
+    }
+
+
+    if (
+        /^стекла\s+для\s+/.test(text)
+    ) {
+
+        return true;
+
+    }
+
+
+    if (
+        /^пленки\s+для\s+/.test(text)
+    ) {
+
+        return true;
+
+    }
+
+
+    if (
+        /^плёнки\s+для\s+/.test(text)
+    ) {
+
+        return true;
+
+    }
+
+
+    return false;
+
+}
+
+
+// ======================================================
+// STRUCTURAL ROW
+// ======================================================
+//
+// Дополнительная защита.
+//
+// Строка вида:
+//
+// 01 смартфоны Xiaomi 71
+//
+// должна быть отброшена даже если предыдущий
+// анализатор ошибся.
+//
+// ======================================================
+
+function looksLikeStructuralRow(name) {
+
+    const text =
+        normalizeText(name);
+
+
+    if (!text) {
+        return true;
+    }
+
+
+    // Номер + слова + количество
+
+    if (
+        /^\d+\s+.+\s+\d+\s*$/.test(text)
+    ) {
+
+        if (
+            detectSectionHeader(text)
+        ) {
+
+            return true;
+
+        }
+
+    }
+
+
+    // Категория + количество
+
+    if (
+        /\s+\d+\s*$/.test(text)
+    ) {
+
+        if (
+            detectSectionHeader(text)
+        ) {
+
+            return true;
+
+        }
+
+    }
+
+
+    return false;
+
+}
+
+
+// ======================================================
+// FIND COLUMNS
+// ======================================================
+//
+// Мы НЕ привязываемся жёстко к A/E/G/H.
+//
+// Сначала ищем названия колонок.
+//
+// ======================================================
+
+function findColumns(rows) {
+
+    let headerRow = -1;
+
+    let nameColumn = -1;
+
+    let displayColumn = -1;
+
+    let warehouseColumn = -1;
+
+    let totalColumn = -1;
+
+
+    const maxRows =
+        Math.min(
+            rows.length,
+            80
+        );
+
+
+    analyzerLog(
+        "Ищу структуру колонок..."
+    );
+
+
+    for (
+        let r = 0;
+        r < maxRows;
+        r++
+    ) {
+
+        const row =
+            rows[r];
+
+
+        if (
+            !Array.isArray(row)
+        ) {
+
+            continue;
+
+        }
+
+
+        for (
+            let c = 0;
+            c < row.length;
+            c++
+        ) {
+
+            const text =
+                normalizeText(
+                    row[c]
+                );
+
+
+            if (!text) {
+                continue;
+            }
+
+
+            // ------------------------------------------
+            // НОМЕНКЛАТУРА
+            // ------------------------------------------
+
+            if (
+                text === "номенклатура" ||
+                text.includes("номенклатура")
+            ) {
+
+                nameColumn = c;
+                headerRow = r;
+
+            }
+
+
+            // ------------------------------------------
+            // ВИТРИНА
+            // ------------------------------------------
+
+            if (
+                text.includes("витрина")
+            ) {
+
+                displayColumn = c;
+                headerRow = r;
+
+            }
+
+
+            // ------------------------------------------
+            // СКЛАД
+            // ------------------------------------------
+
+            if (
+                text.includes("склад")
+            ) {
+
+                // Если уже нашли первый склад,
+                // следующий склад оставляем отдельным.
+
+                if (
+                    warehouseColumn === -1
+                ) {
+
+                    warehouseColumn = c;
+
+                }
+
+            }
+
+
+            // ------------------------------------------
+            // ИТОГО
+            // ------------------------------------------
+
+            if (
+                text === "итого" ||
+                text.includes("итого")
+            ) {
+
+                totalColumn = c;
+
+            }
+
+        }
+
+    }
+
+
+    // ==================================================
+    // Если по названиям не нашли склад,
+    // пробуем определить числовые колонки.
+    // ==================================================
+
+    if (
+        displayColumn === -1 ||
+        warehouseColumn === -1
+    ) {
+
+        analyzerLog(
+            "Точные названия остатков не найдены."
+        );
+
+        analyzerLog(
+            "Запускаю структурный анализ числовых колонок."
+        );
+
+
+        if (
+            headerRow >= 0 &&
+            Array.isArray(rows[headerRow])
+        ) {
+
+            const header =
+                rows[headerRow];
+
+
+            const candidates = [];
+
+
+            for (
+                let c = 0;
+                c < header.length;
+                c++
+            ) {
+
+                let numericCount = 0;
+
+
+                for (
+                    let r = headerRow + 1;
+                    r < Math.min(
+                        rows.length,
+                        headerRow + 100
+                    );
+                    r++
+                ) {
+
+                    const value =
+                        rows[r]?.[c];
+
+
+                    if (
+                        value !== "" &&
+                        value !== null &&
+                        value !== undefined &&
+                        Number.isFinite(
+                            Number(value)
+                        )
+                    ) {
+
+                        numericCount++;
+
+                    }
+
+                }
+
+
+                if (
+                    numericCount > 3
+                ) {
+
+                    candidates.push({
+                        column: c,
+                        numericCount
+                    });
+
+                }
+
+            }
+
+
+            analyzerLog(
+                "Числовые колонки:",
+                candidates
+            );
+
+
+            if (
+                displayColumn === -1 &&
+                candidates.length >= 1
+            ) {
+
+                displayColumn =
+                    candidates[0].column;
+
+            }
+
+
+            if (
+                warehouseColumn === -1 &&
+                candidates.length >= 2
+            ) {
+
+                warehouseColumn =
+                    candidates[1].column;
+
+            }
+
+        }
+
+    }
+
+
+    // ==================================================
+    // РЕЗЕРВНАЯ СХЕМА
+    // ==================================================
+
+    if (
+        nameColumn === -1
+    ) {
+
+        nameColumn = 0;
+
+    }
+
+
+    if (
+        displayColumn === -1
+    ) {
+
+        displayColumn = 4;
+
+    }
+
+
+    if (
+        warehouseColumn === -1
+    ) {
+
+        warehouseColumn = 6;
+
+    }
+
+
+    if (
+        headerRow === -1
+    ) {
+
+        headerRow = 0;
+
+    }
+
+
+    const result = {
+
+        headerRow,
+        nameColumn,
+        displayColumn,
+        warehouseColumn,
+        totalColumn
+
+    };
+
+
+    analyzerLog(
+        "СТРУКТУРА КОЛОНОК:",
+        result
+    );
+
+
+    return result;
+
+}
+
+
+// ======================================================
+// DETECT PRODUCT ROW
+// ======================================================
+//
+// Здесь самое важное.
+//
+// Мы НЕ спрашиваем:
+// "похоже ли название на Xiaomi?"
+//
+// Мы спрашиваем:
+//
+// "похожа ли строка на реальную строку товара?"
+//
+// ======================================================
+
+function isRealProductRow(
     name,
-    currentCategory,
-    rowCategory
+    row,
+    columns
 ) {
 
     const text =
         normalizeText(name);
 
 
-    // ==================================================
-    // 1. ЯВНЫЙ ТИП ТОВАРА
-    // ==================================================
+    if (!text) {
+        return false;
+    }
+
+
+    // -----------------------------------------------
+    // Явные служебные строки
+    // -----------------------------------------------
+
+    if (
+        isServiceRow(name)
+    ) {
+
+        return false;
+
+    }
+
+
+    // -----------------------------------------------
+    // Подгруппа
+    // -----------------------------------------------
+
+    if (
+        isSubgroup(name)
+    ) {
+
+        return false;
+
+    }
+
+
+    // -----------------------------------------------
+    // Раздел
+    // -----------------------------------------------
+
+    if (
+        detectSectionHeader(name)
+    ) {
+
+        return false;
+
+    }
+
+
+    // -----------------------------------------------
+    // Структурная строка
+    // -----------------------------------------------
+
+    if (
+        looksLikeStructuralRow(name)
+    ) {
+
+        return false;
+
+    }
+
+
+    // -----------------------------------------------
+    // Проверяем наличие остатков.
+    //
+    // НО:
+    // товар может иметь 0.
+    //
+    // Поэтому нулевой остаток НЕ означает,
+    // что это не товар.
+    // -----------------------------------------------
+
+    const display =
+        number(
+            row[
+                columns.displayColumn
+            ]
+        );
+
+
+    const warehouse =
+        number(
+            row[
+                columns.warehouseColumn
+            ]
+        );
+
+
+    const hasStock =
+        display !== 0 ||
+        warehouse !== 0;
+
+
+    // -----------------------------------------------
+    // Явный тип товара
+    // -----------------------------------------------
 
     const explicit =
-        detectExplicitProductCategory(
+        categoryFromExplicitName(name);
+
+
+    if (
+        explicit &&
+        explicit !== "Аксессуары"
+    ) {
+
+        return true;
+
+    }
+
+
+    // -----------------------------------------------
+    // Аксессуары.
+    //
+    // Если есть остаток — почти наверняка товар.
+    // -----------------------------------------------
+
+    if (
+        explicit === "Аксессуары" &&
+        hasStock
+    ) {
+
+        return true;
+
+    }
+
+
+    // -----------------------------------------------
+    // Если строка содержит типичный SKU/модель,
+    // но не является разделом.
+    // -----------------------------------------------
+
+    if (
+        text.length > 5 &&
+        !looksLikeStructuralRow(text)
+    ) {
+
+        return true;
+
+    }
+
+
+    return false;
+
+}
+
+
+// ======================================================
+// DETECT CATEGORY
+// ======================================================
+//
+// Приоритет:
+//
+// 1. Явный тип товара
+// 2. Текущий раздел 1С
+// 3. Аксессуары
+// 4. Другое
+//
+// ======================================================
+
+function detectProductCategory(
+    name,
+    currentSection
+) {
+
+    const explicit =
+        categoryFromExplicitName(
             name
         );
 
 
-    if (explicit) {
+    // -----------------------------------------------
+    // Если в самом названии написано
+    // "смартфон", "планшет" и т.д.
+    // -----------------------------------------------
+
+    if (
+        explicit &&
+        explicit !== "Аксессуары"
+    ) {
 
         return explicit;
 
     }
 
 
-    // ==================================================
-    // 2. АКСЕССУАР
-    // ==================================================
+    // -----------------------------------------------
+    // Аксессуары
+    // -----------------------------------------------
 
     if (
-        isAccessoryName(name)
+        explicit === "Аксессуары"
     ) {
 
         return "Аксессуары";
@@ -732,28 +1277,16 @@ function detectCategory(
     }
 
 
-    // ==================================================
-    // 3. КАТЕГОРИЯ ИЗ СТРОКИ
-    // ==================================================
+    // -----------------------------------------------
+    // Главное:
+    // наследуем раздел 1С
+    // -----------------------------------------------
 
     if (
-        rowCategory
+        currentSection
     ) {
 
-        return rowCategory;
-
-    }
-
-
-    // ==================================================
-    // 4. ТЕКУЩИЙ РАЗДЕЛ 1С
-    // ==================================================
-
-    if (
-        currentCategory
-    ) {
-
-        return currentCategory;
+        return currentSection;
 
     }
 
@@ -764,25 +1297,62 @@ function detectCategory(
 
 
 // ======================================================
-// STOCK
+// CREATE PRODUCT
 // ======================================================
 
-function getStock(product) {
-
-    const display =
-        number(product.display);
-
-    const warehouse =
-        number(product.warehouse);
+function createProduct(
+    name,
+    category,
+    display,
+    warehouse,
+    id
+) {
 
     return {
 
-        display,
+        id,
 
-        warehouse,
+        name:
+            cleanName(name),
 
-        total:
-            display + warehouse
+        category,
+
+        memory:
+            "",
+
+        color:
+            "",
+
+        display:
+            Math.max(
+                0,
+                display
+            ),
+
+        warehouse:
+            Math.max(
+                0,
+                warehouse
+            ),
+
+        quantity:
+            Math.max(
+                0,
+                display
+            ) +
+            Math.max(
+                0,
+                warehouse
+            ),
+
+        description:
+            "",
+
+        tip:
+            "",
+
+        specs:
+            {}
 
     };
 
@@ -790,7 +1360,402 @@ function getStock(product) {
 
 
 // ======================================================
-// PREPARE PRODUCT
+// ANALYZE 1C
+// ======================================================
+
+function analyze1C(rows) {
+
+    const result = [];
+
+    const columns =
+        findColumns(rows);
+
+
+    let currentSection =
+        null;
+
+
+    let productId =
+        1;
+
+
+    const analysis = {
+
+        sections: [],
+
+        skipped: [],
+
+        products: []
+
+    };
+
+
+    analyzerLog(
+        "===================================="
+    );
+
+
+    analyzerLog(
+        "НАЧАЛО АНАЛИЗА ВЫГРУЗКИ"
+    );
+
+
+    analyzerLog(
+        "Строк в Excel:",
+        rows.length
+    );
+
+
+    analyzerLog(
+        "===================================="
+    );
+
+
+    const start =
+        Math.max(
+            columns.headerRow + 1,
+            0
+        );
+
+
+    for (
+        let i = start;
+        i < rows.length;
+        i++
+    ) {
+
+        const row =
+            rows[i];
+
+
+        if (
+            !Array.isArray(row)
+        ) {
+
+            continue;
+
+        }
+
+
+        const rawName =
+            row[
+                columns.nameColumn
+            ];
+
+
+        const name =
+            cleanName(
+                rawName
+            );
+
+
+        if (!name) {
+
+            continue;
+
+        }
+
+
+        // ==================================================
+        // 1. ПРОБУЕМ НАЙТИ НОВЫЙ РАЗДЕЛ
+        // ==================================================
+
+        const section =
+            detectSectionHeader(
+                name
+            );
+
+
+        if (
+            section
+        ) {
+
+            currentSection =
+                section;
+
+
+            analysis.sections.push({
+
+                row: i + 1,
+
+                sourceName: name,
+
+                category: section
+
+            });
+
+
+            analyzerLog(
+                `РАЗДЕЛ [${i + 1}]:`,
+                name,
+                "→",
+                section
+            );
+
+
+            continue;
+
+        }
+
+
+        // ==================================================
+        // 2. СЛУЖЕБНАЯ СТРОКА
+        // ==================================================
+
+        if (
+            isServiceRow(name)
+        ) {
+
+            analysis.skipped.push({
+
+                row: i + 1,
+
+                name,
+
+                reason:
+                    "служебная строка"
+
+            });
+
+
+            continue;
+
+        }
+
+
+        // ==================================================
+        // 3. ПОДГРУППА
+        // ==================================================
+
+        if (
+            isSubgroup(name)
+        ) {
+
+            analysis.skipped.push({
+
+                row: i + 1,
+
+                name,
+
+                reason:
+                    "подгруппа"
+
+            });
+
+
+            analyzerLog(
+                "ПОДГРУППА:",
+                name
+            );
+
+
+            continue;
+
+        }
+
+
+        // ==================================================
+        // 4. ПРОВЕРКА ТОВАРА
+        // ==================================================
+
+        const realProduct =
+            isRealProductRow(
+                name,
+                row,
+                columns
+            );
+
+
+        if (!realProduct) {
+
+            analysis.skipped.push({
+
+                row: i + 1,
+
+                name,
+
+                reason:
+                    "не похожа на товар"
+
+            });
+
+
+            analyzerLog(
+                "ПРОПУСК:",
+                name
+            );
+
+
+            continue;
+
+        }
+
+
+        // ==================================================
+        // 5. ОСТАТКИ
+        // ==================================================
+
+        const display =
+            number(
+                row[
+                    columns.displayColumn
+                ]
+            );
+
+
+        const warehouse =
+            number(
+                row[
+                    columns.warehouseColumn
+                ]
+            );
+
+
+        // ==================================================
+        // 6. КАТЕГОРИЯ
+        // ==================================================
+
+        const category =
+            detectProductCategory(
+                name,
+                currentSection
+            );
+
+
+        // ==================================================
+        // 7. СОЗДАЁМ
+        // ==================================================
+
+        const product =
+            createProduct(
+                name,
+                category,
+                display,
+                warehouse,
+                productId++
+            );
+
+
+        result.push(
+            product
+        );
+
+
+        analysis.products.push({
+
+            row: i + 1,
+
+            name,
+
+            category,
+
+            display,
+
+            warehouse
+
+        });
+
+
+        analyzerLog(
+            "ТОВАР:",
+            name,
+            "→",
+            category
+        );
+
+    }
+
+
+    // ==================================================
+    // СТАТИСТИКА
+    // ==================================================
+
+    const stats = {};
+
+
+    CATEGORY_NAMES.forEach(
+        category => {
+
+            stats[category] =
+                result.filter(
+                    product =>
+                        product.category ===
+                        category
+                ).length;
+
+        }
+    );
+
+
+    analysis.stats =
+        stats;
+
+
+    analyzerLog(
+        "===================================="
+    );
+
+
+    analyzerLog(
+        "РЕЗУЛЬТАТ АНАЛИЗА"
+    );
+
+
+    analyzerLog(
+        "Всего товаров:",
+        result.length
+    );
+
+
+    analyzerLog(
+        "Категории:",
+        stats
+    );
+
+
+    analyzerLog(
+        "Разделов найдено:",
+        analysis.sections.length
+    );
+
+
+    analyzerLog(
+        "Строк пропущено:",
+        analysis.skipped.length
+    );
+
+
+    analyzerLog(
+        "===================================="
+    );
+
+
+    console.table(
+        analysis.sections
+    );
+
+
+    console.table(
+        analysis.products
+    );
+
+
+    return {
+
+        products:
+            result,
+
+        analysis,
+
+        columns
+
+    };
+
+}
+
+
+// ======================================================
+// PREPARE EXISTING PRODUCT
 // ======================================================
 
 function prepareProduct(
@@ -804,7 +1769,9 @@ function prepareProduct(
 
 
     const prepared = {
+
         ...product
+
     };
 
 
@@ -821,10 +1788,10 @@ function prepareProduct(
 
 
     prepared.name =
-        String(
+        cleanName(
             prepared.name ||
             "Без названия"
-        ).trim();
+        );
 
 
     prepared.display =
@@ -844,9 +1811,16 @@ function prepareProduct(
         prepared.warehouse;
 
 
-    prepared.category =
-        prepared.category ||
-        "Другое";
+    if (
+        !CATEGORY_NAMES.includes(
+            prepared.category
+        )
+    ) {
+
+        prepared.category =
+            "Другое";
+
+    }
 
 
     prepared.memory =
@@ -887,6 +1861,7 @@ function prepareProduct(
 function normalizeProducts() {
 
     if (
+        typeof products === "undefined" ||
         !Array.isArray(products)
     ) {
 
@@ -908,7 +1883,9 @@ function normalizeProducts() {
                 );
 
 
-            if (prepared) {
+            if (
+                prepared
+            ) {
 
                 normalized.push(
                     prepared
@@ -937,6 +1914,39 @@ function normalizeProducts() {
 
 
 // ======================================================
+// STOCK
+// ======================================================
+
+function getStock(product) {
+
+    const display =
+        number(
+            product.display
+        );
+
+
+    const warehouse =
+        number(
+            product.warehouse
+        );
+
+
+    return {
+
+        display,
+
+        warehouse,
+
+        total:
+            display +
+            warehouse
+
+    };
+
+}
+
+
+// ======================================================
 // RENDER PRODUCTS
 // ======================================================
 
@@ -949,7 +1959,8 @@ function renderProducts(
     }
 
 
-    productsList.innerHTML = "";
+    productsList.innerHTML =
+        "";
 
 
     if (
@@ -983,11 +1994,15 @@ function renderProducts(
         product => {
 
             const stock =
-                getStock(product);
+                getStock(
+                    product
+                );
 
 
             const card =
-                document.createElement("div");
+                document.createElement(
+                    "div"
+                );
 
 
             card.className =
@@ -1162,23 +2177,17 @@ function searchProducts() {
             product => {
 
                 const text =
-                    normalizeText(`
+                    normalizeText(
 
-                        ${product.id || ""}
+                        `${product.id || ""}
+                         ${product.name || ""}
+                         ${product.category || ""}
+                         ${product.memory || ""}
+                         ${product.color || ""}
+                         ${product.description || ""}
+                         ${product.tip || ""}`
 
-                        ${product.name || ""}
-
-                        ${product.category || ""}
-
-                        ${product.memory || ""}
-
-                        ${product.color || ""}
-
-                        ${product.description || ""}
-
-                        ${product.tip || ""}
-
-                    `);
+                    );
 
 
                 return text.includes(
@@ -1269,7 +2278,8 @@ categoryButtons.forEach(
 
                 if (searchInput) {
 
-                    searchInput.value = "";
+                    searchInput.value =
+                        "";
 
                 }
 
@@ -1419,11 +2429,15 @@ function renderSpecs(product) {
                 <div class="spec-row">
 
                     <span>
-                        ${escapeHTML(key)}
+                        ${escapeHTML(
+                            key
+                        )}
                     </span>
 
                     <strong>
-                        ${escapeHTML(value)}
+                        ${escapeHTML(
+                            value
+                        )}
                     </strong>
 
                 </div>
@@ -1436,7 +2450,7 @@ function renderSpecs(product) {
 
 
 // ======================================================
-// PRODUCT
+// PRODUCT PAGE RENDER
 // ======================================================
 
 function renderProduct(product) {
@@ -1645,7 +2659,9 @@ function renderProduct(product) {
                     </h2>
 
 
-                    ${renderSpecs(product)}
+                    ${renderSpecs(
+                        product
+                    )}
 
                 </div>
 
@@ -1687,7 +2703,7 @@ function renderProduct(product) {
 
 
 // ======================================================
-// QUANTITY BUTTONS
+// QUANTITY
 // ======================================================
 
 function setupQuantityButtons(product) {
@@ -1756,27 +2772,20 @@ function setupQuantityButtons(product) {
 
 
                     product.quantity =
-                        number(product.display) +
-                        number(product.warehouse);
-
-
-                    try {
-
-                        localStorage.setItem(
-                            "xiaomiWebBaseProducts",
-                            JSON.stringify(
-                                products
-                            )
+                        number(
+                            product.display
+                        ) +
+                        number(
+                            product.warehouse
                         );
 
-                    } catch (error) {
 
-                        console.error(
-                            "Ошибка сохранения:",
-                            error
-                        );
-
-                    }
+                    localStorage.setItem(
+                        STORAGE_KEY,
+                        JSON.stringify(
+                            products
+                        )
+                    );
 
 
                     renderProduct(
@@ -1793,574 +2802,27 @@ function setupQuantityButtons(product) {
 
 
 // ======================================================
-// FIND 1C COLUMNS
+// IMPORT STATUS
 // ======================================================
 
-function find1CColumns(rows) {
-
-    let headerRow = -1;
-
-    let nameColumn = -1;
-
-    let displayColumn = -1;
-
-    let warehouseColumn = -1;
-
-    let totalColumn = -1;
-
-
-    const limit =
-        Math.min(
-            rows.length,
-            80
-        );
-
-
-    // ==================================================
-    // ИЩЕМ ШАПКУ
-    // ==================================================
-
-    for (
-        let i = 0;
-        i < limit;
-        i++
-    ) {
-
-        const row =
-            rows[i];
-
-
-        if (
-            !Array.isArray(row)
-        ) {
-            continue;
-        }
-
-
-        for (
-            let j = 0;
-            j < row.length;
-            j++
-        ) {
-
-            const text =
-                normalizeText(
-                    row[j]
-                );
-
-
-            if (
-                text === "номенклатура" ||
-                text.includes("номенклатура")
-            ) {
-
-                nameColumn = j;
-
-                headerRow = i;
-
-            }
-
-        }
-
-    }
-
-
-    // ==================================================
-    // ЕСЛИ НАШЛИ НОМЕНКЛАТУРУ,
-    // ИЩЕМ ОСТАЛЬНЫЕ КОЛОНКИ
-    // В ТОЙ ЖЕ СТРОКЕ
-    // ==================================================
+function showImportStatus(
+    text
+) {
 
     if (
-        headerRow !== -1
+        importStatus
     ) {
 
-        const header =
-            rows[headerRow];
-
-
-        for (
-            let j = 0;
-            j < header.length;
-            j++
-        ) {
-
-            const text =
-                normalizeText(
-                    header[j]
-                );
-
-
-            // ------------------------------
-            // ВИТРИНА
-            // ------------------------------
-
-            if (
-                text.includes("европолис") &&
-                !text.includes("ов")
-            ) {
-
-                displayColumn = j;
-
-            }
-
-
-            // ------------------------------
-            // СКЛАД
-            // ------------------------------
-
-            if (
-                text.includes("европолис") &&
-                text.includes("ов")
-            ) {
-
-                warehouseColumn = j;
-
-            }
-
-
-            // ------------------------------
-            // ИТОГО
-            // ------------------------------
-
-            if (
-                text === "итого" ||
-                text.includes("итого")
-            ) {
-
-                totalColumn = j;
-
-            }
-
-        }
+        importStatus.textContent =
+            text;
 
     }
-
-
-    console.log(
-        "================================="
-    );
-
-    console.log(
-        "СТРУКТУРА 1С"
-    );
-
-    console.log({
-        headerRow,
-        nameColumn,
-        displayColumn,
-        warehouseColumn,
-        totalColumn
-    });
-
-    console.log(
-        "================================="
-    );
-
-
-    // ==================================================
-    // FALLBACK
-    // ==================================================
-
-    if (
-        nameColumn === -1
-    ) {
-
-        nameColumn = 0;
-
-    }
-
-
-    if (
-        displayColumn === -1
-    ) {
-
-        displayColumn = 4;
-
-    }
-
-
-    if (
-        warehouseColumn === -1
-    ) {
-
-        warehouseColumn = 6;
-
-    }
-
-
-    if (
-        totalColumn === -1
-    ) {
-
-        totalColumn = 7;
-
-    }
-
-
-    if (
-        headerRow === -1
-    ) {
-
-        headerRow = 0;
-
-    }
-
-
-    return {
-
-        headerRow,
-
-        nameColumn,
-
-        displayColumn,
-
-        warehouseColumn,
-
-        totalColumn
-
-    };
 
 }
 
 
 // ======================================================
-// PARSE 1C DATA
-// ======================================================
-//
-// НОВАЯ ЛОГИКА:
-//
-// 1. Ищем раздел.
-// 2. Запоминаем currentCategory.
-// 3. Следующие строки считаем товарами.
-// 4. Не угадываем модель как отдельный раздел.
-// 5. Служебные строки пропускаем.
-// 6. Аксессуары не останавливают импорт.
-//
-// ======================================================
-
-function parse1CData(rows) {
-
-    const result = [];
-
-
-    if (
-        !Array.isArray(rows) ||
-        rows.length === 0
-    ) {
-
-        return result;
-
-    }
-
-
-    const columns =
-        find1CColumns(
-            rows
-        );
-
-
-    let productId = 1;
-
-    let currentCategory = null;
-
-
-    const start =
-        Math.max(
-            columns.headerRow + 1,
-            0
-        );
-
-
-    for (
-        let i = start;
-        i < rows.length;
-        i++
-    ) {
-
-        const row =
-            rows[i];
-
-
-        if (
-            !Array.isArray(row)
-        ) {
-
-            continue;
-
-        }
-
-
-        // ==================================================
-        // НАЗВАНИЕ
-        // ==================================================
-
-        const name =
-            String(
-                row[
-                    columns.nameColumn
-                ] ?? ""
-            ).trim();
-
-
-        if (!name) {
-            continue;
-        }
-
-
-        const normalizedName =
-            normalizeText(name);
-
-
-        // ==================================================
-        // PF / ПФ
-        // ==================================================
-
-        if (
-            isPFRow(name)
-        ) {
-
-            console.log(
-                "ПФ ИГНОРИРУЕМ:",
-                name
-            );
-
-            continue;
-
-        }
-
-
-        // ==================================================
-        // РАЗДЕЛ 1С
-        // ==================================================
-
-        const section =
-            detectSectionHeader(
-                name
-            );
-
-
-        if (section) {
-
-            currentCategory =
-                section;
-
-
-            console.log(
-                "РАЗДЕЛ:",
-                name,
-                "→",
-                currentCategory
-            );
-
-
-            continue;
-
-        }
-
-
-        // ==================================================
-        // ПОДГРУППА
-        // ==================================================
-
-        if (
-            isSubGroupRow(name)
-        ) {
-
-            console.log(
-                "ПОДГРУППА:",
-                name
-            );
-
-            continue;
-
-        }
-
-
-        // ==================================================
-        // СЛУЖЕБНАЯ СТРОКА
-        // ==================================================
-
-        if (
-            isServiceRow(name)
-        ) {
-
-            continue;
-
-        }
-
-
-        // ==================================================
-        // СТРОКИ, КОТОРЫЕ ЯВНО НЕ ТОВАР
-        // ==================================================
-
-        if (
-            normalizedName.startsWith(
-                "для "
-            )
-        ) {
-
-            continue;
-
-        }
-
-
-        if (
-            normalizedName.startsWith(
-                "аксессуары для "
-            )
-        ) {
-
-            continue;
-
-        }
-
-
-        // ==================================================
-        // ОСТАТКИ
-        // ==================================================
-
-        const firstStock =
-            Math.max(
-                0,
-                number(
-                    row[
-                        columns.displayColumn
-                    ]
-                )
-            );
-
-
-        const secondStock =
-            Math.max(
-                0,
-                number(
-                    row[
-                        columns.warehouseColumn
-                    ]
-                )
-            );
-
-
-        // ==================================================
-        // КАТЕГОРИЯ
-        // ==================================================
-
-        const category =
-            detectCategory(
-                name,
-                currentCategory,
-                null
-            );
-
-
-        // ==================================================
-        // СОЗДАЁМ ТОВАР
-        // ==================================================
-
-        const product = {
-
-            id:
-                productId++,
-
-            name,
-
-            category,
-
-            memory:
-                "",
-
-            color:
-                "",
-
-            display:
-                firstStock,
-
-            warehouse:
-                secondStock,
-
-            quantity:
-                firstStock +
-                secondStock,
-
-            description:
-                "",
-
-            tip:
-                "",
-
-            specs:
-                {}
-
-        };
-
-
-        result.push(
-            product
-        );
-
-
-        console.log(
-            "ТОВАР:",
-            name,
-            "→",
-            category,
-            "|",
-            firstStock,
-            "|",
-            secondStock
-        );
-
-    }
-
-
-    // ==================================================
-    // СТАТИСТИКА
-    // ==================================================
-
-    const stats = {};
-
-
-    result.forEach(
-        product => {
-
-            stats[product.category] =
-                (stats[product.category] || 0) + 1;
-
-        }
-    );
-
-
-    console.log(
-        "================================="
-    );
-
-    console.log(
-        "ИМПОРТ ЗАВЕРШЁН"
-    );
-
-    console.log(
-        "Всего:",
-        result.length
-    );
-
-    console.log(
-        "Статистика:",
-        stats
-    );
-
-    console.log(
-        "================================="
-    );
-
-
-    return result;
-
-}
-
-
-// ======================================================
-// IMPORT 1C FILE
+// IMPORT FILE
 // ======================================================
 
 if (fileInput) {
@@ -2390,24 +2852,18 @@ if (fileInput) {
                 typeof XLSX === "undefined"
             ) {
 
-                if (importStatus) {
-
-                    importStatus.textContent =
-                        "Ошибка: библиотека XLSX не загрузилась.";
-
-                }
+                showImportStatus(
+                    "Ошибка: библиотека XLSX не загрузилась."
+                );
 
                 return;
 
             }
 
 
-            if (importStatus) {
-
-                importStatus.textContent =
-                    "Читаю выгрузку 1С...";
-
-            }
+            showImportStatus(
+                "Анализирую выгрузку 1С..."
+            );
 
 
             const reader =
@@ -2446,6 +2902,10 @@ if (fileInput) {
                         }
 
 
+                        // ==================================================
+                        // ИЩЕМ ЛИСТ
+                        // ==================================================
+
                         const sheetName =
                             workbook.SheetNames[0];
 
@@ -2466,45 +2926,52 @@ if (fileInput) {
                             );
 
 
-                        console.log(
+                        analyzerLog(
                             "Лист:",
                             sheetName
                         );
 
 
-                        console.log(
-                            "Количество строк:",
+                        analyzerLog(
+                            "Строк:",
                             rows.length
                         );
 
 
                         // ==================================================
-                        // ПАРСИНГ
+                        // АНАЛИЗ
                         // ==================================================
 
-                        const imported =
-                            parse1CData(
+                        const analyzed =
+                            analyze1C(
                                 rows
                             );
 
 
+                        const imported =
+                            analyzed.products;
+
+
                         if (
-                            !Array.isArray(imported) ||
+                            !Array.isArray(
+                                imported
+                            ) ||
                             imported.length === 0
                         ) {
 
                             throw new Error(
-                                "Не удалось найти товары в выгрузке 1С."
+                                "Анализатор не нашёл ни одного товара."
                             );
 
                         }
 
 
                         // ==================================================
-                        // ЗАМЕНЯЕМ БАЗУ
+                        // ПОЛНОСТЬЮ ЗАМЕНЯЕМ БАЗУ
                         // ==================================================
 
-                        products.length = 0;
+                        products.length =
+                            0;
 
 
                         imported.forEach(
@@ -2526,7 +2993,7 @@ if (fileInput) {
                         // ==================================================
 
                         localStorage.setItem(
-                            "xiaomiWebBaseProducts",
+                            STORAGE_KEY,
                             JSON.stringify(
                                 products
                             )
@@ -2534,7 +3001,7 @@ if (fileInput) {
 
 
                         // ==================================================
-                        // ПОКАЗ
+                        // ВЫВОД
                         // ==================================================
 
                         renderProducts(
@@ -2542,79 +3009,71 @@ if (fileInput) {
                         );
 
 
-                        if (importStatus) {
+                        // ==================================================
+                        // СТАТИСТИКА
+                        // ==================================================
 
-                            importStatus.textContent =
-                                `Готово. Загружено товаров: ${products.length}`;
-
-                        }
+                        const stats =
+                            analyzed.analysis.stats;
 
 
-                        console.log(
-                            "================================="
+                        const summary =
+                            CATEGORY_NAMES
+                                .map(
+                                    category =>
+                                        `${category}: ${stats[category]}`
+                                )
+                                .join(
+                                    " | "
+                                );
+
+
+                        showImportStatus(
+
+                            `Готово. Загружено товаров: ${products.length}. ${summary}`
+
                         );
 
-                        console.log(
-                            "ФИНАЛЬНАЯ БАЗА"
-                        );
 
                         console.log(
-                            "Всего товаров:",
+                            "===================================="
+                        );
+
+
+                        console.log(
+                            "ИМПОРТ ЗАВЕРШЁН"
+                        );
+
+
+                        console.log(
+                            "Всего:",
                             products.length
                         );
 
 
-                        const categories = [
-
-                            "Смартфоны",
-                            "Планшеты",
-                            "Смарт-часы",
-                            "Фитнес-браслеты",
-                            "Наушники",
-                            "Телевизоры",
-                            "Камеры",
-                            "Пылесосы",
-                            "Аксессуары",
-                            "Другое"
-
-                        ];
-
-
-                        categories.forEach(
-                            category => {
-
-                                console.log(
-                                    category + ":",
-                                    products.filter(
-                                        p =>
-                                            p.category ===
-                                            category
-                                    ).length
-                                );
-
-                            }
+                        console.table(
+                            stats
                         );
 
 
                         console.log(
-                            "================================="
+                            "===================================="
                         );
 
                     } catch (error) {
 
                         console.error(
-                            "ОШИБКА ИМПОРТА:",
+                            "ОШИБКА АНАЛИЗАТОРА:",
                             error
                         );
 
 
-                        if (importStatus) {
+                        showImportStatus(
 
-                            importStatus.textContent =
-                                "Ошибка загрузки: " +
-                                error.message;
+                            "Ошибка загрузки: " +
+                            error.message
 
-                        }
+                        );
 
                     }
 
@@ -2624,12 +3083,9 @@ if (fileInput) {
             reader.onerror =
                 function () {
 
-                    if (importStatus) {
-
-                        importStatus.textContent =
-                            "Не удалось прочитать файл.";
-
-                    }
+                    showImportStatus(
+                        "Не удалось прочитать файл."
+                    );
 
                 };
 
@@ -2645,7 +3101,85 @@ if (fileInput) {
 
 
 // ======================================================
-// BACK BUTTON
+// LOAD SAVED PRODUCTS
+// ======================================================
+
+function loadSavedProducts() {
+
+    try {
+
+        const saved =
+            localStorage.getItem(
+                STORAGE_KEY
+            );
+
+
+        if (!saved) {
+
+            return false;
+
+        }
+
+
+        const parsed =
+            JSON.parse(
+                saved
+            );
+
+
+        if (
+            !Array.isArray(parsed) ||
+            parsed.length === 0
+        ) {
+
+            return false;
+
+        }
+
+
+        products.length =
+            0;
+
+
+        parsed.forEach(
+            product => {
+
+                products.push(
+                    product
+                );
+
+            }
+        );
+
+
+        normalizeProducts();
+
+
+        console.log(
+            "Сохранённая база:",
+            products.length
+        );
+
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Ошибка localStorage:",
+            error
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+// ======================================================
+// BACK
 // ======================================================
 
 document.addEventListener(
@@ -2681,82 +3215,6 @@ document.addEventListener(
 
 
 // ======================================================
-// LOAD SAVED PRODUCTS
-// ======================================================
-
-function loadSavedProducts() {
-
-    try {
-
-        const saved =
-            localStorage.getItem(
-                "xiaomiWebBaseProducts"
-            );
-
-
-        if (!saved) {
-            return false;
-        }
-
-
-        const parsed =
-            JSON.parse(
-                saved
-            );
-
-
-        if (
-            !Array.isArray(parsed) ||
-            parsed.length === 0
-        ) {
-
-            return false;
-
-        }
-
-
-        products.length = 0;
-
-
-        parsed.forEach(
-            product => {
-
-                products.push(
-                    product
-                );
-
-            }
-        );
-
-
-        normalizeProducts();
-
-
-        console.log(
-            "Из localStorage загружено:",
-            products.length,
-            "товаров"
-        );
-
-
-        return true;
-
-    } catch (error) {
-
-        console.error(
-            "Ошибка загрузки базы:",
-            error
-        );
-
-
-        return false;
-
-    }
-
-}
-
-
-// ======================================================
 // INIT
 // ======================================================
 
@@ -2767,7 +3225,7 @@ function initApp() {
     ) {
 
         console.error(
-            "ОШИБКА: массив products не найден."
+            "ОШИБКА: products не найден."
         );
 
         return;
@@ -2782,43 +3240,29 @@ function initApp() {
 
 
     console.log(
-        "================================="
+        "===================================="
     );
+
 
     console.log(
         "XIAOMI WEBBASE"
     );
 
+
     console.log(
-        "Всего товаров:",
+        "Товаров:",
         products.length
     );
 
 
-    const categories = [
-
-        "Смартфоны",
-        "Планшеты",
-        "Смарт-часы",
-        "Фитнес-браслеты",
-        "Наушники",
-        "Телевизоры",
-        "Камеры",
-        "Пылесосы",
-        "Аксессуары",
-        "Другое"
-
-    ];
-
-
-    categories.forEach(
+    CATEGORY_NAMES.forEach(
         category => {
 
             console.log(
                 category + ":",
                 products.filter(
-                    p =>
-                        p.category ===
+                    product =>
+                        product.category ===
                         category
                 ).length
             );
@@ -2828,7 +3272,7 @@ function initApp() {
 
 
     console.log(
-        "================================="
+        "===================================="
     );
 
 
