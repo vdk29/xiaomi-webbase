@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#fff"><title>Xiaomi WebBase</title>
+<link rel="stylesheet" href="webbase.css"></head>
+<body>
+<header><div class="brand"><span class="mark">mi</span><div><b>Xiaomi WebBase</b><small>Каталог и остатки магазина</small></div></div><div id="account"></div></header>
+<main>
+<section id="authPanel" class="panel auth"><h1>Вход для сотрудников</h1><p>Доступ к остаткам только для одобренных сотрудников.</p>
+<form id="authForm"><label>Email<input id="email" type="email" autocomplete="email" required></label>
+<label>Пароль<input id="password" type="password" autocomplete="current-password" minlength="6" required></label>
+<div class="actions"><button type="submit">Войти</button><button type="button" id="register" class="secondary">Создать учётную запись</button></div></form>
+<p id="authStatus" role="status"></p></section>
+<section id="workspace" hidden>
+<div class="heading"><div><h1>Товары</h1><p>Наличие на витрине и складе</p></div><span id="count" class="count"></span></div>
+<div class="panel tools"><input id="search" type="search" placeholder="Поиск по модели, цвету, памяти, артикулу…"><select id="category"><option value="">Все категории</option></select><button id="refresh" class="secondary">Обновить</button></div>
+<div id="adminTools" class="panel" hidden><div class="heading"><div><h2>Импорт из 1С</h2><p>Предпросмотр перед записью в базу. Колонки E — склад, G — витрина, H — итого.</p></div></div>
+<input id="excel" type="file" accept=".xlsx,.xls,.csv"><div id="preview"></div></div>
+<div id="notice" role="status"></div><div id="catalog" class="catalog"></div>
+</section></main>
+<dialog id="editor"><form method="dialog" id="editorForm"><h2>Редактирование остатков</h2><p id="editorName"></p>
+<label>Склад<input id="warehouse" type="number" min="0" step="1" required></label>
+<label>Витрина<input id="display" type="number" min="0" step="1" required></label>
+<label>LDU / демонстрационные<input id="ldu" type="number" min="0" step="1" required></label>
+<div class="actions"><button id="saveStock" type="button">Сохранить</button><button class="secondary">Отмена</button></div></form></dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="supabase-config.js"></script><script src="supabase-client.js"></script><script src="webbase-app.js"></script>
+</body></html>
