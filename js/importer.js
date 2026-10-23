@@ -114,7 +114,7 @@ export function initializeImporter(db, state, { notify, reloadProducts }) {
       const workbook = XLSX.read(await file.arrayBuffer(), { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "", raw: true });
-      state.importPreview = { ...analyze1CRows(rows, state.rows), filename: file.name };
+      state.importPreview = { ...analyze1CRows(rows, state.rows), filename: file.name, showAll: false };
       renderImportPreview(state.importPreview);
     } catch (error) {
       state.importPreview = null;
@@ -123,6 +123,12 @@ export function initializeImporter(db, state, { notify, reloadProducts }) {
   });
 
   $("importPreview").addEventListener("click", async (event) => {
+    const showAllButton = event.target.closest("button[data-import-show-all]");
+    if (showAllButton && state.importPreview) {
+      state.importPreview.showAll = true;
+      renderImportPreview(state.importPreview);
+      return;
+    }
     const button = event.target.closest("button[data-import]");
     if (!button || !state.importPreview) return;
     if (!confirm(`Применить ${state.importPreview.items.length} карточек? Остатки обновятся одной транзакцией, ручные поля и фото сохранятся.`)) return;
@@ -150,6 +156,8 @@ function renderImportPreview(preview) {
   const updates = preview.items.filter((item) => item.status === "update").length;
   const created = preview.items.filter((item) => item.status === "new").length;
   const blocked = preview.errors.length > 0 || preview.ambiguous.length > 0 || preview.items.length === 0;
+  const visibleItems = preview.showAll ? preview.items : preview.items.slice(0, 100);
+  const hiddenItems = preview.items.length - visibleItems.length;
   $("importPreview").innerHTML = `
     <div class="import-summary">
       <span><strong>${preview.items.length}</strong> карточек</span>
@@ -160,8 +168,9 @@ function renderImportPreview(preview) {
     ${preview.errors.length ? `<div class="message error"><strong>Ошибки в Excel:</strong><br>${preview.errors.slice(0, 12).map(escapeHtml).join("<br>")}</div>` : ""}
     ${preview.ambiguous.length ? `<div class="message warning"><strong>Нужна ручная проверка:</strong> несколько карточек совпали по артикулам: ${preview.ambiguous.slice(0, 8).map((item) => escapeHtml(item.name)).join(", ")}.</div>` : ""}
     <div class="table-wrap"><table><thead><tr><th>Действие</th><th>Артикул</th><th>Товар</th><th>Склад</th><th>ОВ</th><th>LDU</th></tr></thead><tbody>
-      ${preview.items.slice(0, 100).map((item) => `<tr><td><span class="status ${item.status === "new" ? "status--new" : item.status === "update" ? "status--ok" : "status--blocked"}">${item.status === "new" ? "Новый" : item.status === "update" ? "Обновление" : "Проверить"}</span></td><td>${escapeHtml(item.sku)}</td><td>${escapeHtml(item.name)}</td><td>${item.warehouse}</td><td>${item.display}</td><td>${item.ldu}</td></tr>`).join("")}
+      ${visibleItems.map((item) => `<tr><td><span class="status ${item.status === "new" ? "status--new" : item.status === "update" ? "status--ok" : "status--blocked"}">${item.status === "new" ? "Новый" : item.status === "update" ? "Обновление" : "Проверить"}</span></td><td>${escapeHtml(item.sku)}</td><td>${escapeHtml(item.name)}</td><td>${item.warehouse}</td><td>${item.display}</td><td>${item.ldu}</td></tr>`).join("")}
     </tbody></table></div>
+    ${hiddenItems > 0 ? `<p class="muted">Показаны первые ${visibleItems.length} из ${preview.items.length} товаров.</p><button class="button secondary" type="button" data-import-show-all>Показать все ${preview.items.length}</button>` : ""}
     <p class="muted">Импорт меняет источник номенклатуры и остатки. Описание, характеристики, выбранная вручную категория и фотографии не перезаписываются.</p>
     <button class="button primary" data-import ${blocked ? "disabled" : ""}>Применить импорт</button>`;
 }
