@@ -1,4 +1,4 @@
-import { $, escapeHtml, formatDate, setBusy, errorMessage } from "./utils.js";
+import { $, escapeHtml, formatDate, setBusy, errorMessage } from "./utils.js?v=20261023-3";
 
 async function invoke(db, body) {
   const { data, error } = await db.client.functions.invoke("webbase-create-staff", { body });
@@ -37,66 +37,65 @@ export function initializeEmployees(db, state, notify) {
   });
 
   $("staffList").addEventListener("click", async (event) => {
-    const button = event.target.closest("button[da…2210 tokens truncated…lse })
-    .limit(1);
-  if (countError) {
-    await db.client.storage.from(db.config.bucket).remove([path]);
-    throw countError;
-  }
-  const sortOrder = existing?.[0] ? existing[0].sort_order + 1 : 0;
-  const { data, error } = await db.client
-    .from("webbase_product_images")
-    .insert({
-      product_id: productId,
-      storage_path: path,
-      sort_order: sortOrder,
-      is_primary: isPrimary || !existing?.length,
-      uploaded_by: userId,
-      mime_type: "image/webp",
-      byte_size: prepared.blob.size,
-      width: prepared.width,
-      height: prepared.height,
-      original_name: prepared.originalName,
-    })
-    .select()
-    .single();
-  if (error) {
-    await db.client.storage.from(db.config.bucket).remove([path]);
-    throw error;
-  }
-  return data;
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    const user = state.staff.find((item) => item.userId === button.dataset.userId);
+    if (!user) return;
+    const action = button.dataset.action;
+    let body = { action, userId: user.userId };
+    if (action === "password") {
+      const password = prompt(`Новый временный пароль для ${user.username || user.displayName}:`);
+      if (password === null) return;
+      body = { ...body, password };
+    } else if (action === "role") {
+      body = { ...body, role: user.role === "admin" ? "staff" : "admin" };
+      if (!confirm(`Изменить роль на «${body.role === "admin" ? "Администратор" : "Сотрудник"}»?`)) return;
+    } else if (action === "delete") {
+      if (!confirm(`Безвозвратно удалить учётную запись «${user.username || user.displayName}»? Товары и история останутся.`)) return;
+      if (!confirm("Подтвердите удаление ещё раз. Это действие нельзя отменить.")) return;
+    } else if (!confirm(`${action === "block" ? "Заблокировать" : "Разблокировать"} сотрудника?`)) return;
+
+    setBusy(button, true);
+    try {
+      await invoke(db, body);
+      notify("Учётная запись обновлена.");
+      await refreshEmployees(db, state, notify);
+    } catch (error) {
+      notify(errorMessage(error), true);
+    } finally {
+      setBusy(button, false);
+    }
+  });
 }
 
-export async function deleteProductImage(db, image) {
-  const { error: rowError } = await db.client
-    .from("webbase_product_images")
-    .delete()
-    .eq("id", image.id);
-  if (rowError) throw rowError;
-  const { error: storageError } = await db.client.storage
-    .from(db.config.bucket)
-    .remove([image.storage_path]);
-  if (storageError) {
-    console.warn("WebBase: orphaned storage object after metadata deletion", image.storage_path, storageError);
+export async function refreshEmployees(db, state, notify) {
+  try {
+    state.staff = await loadEmployees(db);
+    renderEmployees(state);
+  } catch (error) {
+    notify(errorMessage(error), true);
   }
-  signedUrlCache.delete(image.storage_path);
 }
 
-export async function setPrimaryImage(db, image) {
-  const { error } = await db.client
-    .from("webbase_product_images")
-    .update({ is_primary: true })
-    .eq("id", image.id);
-  if (error) throw error;
-}
-
-export async function reorderImages(db, productId, images) {
-  for (let index = 0; index < images.length; index += 1) {
-    const { error } = await db.client
-      .from("webbase_product_images")
-      .update({ sort_order: index })
-      .eq("id", images[index].id)
-      .eq("product_id", productId);
-    if (error) throw error;
-  }
+export function renderEmployees(state) {
+  const container = $("staffList");
+  container.innerHTML = state.staff.map((user) => {
+    const isSelf = user.userId === state.user.id;
+    const status = user.active ? "Активен" : "Заблокирован";
+    return `<article class="staff-card">
+      <div class="staff-card__main">
+        <span class="status ${user.active ? "status--ok" : "status--blocked"}">${status}</span>
+        <h3>${escapeHtml(user.displayName || user.username || "Сотрудник")}</h3>
+        <p><code>${escapeHtml(user.username || user.email || "email-вход")}</code></p>
+        <p class="muted">${user.role === "admin" ? "Администратор" : "Сотрудник"} · создан ${formatDate(user.createdAt)}</p>
+        ${user.lastSignInAt ? `<p class="muted">Последний вход: ${formatDate(user.lastSignInAt)}</p>` : ""}
+      </div>
+      <div class="staff-actions">
+        <button class="button ghost small" data-action="password" data-user-id="${user.userId}">Сменить пароль</button>
+        <button class="button ghost small" data-action="role" data-user-id="${user.userId}" ${isSelf ? "disabled" : ""}>${user.role === "admin" ? "Сделать сотрудником" : "Сделать администратором"}</button>
+        <button class="button ghost small" data-action="${user.active ? "block" : "unblock"}" data-user-id="${user.userId}" ${isSelf ? "disabled" : ""}>${user.active ? "Заблокировать" : "Разблокировать"}</button>
+        <button class="button danger small" data-action="delete" data-user-id="${user.userId}" ${isSelf ? "disabled" : ""}>Удалить</button>
+      </div>
+    </article>`;
+  }).join("");
 }

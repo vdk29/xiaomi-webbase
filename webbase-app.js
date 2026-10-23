@@ -1,9 +1,9 @@
-import { $, errorMessage, setBusy } from "./js/utils.js";
-import { getAccessContext, safeNextUrl, signIn } from "./js/auth.js";
-import { listProducts } from "./js/products.js";
-import { initializeCatalog, populateCategories, renderCatalog } from "./js/catalog.js";
-import { initializeEmployees, refreshEmployees } from "./js/employees.js";
-import { initializeImporter } from "./js/importer.js";
+import { $, errorMessage, setBusy } from "./js/utils.js?v=20261023-3";
+import { getAccessContext, safeNextUrl, signIn } from "./js/auth.js?v=20261023-3";
+import { listProducts } from "./js/products.js?v=20261023-3";
+import { initializeCatalog, populateCategories, renderCatalog } from "./js/catalog.js?v=20261023-3";
+import { initializeEmployees, refreshEmployees } from "./js/employees.js?v=20261023-3";
+import { initializeImporter } from "./js/importer.js?v=20261023-3";
 
 const db = window.WebBaseDB;
 const state = {

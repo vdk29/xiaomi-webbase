@@ -1,5 +1,5 @@
-import { $, debounce, escapeHtml, normalizeText, placeholderSvg } from "./utils.js";
-import { observeCatalogImages } from "./images.js";
+import { $, debounce, escapeHtml, normalizeText, placeholderSvg } from "./utils.js?v=20261023-3";
+import { observeCatalogImages } from "./images.js?v=20261023-3";
 
 export function initializeCatalog(db, state) {
   const controls = ["search", "category", "availability", "sort"];

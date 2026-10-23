@@ -1,6 +1,6 @@
-import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from "./js/utils.js";
-import { requireApprovedUser } from "./js/auth.js";
-import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js";
+import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from "./js/utils.js?v=20261023-3";
+import { requireApprovedUser } from "./js/auth.js?v=20261023-3";
+import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261023-3";
 import {
   deleteProductImage, prepareImage, reorderImages, setPrimaryImage, setSignedImage, uploadProductImage,
 } from "./js/images.js";
