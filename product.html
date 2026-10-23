@@ -1,174 +1,87 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
-
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta
-        name="theme-color"
-        content="#ffffff"
-    >
-
-    <title>
-        Товар — Xiaomi WebBase
-    </title>
-
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <title>Товар — Xiaomi WebBase</title>
+  <link rel="stylesheet" href="webbase.css">
+  <link rel="stylesheet" href="product.css">
+  <link rel="stylesheet" href="product-overrides.css">
 </head>
-
-
 <body>
-
-
-    <!-- ==================================================
-         HEADER
-    ================================================== -->
-
-    <header class="app-header">
-
-
-        <div class="header-inner">
-
-
-            <button
-                type="button"
-                class="back-button"
-                data-back
-            >
-
-                <span class="back-arrow">
-                    ←
-                </span>
-
-
-                <span>
-                    Назад
-                </span>
-
-            </button>
-
-
-
-            <div class="logo">
-
-                <span class="logo-letter">
-                    X
-                </span>
-
-
-                <div class="logo-text">
-
-                    <strong>
-                        Xiaomi
-                    </strong>
-
-
-                    <span>
-                        WebBase
-                    </span>
-
-                </div>
-
-            </div>
-
-
-
-            <div class="header-info">
-
-                Товар
-
-            </div>
-
-
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="mi-mark">mi</span><span><strong>Xiaomi WebBase</strong><small>Карточка товара</small></span></a>
+    <div class="account"><span><strong id="accountName"></strong><small id="accountRole"></small></span><button id="signOut" class="button ghost small" type="button">Выйти</button></div>
+  </header>
+  <main class="product-main">
+    <a class="back-link" href="index.html">← Вернуться в каталог</a>
+    <p id="pageStatus" class="loading" role="status">Загружаю товар…</p>
+    <section id="productView" hidden>
+      <div class="product-layout">
+        <div class="gallery-panel panel">
+          <div class="main-image"><img id="mainImage" alt=""></div>
+          <div id="gallery" class="gallery" aria-label="Фотографии товара"></div>
         </div>
-
-    </header>
-
-
-
-    <!-- ==================================================
-         MAIN
-    ================================================== -->
-
-    <main class="app-main product-main">
-
-
-        <!-- ==================================================
-             PRODUCT DETAILS
-        ================================================== -->
-
-        <section
-            id="productDetails"
-            class="product-details"
-        >
-
-            <!--
-                Карточка товара автоматически
-                создаётся через app.js.
-
-                Пример:
-
-                product.html?id=1001
-            -->
-
-        </section>
-
-
-    </main>
-
-
-
-    <!-- ==================================================
-         FOOTER
-    ================================================== -->
-
-    <footer class="app-footer">
-
-
-        <div class="footer-inner">
-
-
-            <span>
-                Xiaomi WebBase
-            </span>
-
-
-            <span>
-                Карточка товара
-            </span>
-
-
+        <div class="product-summary">
+          <p id="productCategory" class="eyebrow"></p>
+          <h1 id="productName"></h1>
+          <p id="productSubtitle" class="product-subtitle"></p>
+          <div id="productFields" class="details-list"></div>
+          <div class="panel stock-panel">
+            <div class="section-title"><h2>Остатки</h2><span id="stockUpdated" class="muted"></span></div>
+            <div id="productStock" class="stock-grid product-stock"></div>
+          </div>
+          <div id="adminActions" class="admin-actions" hidden>
+            <button id="editProduct" class="button primary" type="button">Редактировать</button>
+            <button id="addPhoto" class="button ghost" type="button">Добавить фотографию</button>
+            <button id="archiveProduct" class="button danger" type="button">Скрыть товар</button>
+          </div>
         </div>
+      </div>
+      <div class="product-sections">
+        <section id="descriptionSection" class="panel" hidden><h2>Описание</h2><p id="productDescription" class="rich-text"></p></section>
+        <section id="specsSection" class="panel" hidden><h2>Характеристики</h2><dl id="productSpecs" class="specs-list"></dl></section>
+      </div>
+    </section>
+  </main>
 
+  <dialog id="editDialog" class="modal wide-modal">
+    <form id="productForm" class="modal-form">
+      <div class="modal-heading"><div><p class="eyebrow">Администратор</p><h2>Редактирование товара</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Закрыть">×</button></div>
+      <div class="edit-grid">
+        <label class="span-2">Название<input name="name" maxlength="240" required></label>
+        <label>Бренд<input name="brand" maxlength="160"></label>
+        <label>Категория<input name="category" maxlength="160"></label>
+        <label>Модель<input name="model" maxlength="160"></label>
+        <label>Артикул<input name="sku" maxlength="160"></label>
+        <label>Цвет<input name="color" maxlength="160"></label>
+        <label>Память<input name="memory" maxlength="160"></label>
+        <label class="span-2">Описание<textarea name="description" maxlength="5000"></textarea></label>
+        <label class="span-2">Характеристики (JSON)<textarea name="specs" spellcheck="false" placeholder='{"Экран":"6.67 дюйма","Процессор":"..."}'></textarea></label>
+        <label>Основной склад<input name="warehouse" type="number" min="0" step="1" required></label>
+        <label>Витрина (ОВ)<input name="display" type="number" min="0" step="1" required></label>
+        <label>LDU<input name="ldu" type="number" min="0" step="1" required></label>
+      </div>
+      <div class="modal-actions"><button class="button ghost" type="button" data-close-dialog>Отмена</button><button class="button primary" type="submit">Сохранить</button></div>
+    </form>
+  </dialog>
 
-    </footer>
+  <dialog id="imageDialog" class="modal">
+    <form id="imageForm" class="modal-form">
+      <div class="modal-heading"><div><p class="eyebrow">Галерея</p><h2>Добавить фотографию</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Закрыть">×</button></div>
+      <p class="muted">JPG, PNG или WebP до 12 МБ. Перед загрузкой изображение уменьшится и будет преобразовано в WebP.</p>
+      <label class="file-picker">Выбрать фотографию<input id="imageFile" name="image" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" required></label>
+      <div id="imagePreview" class="image-preview" hidden><img alt="Предварительный просмотр"><p></p></div>
+      <label class="check-label"><input name="isPrimary" type="checkbox"> Сделать главной</label>
+      <div class="modal-actions"><button class="button ghost" type="button" data-close-dialog>Отмена</button><button class="button primary" type="submit">Загрузить</button></div>
+    </form>
+  </dialog>
+  <div id="notice" class="toast" role="status" aria-live="polite"></div>
 
-
-
-    <!-- ==================================================
-         JAVASCRIPT
-    ================================================== -->
-
-    <!--
-        СНАЧАЛА загружаются данные.
-        ПОТОМ загружается логика приложения.
-    -->
-
-    <script src="products-data.js"></script>
-
-    <script src="app.js"></script>
-
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.95.0/dist/umd/supabase.min.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="supabase-client.js"></script>
+  <script type="module" src="product.js"></script>
 </body>
-
 </html>

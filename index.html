@@ -1,28 +1,103 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#fff"><title>Xiaomi WebBase</title>
-<link rel="stylesheet" href="webbase.css"></head>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="color-scheme" content="light">
+  <title>Xiaomi WebBase</title>
+  <link rel="stylesheet" href="webbase.css">
+</head>
 <body>
-<header><div class="brand"><span class="mark">mi</span><div><b>Xiaomi WebBase</b><small>Каталог и остатки магазина</small></div></div><div id="account"></div></header>
-<main>
-<section id="authPanel" class="panel auth"><h1>Вход для сотрудников</h1><p>Доступ к остаткам только для одобренных сотрудников.</p>
-<form id="authForm"><label>Логин<input id="email" type="text" autocomplete="username" required></label>
-<label>Пароль<input id="password" type="password" autocomplete="current-password" minlength="6" required></label>
-<div class="actions"><button type="submit">Войти</button></div></form>
-<p id="authStatus" role="status"></p></section>
-<section id="workspace" hidden>
-<div class="heading"><div><h1>Товары</h1><p>Наличие на витрине и складе</p></div><span id="count" class="count"></span></div>
-<div class="panel tools"><input id="search" type="search" placeholder="Поиск по модели, цвету, памяти, артикулу…"><select id="category"><option value="">Все категории</option></select><button id="refresh" class="secondary">Обновить</button></div>
-<div id="staffAdmin" class="panel" hidden><h2>Сотрудники</h2><form id="staffForm"><label>Логин<input id="staffLogin" required minlength="2" maxlength="32"></label><label>Временный пароль<input id="staffPassword" type="password" required minlength="6"></label><button type="submit">Создать сотрудника</button></form><p id="staffStatus" role="status"></p></div><div id="adminTools" class="panel" hidden><div class="heading"><div><h2>Импорт из 1С</h2><p>Предпросмотр перед записью в базу. A — артикул, D — товар, G — склад, I — ОВ (витрина), J — итого.</p></div></div>
-<input id="excel" type="file" accept=".xlsx,.xls,.csv"><div id="preview"></div></div>
-<div id="notice" role="status"></div><div id="catalog" class="catalog"></div>
-</section></main>
-<dialog id="editor"><form method="dialog" id="editorForm"><h2>Редактирование остатков</h2><p id="editorName"></p>
-<label>Склад<input id="warehouse" type="number" min="0" step="1" required></label>
-<label>Витрина<input id="display" type="number" min="0" step="1" required></label>
-<label>LDU / демонстрационные<input id="ldu" type="number" min="0" step="1" required></label>
-<div class="actions"><button id="saveStock" type="button">Сохранить</button><button class="secondary">Отмена</button></div></form></dialog>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="supabase-config.js"></script><script src="supabase-client.js"></script><script src="webbase-app.js"></script>
-</body></html>
+  <section id="authPanel" class="auth-layout">
+    <div class="auth-brand">
+      <span class="mi-mark large">mi</span>
+      <p class="eyebrow">Внутренний инструмент магазина</p>
+      <h1>Xiaomi WebBase</h1>
+      <p>Каталог, фотографии и актуальные остатки — в одном месте.</p>
+    </div>
+    <div class="panel auth-card">
+      <h2>Вход для сотрудников</h2>
+      <p class="muted">Введите логин или прежний email администратора.</p>
+      <form id="authForm" novalidate>
+        <label>Логин
+          <input id="login" name="login" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+        </label>
+        <label>Пароль
+          <input id="password" name="password" type="password" autocomplete="current-password" minlength="6" required>
+        </label>
+        <button class="button primary wide" type="submit">Войти</button>
+      </form>
+      <p id="authStatus" class="form-status" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <div id="appShell" class="app-shell" hidden>
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="Xiaomi WebBase">
+        <span class="mi-mark">mi</span>
+        <span><strong>Xiaomi WebBase</strong><small>Каталог магазина</small></span>
+      </a>
+      <div class="account">
+        <span><strong id="accountName"></strong><small id="accountRole"></small></span>
+        <button id="signOut" class="button ghost small" type="button">Выйти</button>
+      </div>
+    </header>
+
+    <nav class="main-nav" aria-label="Разделы">
+      <button class="nav-button active" data-nav="catalog" type="button">Каталог</button>
+      <button id="staffSectionNav" class="nav-button" data-nav="staff" type="button" hidden>Сотрудники</button>
+      <button id="importSectionNav" class="nav-button" data-nav="import" type="button" hidden>Импорт 1С</button>
+    </nav>
+
+    <main class="main-content">
+      <section data-section="catalog">
+        <div class="page-heading">
+          <div><p class="eyebrow">Ассортимент</p><h1>Каталог товаров</h1></div>
+          <div class="heading-actions"><span id="count" class="count"></span><button id="refresh" class="button ghost" type="button">Обновить</button></div>
+        </div>
+        <div class="panel filters">
+          <label class="search-field"><span>Поиск</span><input id="search" type="search" placeholder="Название, артикул, модель…" autocomplete="off"></label>
+          <label><span>Категория</span><select id="category"><option value="">Все категории</option></select></label>
+          <label><span>Наличие</span><select id="availability"><option value="">Все товары</option><option value="available">В наличии</option><option value="display">На витрине</option><option value="without-photo">Без фотографии</option></select></label>
+          <label><span>Сортировка</span><select id="sort"><option value="name-asc">По названию А–Я</option><option value="name-desc">По названию Я–А</option><option value="stock-desc">Остаток: больше</option><option value="stock-asc">Остаток: меньше</option></select></label>
+        </div>
+        <p id="catalogLoading" class="loading">Загружаю каталог…</p>
+        <div id="catalog" class="catalog" aria-live="polite"></div>
+      </section>
+
+      <section id="adminNav" data-section="staff" hidden>
+        <div class="page-heading"><div><p class="eyebrow">Администрирование</p><h1>Сотрудники</h1><p>Создание, блокировка, роли и сброс паролей.</p></div></div>
+        <div class="panel">
+          <h2>Новая учётная запись</h2>
+          <form id="staffForm" class="form-grid">
+            <label>Логин<input name="username" autocomplete="off" minlength="2" maxlength="32" pattern="[A-Za-zА-Яа-яЁё0-9_-]+" required></label>
+            <label>Имя сотрудника<input name="displayName" maxlength="80" required></label>
+            <label>Временный пароль<input name="password" type="password" autocomplete="new-password" minlength="8" maxlength="72" required></label>
+            <label>Роль<select name="role"><option value="staff">Сотрудник</option><option value="admin">Администратор</option></select></label>
+            <div class="form-actions"><button class="button primary" type="submit">Создать сотрудника</button></div>
+          </form>
+        </div>
+        <div id="staffList" class="staff-list"></div>
+      </section>
+
+      <section data-section="import" hidden>
+        <div class="page-heading"><div><p class="eyebrow">Администрирование</p><h1>Импорт из 1С</h1><p>Сначала показываем изменения, затем применяем их одной транзакцией.</p></div></div>
+        <div class="panel import-panel">
+          <h2>Выгрузка остатков</h2>
+          <p class="muted">Ожидаются колонки A — артикул, D — номенклатура, G — склад, H — ПФ, I — ОВ, J — итог. Ручные данные и фотографии не перезаписываются.</p>
+          <label class="file-picker">Выбрать Excel-файл<input id="excel" type="file" accept=".xlsx,.xls,.csv"></label>
+          <div id="importPreview"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div id="notice" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.95.0/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="supabase-client.js"></script>
+  <script type="module" src="webbase-app.js"></script>
+</body>
+</html>
