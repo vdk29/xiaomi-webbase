@@ -1,4 +1,4 @@
-import { $, escapeHtml, normalizeText, parseQuantity, setBusy, splitSkus } from "./utils.js?v=20261023-3";
+import { $, escapeHtml, normalizeText, parseQuantity, setBusy, splitSkus } from "./utils.js?v=20261023-4";
 
 export function classifyProduct(name) {
   const value = normalizeText(name);

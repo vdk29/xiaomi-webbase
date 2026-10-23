@@ -1,5 +1,5 @@
-import { $, debounce, escapeHtml, normalizeText, placeholderSvg } from "./utils.js?v=20261023-3";
-import { observeCatalogImages } from "./images.js?v=20261023-3";
+import { $, debounce, escapeHtml, normalizeText, placeholderSvg } from "./utils.js?v=20261023-4";
+import { observeCatalogImages } from "./images.js?v=20261023-4";
 
 export function initializeCatalog(db, state) {
   const controls = ["search", "category", "availability", "sort"];
@@ -14,7 +14,8 @@ export function initializeCatalog(db, state) {
 export function populateCategories(rows) {
   const select = $("category");
   const current = select.value;
-  const categories = [...new Set(rows.map((row) => row.category).filter(Boolean))]
+  const priorityCategories = ["Смартфоны", "Планшеты", "Смарт-часы", "Наушники", "Фитнес-браслеты", "Телевизоры"];
+  const categories = [...new Set([...priorityCategories, ...rows.map((row) => row.category).filter(Boolean)])]
     .sort((a, b) => a.localeCompare(b, "ru"));
   select.replaceChildren(new Option("Все категории", ""), ...categories.map((value) => new Option(value, value)));
   select.value = categories.includes(current) ? current : "";

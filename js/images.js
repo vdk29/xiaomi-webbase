@@ -1,4 +1,4 @@
-import { placeholderSvg } from "./utils.js?v=20261023-3";
+import { placeholderSvg } from "./utils.js?v=20261023-4";
 
 const signedUrlCache = new Map();
 const MAX_SOURCE_BYTES = 12 * 1024 * 1024;

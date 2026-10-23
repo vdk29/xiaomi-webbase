@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#ffffff">
   <title>Товар — Xiaomi WebBase</title>
-  <link rel="stylesheet" href="webbase.css?v=20261023-3">
-  <link rel="stylesheet" href="product.css?v=20261023-3">
-  <link rel="stylesheet" href="product-overrides.css?v=20261023-3">
+  <link rel="stylesheet" href="webbase.css?v=20261023-4">
+  <link rel="stylesheet" href="product.css?v=20261023-4">
+  <link rel="stylesheet" href="product-overrides.css?v=20261023-4">
 </head>
 <body>
   <header class="topbar">
@@ -41,7 +41,11 @@
       </div>
       <div class="product-sections">
         <section id="descriptionSection" class="panel" hidden><h2>Описание</h2><p id="productDescription" class="rich-text"></p></section>
-        <section id="specsSection" class="panel" hidden><h2>Характеристики</h2><dl id="productSpecs" class="specs-list"></dl></section>
+        <section id="specsSection" class="panel" hidden>
+          <div class="section-title"><h2>Характеристики</h2><a id="specsSource" class="source-link" target="_blank" rel="noopener noreferrer" hidden>Официальный источник ↗</a></div>
+          <p id="specsVerified" class="specs-verified muted"></p>
+          <dl id="productSpecs" class="specs-list"></dl>
+        </section>
       </div>
     </section>
   </main>
@@ -52,13 +56,21 @@
       <div class="edit-grid">
         <label class="span-2">Название<input name="name" maxlength="240" required></label>
         <label>Бренд<input name="brand" maxlength="160"></label>
-        <label>Категория<input name="category" maxlength="160"></label>
+        <label>Категория<input name="category" list="productCategories" maxlength="160"><datalist id="productCategories"><option value="Смартфоны"><option value="Планшеты"><option value="Смарт-часы"><option value="Наушники"><option value="Фитнес-браслеты"><option value="Телевизоры"><option value="Камеры"><option value="Пылесосы"><option value="Аксессуары и другое"><option value="SIM-карты"></datalist></label>
         <label>Модель<input name="model" maxlength="160"></label>
         <label>Артикул<input name="sku" maxlength="160"></label>
         <label>Цвет<input name="color" maxlength="160"></label>
         <label>Память<input name="memory" maxlength="160"></label>
         <label class="span-2">Описание<textarea name="description" maxlength="5000"></textarea></label>
-        <label class="span-2">Характеристики (JSON)<textarea name="specs" spellcheck="false" placeholder='{"Экран":"6.67 дюйма","Процессор":"..."}'></textarea></label>
+        <fieldset class="span-2 specs-editor-fieldset">
+          <legend>Характеристики</legend>
+          <p class="muted">Добавляйте понятные пары «название — значение». Пустые строки не сохраняются.</p>
+          <div id="specsEditor" class="specs-editor"></div>
+          <button id="addSpec" class="button ghost small" type="button">+ Добавить характеристику</button>
+          <input name="specs" type="hidden">
+        </fieldset>
+        <label class="span-2">Официальный источник<input name="specSourceUrl" type="url" maxlength="1000" placeholder="https://www.mi.com/..."></label>
+        <label>Дата проверки<input name="specVerifiedAt" type="date"></label>
         <label>Основной склад<input name="warehouse" type="number" min="0" step="1" required></label>
         <label>Витрина (ОВ)<input name="display" type="number" min="0" step="1" required></label>
         <label>LDU<input name="ldu" type="number" min="0" step="1" required></label>
@@ -80,8 +92,8 @@
   <div id="notice" class="toast" role="status" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.95.0/dist/umd/supabase.min.js"></script>
-  <script src="supabase-config.js?v=20261023-3"></script>
-  <script src="supabase-client.js?v=20261023-3"></script>
-  <script type="module" src="product.js?v=20261023-3"></script>
+  <script src="supabase-config.js?v=20261023-4"></script>
+  <script src="supabase-client.js?v=20261023-4"></script>
+  <script type="module" src="product.js?v=20261023-4"></script>
 </body>
 </html>

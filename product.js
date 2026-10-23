@@ -1,9 +1,9 @@
-import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from "./js/utils.js?v=20261023-3";
-import { requireApprovedUser } from "./js/auth.js?v=20261023-3";
-import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261023-3";
+import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from "./js/utils.js?v=20261023-4";
+import { requireApprovedUser } from "./js/auth.js?v=20261023-4";
+import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261023-4";
 import {
   deleteProductImage, prepareImage, reorderImages, setPrimaryImage, setSignedImage, uploadProductImage,
-} from "./js/images.js";
+} from "./js/images.js?v=20261023-4";
 
 const db = window.WebBaseDB;
 const state = { context: null, product: null, selectedImageId: null, preparedImage: null, dirty: false };
@@ -19,6 +19,66 @@ function notify(message, isError = false) {
 const optionalField = (label, value) => value
   ? `<div class="detail"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`
   : "";
+
+function trustedHttpUrl(value) {
+  try {
+    const url = new URL(String(value || ""));
+    return ["https:", "http:"].includes(url.protocol) ? url.href : "";
+  } catch {
+    return "";
+  }
+}
+
+function appendSpecRow(key = "", value = "") {
+  if ($("specsEditor").children.length >= 80) throw new Error("Можно добавить не более 80 характеристик.");
+  const row = document.createElement("div");
+  row.className = "spec-row";
+  const keyInput = document.createElement("input");
+  keyInput.type = "text";
+  keyInput.maxLength = 120;
+  keyInput.placeholder = "Например, Экран";
+  keyInput.dataset.specKey = "";
+  keyInput.value = key;
+  const valueInput = document.createElement("input");
+  valueInput.type = "text";
+  valueInput.maxLength = 1000;
+  valueInput.placeholder = "Например, 6,83″ AMOLED, 120 Гц";
+  valueInput.dataset.specValue = "";
+  valueInput.value = Array.isArray(value) ? value.join(", ") : (typeof value === "object" && value !== null ? JSON.stringify(value) : String(value ?? ""));
+  const remove = document.createElement("button");
+  remove.type = "button";
+  remove.className = "spec-remove";
+  remove.dataset.removeSpec = "";
+  remove.setAttribute("aria-label", "Удалить характеристику");
+  remove.textContent = "×";
+  row.append(keyInput, valueInput, remove);
+  $("specsEditor").append(row);
+}
+
+function renderSpecsEditor(specs = {}) {
+  $("specsEditor").replaceChildren();
+  const entries = Object.entries(specs).filter(([key]) => !key.startsWith("_"));
+  entries.forEach(([key, value]) => appendSpecRow(key, value));
+  if (!entries.length) appendSpecRow();
+}
+
+function syncSpecsField(form) {
+  const specs = Object.create(null);
+  form.querySelectorAll(".spec-row").forEach((row) => {
+    const key = row.querySelector("[data-spec-key]").value.trim();
+    const value = row.querySelector("[data-spec-value]").value.trim();
+    if (!key && !value) return;
+    if (!key || !value) throw new Error("У каждой характеристики должны быть заполнены название и значение.");
+    if (["__proto__", "prototype", "constructor"].includes(key)) throw new Error(`Недопустимое название характеристики: ${key}`);
+    if (Object.hasOwn(specs, key)) throw new Error(`Характеристика «${key}» указана дважды.`);
+    specs[key] = value;
+  });
+  const sourceUrl = trustedHttpUrl(form.elements.specSourceUrl.value);
+  if (form.elements.specSourceUrl.value.trim() && !sourceUrl) throw new Error("Укажите корректную ссылку на источник (http или https).");
+  if (sourceUrl) specs._source_url = sourceUrl;
+  if (form.elements.specVerifiedAt.value) specs._verified_at = form.elements.specVerifiedAt.value;
+  form.elements.specs.value = JSON.stringify(specs);
+}
 
 async function renderProduct() {
   const product = state.product;
@@ -43,9 +103,14 @@ async function renderProduct() {
   $("stockUpdated").textContent = product.stock.updated_at ? `Обновлено ${formatDate(product.stock.updated_at)}` : "";
   $("descriptionSection").hidden = !product.description;
   $("productDescription").textContent = product.description || "";
-  const specs = Object.entries(product.specs || {}).filter(([, value]) => value !== null && value !== "");
+  const specs = Object.entries(product.specs || {}).filter(([key, value]) => !key.startsWith("_") && value !== null && value !== "");
   $("specsSection").hidden = specs.length === 0;
   $("productSpecs").innerHTML = specs.map(([key, value]) => `<div><dt>${escapeHtml(key)}</dt><dd>${escapeHtml(Array.isArray(value) ? value.join(", ") : value)}</dd></div>`).join("");
+  const sourceUrl = trustedHttpUrl(product.specs?._source_url);
+  const source = $("specsSource");
+  source.hidden = !sourceUrl;
+  source.href = sourceUrl || "#";
+  $("specsVerified").textContent = product.specs?._verified_at ? `Данные проверены ${formatDate(`${product.specs._verified_at}T00:00:00`)}` : "";
   $("adminActions").hidden = !state.context.admin;
   await renderGallery();
   $("productView").hidden = false;
@@ -89,7 +154,9 @@ function fillEditForm() {
   for (const name of ["name", "brand", "category", "model", "sku", "color", "memory", "description"]) {
     form.elements[name].value = state.product[name] || "";
   }
-  form.elements.specs.value = Object.keys(state.product.specs || {}).length ? JSON.stringify(state.product.specs, null, 2) : "";
+  renderSpecsEditor(state.product.specs || {});
+  form.elements.specSourceUrl.value = state.product.specs?._source_url || "";
+  form.elements.specVerifiedAt.value = state.product.specs?._verified_at || "";
   form.elements.warehouse.value = state.product.stock.warehouse;
   form.elements.display.value = state.product.stock.display;
   form.elements.ldu.value = state.product.stock.ldu;
@@ -137,11 +204,20 @@ async function boot() {
   $("addPhoto").onclick = () => { $("imageForm").reset(); $("imagePreview").hidden = true; state.preparedImage = null; $("imageDialog").showModal(); };
   document.querySelectorAll("[data-close-dialog]").forEach((button) => button.onclick = () => closeDialog(button.closest("dialog")));
   $("productForm").addEventListener("input", () => { state.dirty = true; });
+  $("addSpec").addEventListener("click", () => { appendSpecRow(); state.dirty = true; });
+  $("specsEditor").addEventListener("click", (event) => {
+    const remove = event.target.closest("[data-remove-spec]");
+    if (!remove) return;
+    remove.closest(".spec-row").remove();
+    if (!$("specsEditor").children.length) appendSpecRow();
+    state.dirty = true;
+  });
   $("productForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const button = event.submitter;
     setBusy(button, true);
     try {
+      syncSpecsField(event.currentTarget);
       await saveProduct(db, productId, readProductForm(event.currentTarget));
       state.dirty = false;
       $("editDialog").close();

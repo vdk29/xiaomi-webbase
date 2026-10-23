@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { analyze1CRows } from "../js/importer.js";
+import { analyze1CRows, classifyProduct } from "../js/importer.js";
 import { normalizeText, parseQuantity, splitSkus } from "../js/utils.js";
 
 const header = ["Артикул", "", "", "Номенклатура", "", "", "Склад", "ПФ", "ОВ", "Итого"];
@@ -15,6 +15,10 @@ test("quantities reject negatives and fractions", () => {
 test("normalization is case-insensitive for Russian logins and search", () => {
   assert.equal(normalizeText("  Ёлка TEST  "), "елка test");
   assert.deepEqual(splitSkus("A-1 / B-2; C-3"), ["A-1", "B-2", "C-3"]);
+});
+
+test("televisions receive their own category", () => {
+  assert.equal(classifyProduct("Телевизор Xiaomi TV A Pro 55 2026"), "Телевизоры");
 });
 
 test("1C import groups LDU and matches an existing product by SKU", () => {

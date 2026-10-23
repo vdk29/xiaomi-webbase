@@ -6,3 +6,66 @@
   padding: 0;
   cursor: pointer;
 }
+
+.source-link {
+  color: #ff6900;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.specs-verified {
+  margin: 7px 0 4px;
+  font-size: 12px;
+}
+
+.specs-editor-fieldset {
+  min-width: 0;
+  margin: 0;
+  border: 1px solid #dedfe2;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.specs-editor-fieldset legend {
+  padding: 0 6px;
+  font-weight: 700;
+}
+
+.specs-editor-fieldset .muted {
+  margin: 0 0 11px;
+  font-size: 12px;
+}
+
+.specs-editor {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.spec-row {
+  display: grid;
+  grid-template-columns: minmax(150px, .75fr) minmax(200px, 1.25fr) 40px;
+  gap: 8px;
+}
+
+.spec-row input { min-width: 0; }
+
+.spec-remove {
+  min-height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: #f4f4f5;
+  color: #8a3e38;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.spec-remove:hover { background: #fff0ee; }
+
+@media (max-width: 560px) {
+  .spec-row { grid-template-columns: 1fr 40px; }
+  .spec-row input[data-spec-value] { grid-column: 1 / -1; grid-row: 2; }
+  .spec-row .spec-remove { grid-column: 2; grid-row: 1; }
+  .specs-list > div { grid-template-columns: 1fr; gap: 4px; }
+  .specs-list dd { text-align: left; }
+}

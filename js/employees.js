@@ -1,4 +1,4 @@
-import { $, escapeHtml, formatDate, setBusy, errorMessage } from "./utils.js?v=20261023-3";
+import { $, escapeHtml, formatDate, setBusy, errorMessage } from "./utils.js?v=20261023-4";
 
 async function invoke(db, body) {
   const { data, error } = await db.client.functions.invoke("webbase-create-staff", { body });
