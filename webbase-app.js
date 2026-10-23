@@ -12,6 +12,7 @@ async function boot(){
  db.client.auth.onAuthStateChange(()=>{setTimeout(()=>refreshSession().catch(e=>notice(e.message,true)),0);});
  await refreshSession();
  $("authForm").addEventListener("submit",async e=>{e.preventDefault();try{await db.signIn($("email").value,$("password").value);$("authStatus").textContent="Вход выполнен.";}catch(err){$("authStatus").textContent=err.message;}});
+ $("staffForm").addEventListener("submit",async e=>{e.preventDefault();const status=$("staffStatus");status.textContent="Создаю сотрудника…";try{await db.createStaff($("staffLogin").value,$("staffPassword").value);status.textContent="Сотрудник создан. Пароль передайте лично."; $("staffPassword").value="";}catch(err){status.textContent=err.message;}});
  $("refresh").onclick=()=>load().catch(e=>notice(e.message,true));
  $("search").oninput=render;$("category").onchange=render;
  $("excel").onchange=()=>previewImport().catch(e=>notice(e.message,true));
@@ -26,7 +27,7 @@ async function refreshSession(){
  const {data,error}=await db.client.from("webbase_staff").select("role,active").eq("user_id",state.user.id).maybeSingle();
  if(error)throw error;
  if(!data?.active){$("workspace").hidden=true;$("authPanel").hidden=false;$("authStatus").textContent="Аккаунт "+state.user.email+" ещё не одобрен. Передайте администратору UUID: "+state.user.id;return;}
- state.admin=data.role==="admin";$("adminTools").hidden=!state.admin;
+ state.admin=data.role==="admin";$("staffAdmin").hidden=!state.admin;$("adminTools").hidden=!state.admin;
  await load();
 }
 async function load(){
