@@ -1,0 +1,171 @@
+import { placeholderSvg } from "./utils.js";
+
+const signedUrlCache = new Map();
+const MAX_SOURCE_BYTES = 12 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+const ACCEPTED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+
+export async function getSignedUrl(db, path, force = false) {
+  if (!path) return null;
+  const cached = signedUrlCache.get(path);
+  if (!force && cached && cached.expiresAt > Date.now()) return cached.url;
+  const { data, error } = await db.client.storage
+    .from(db.config.bucket)
+    .createSignedUrl(path, 15 * 60);
+  if (error) throw error;
+  signedUrlCache.set(path, { url: data.signedUrl, expiresAt: Date.now() + 12 * 60 * 1000 });
+  return data.signedUrl;
+}
+
+export async function setSignedImage(db, image, path, fallbackLabel = "Товар") {
+  image.src = placeholderSvg(fallbackLabel);
+  if (!path) return;
+  try {
+    image.src = await getSignedUrl(db, path);
+    image.dataset.storagePath = path;
+    image.onerror = async () => {
+      image.onerror = null;
+      try {
+        image.src = await getSignedUrl(db, path, true);
+      } catch {
+        image.src = placeholderSvg(fallbackLabel);
+      }
+    };
+  } catch {
+    image.src = placeholderSvg(fallbackLabel);
+  }
+}
+
+export function observeCatalogImages(db, root = document) {
+  const images = [...root.querySelectorAll("img[data-lazy-path]")];
+  if (!("IntersectionObserver" in window)) {
+    images.forEach((image) => setSignedImage(db, image, image.dataset.lazyPath, image.alt));
+    return () => {};
+  }
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      const image = entry.target;
+      observer.unobserve(image);
+      setSignedImage(db, image, image.dataset.lazyPath, image.alt);
+    }
+  }, { rootMargin: "300px" });
+  images.forEach((image) => observer.observe(image));
+  return () => observer.disconnect();
+}
+
+async function decodeImage(file) {
+  if ("createImageBitmap" in window) return createImageBitmap(file);
+  const url = URL.createObjectURL(file);
+  try {
+    const image = new Image();
+    image.src = url;
+    await image.decode();
+    return image;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+export async function prepareImage(file) {
+  if (!file) throw new Error("Выберите изображение.");
+  const name = file.name.toLocaleLowerCase("en-US");
+  if (/\.(heic|heif)$/.test(name) || /heic|heif/.test(file.type)) {
+    throw new Error("HEIC пока не поддерживается надёжно в браузере. На iPhone выберите «Наиболее совместимый» формат или сохраните фото как JPG.");
+  }
+  if (!ACCEPTED_TYPES.has(file.type)) throw new Error("Разрешены только JPG, PNG и WebP.");
+  if (file.size > MAX_SOURCE_BYTES) throw new Error("Исходный файл должен быть не больше 12 МБ.");
+
+  const source = await decodeImage(file);
+  const width = source.width || source.naturalWidth;
+  const height = source.height || source.naturalHeight;
+  const scale = Math.min(1, 1920 / Math.max(width, height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(width * scale));
+  canvas.height = Math.max(1, Math.round(height * scale));
+  const context = canvas.getContext("2d", { alpha: false });
+  context.fillStyle = "#fff";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.drawImage(source, 0, 0, canvas.width, canvas.height);
+  if (source.close) source.close();
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", 0.82));
+  if (!blob) throw new Error("Браузер не смог подготовить изображение.");
+  if (blob.size > MAX_UPLOAD_BYTES) throw new Error("После сжатия файл превышает 5 МБ. Выберите изображение меньшего размера.");
+  return { blob, width: canvas.width, height: canvas.height, originalName: file.name };
+}
+
+export async function uploadProductImage(db, productId, prepared, userId, isPrimary = false) {
+  const path = `products/${productId}/${crypto.randomUUID()}.webp`;
+  const { error: uploadError } = await db.client.storage
+    .from(db.config.bucket)
+    .upload(path, prepared.blob, { contentType: "image/webp", cacheControl: "3600", upsert: false });
+  if (uploadError) throw uploadError;
+
+  const { data: existing, error: countError } = await db.client
+    .from("webbase_product_images")
+    .select("id,sort_order")
+    .eq("product_id", productId)
+    .order("sort_order", { ascending: false })
+    .limit(1);
+  if (countError) {
+    await db.client.storage.from(db.config.bucket).remove([path]);
+    throw countError;
+  }
+  const sortOrder = existing?.[0] ? existing[0].sort_order + 1 : 0;
+  const { data, error } = await db.client
+    .from("webbase_product_images")
+    .insert({
+      product_id: productId,
+      storage_path: path,
+      sort_order: sortOrder,
+      is_primary: isPrimary || !existing?.length,
+      uploaded_by: userId,
+      mime_type: "image/webp",
+      byte_size: prepared.blob.size,
+      width: prepared.width,
+      height: prepared.height,
+      original_name: prepared.originalName,
+    })
+    .select()
+    .single();
+  if (error) {
+    await db.client.storage.from(db.config.bucket).remove([path]);
+    throw error;
+  }
+  return data;
+}
+
+export async function deleteProductImage(db, image) {
+  const { error: rowError } = await db.client
+    .from("webbase_product_images")
+    .delete()
+    .eq("id", image.id);
+  if (rowError) throw rowError;
+  const { error: storageError } = await db.client.storage
+    .from(db.config.bucket)
+    .remove([image.storage_path]);
+  if (storageError) {
+    console.warn("WebBase: orphaned storage object after metadata deletion", image.storage_path, storageError);
+  }
+  signedUrlCache.delete(image.storage_path);
+}
+
+export async function setPrimaryImage(db, image) {
+  const { error } = await db.client
+    .from("webbase_product_images")
+    .update({ is_primary: true })
+    .eq("id", image.id);
+  if (error) throw error;
+}
+
+export async function reorderImages(db, productId, images) {
+  for (let index = 0; index < images.length; index += 1) {
+    const { error } = await db.client
+      .from("webbase_product_images")
+      .update({ sort_order: index })
+      .eq("id", images[index].id)
+      .eq("product_id", productId);
+    if (error) throw error;
+  }
+}
+
