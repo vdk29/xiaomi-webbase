@@ -6,7 +6,8 @@
   <meta name="theme-color" content="#ffffff">
   <meta name="color-scheme" content="light">
   <title>Xiaomi WebBase</title>
-  <link rel="stylesheet" href="webbase.css?v=20261023-4">
+  <link rel="stylesheet" href="webbase.css?v=20261023-5">
+  <link rel="stylesheet" href="catalog-overrides.css?v=20261023-5">
 </head>
 <body>
   <section id="authPanel" class="auth-layout">
@@ -60,7 +61,6 @@
           <label class="search-field"><span>Поиск</span><input id="search" type="search" placeholder="Название, артикул, модель…" autocomplete="off"></label>
           <label><span>Категория</span><select id="category"><option value="">Все категории</option></select></label>
           <label><span>Наличие</span><select id="availability"><option value="">Все товары</option><option value="available">В наличии</option><option value="display">На витрине</option><option value="without-photo">Без фотографии</option></select></label>
-          <label><span>Сортировка</span><select id="sort"><option value="name-asc">По названию А–Я</option><option value="name-desc">По названию Я–А</option><option value="stock-desc">Остаток: больше</option><option value="stock-asc">Остаток: меньше</option></select></label>
         </div>
         <p id="catalogLoading" class="loading">Загружаю каталог…</p>
         <div id="catalog" class="catalog" aria-live="polite"></div>
@@ -98,6 +98,6 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="supabase-config.js?v=20261023-4"></script>
   <script src="supabase-client.js?v=20261023-4"></script>
-  <script type="module" src="webbase-app.js?v=20261023-4"></script>
+  <script type="module" src="webbase-app.js?v=20261023-5"></script>
 </body>
 </html>

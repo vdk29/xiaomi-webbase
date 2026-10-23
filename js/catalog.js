@@ -1,8 +1,29 @@
 import { $, debounce, escapeHtml, normalizeText, placeholderSvg } from "./utils.js?v=20261023-4";
 import { observeCatalogImages } from "./images.js?v=20261023-4";
 
+export const CATEGORY_ORDER = ["Смартфоны", "Планшеты", "Смарт-часы", "Наушники", "Фитнес-браслеты", "Телевизоры"];
+
+function categoryRank(category) {
+  const index = CATEGORY_ORDER.indexOf(category);
+  return index === -1 ? CATEGORY_ORDER.length : index;
+}
+
+export function compareCatalogProducts(a, b) {
+  return categoryRank(a.category) - categoryRank(b.category)
+    || String(a.category || "").localeCompare(String(b.category || ""), "ru")
+    || a.name.localeCompare(b.name, "ru");
+}
+
+export function orderedCategories(rows) {
+  const present = new Set(rows.map((row) => row.category).filter(Boolean));
+  const remaining = [...present]
+    .filter((category) => !CATEGORY_ORDER.includes(category))
+    .sort((a, b) => a.localeCompare(b, "ru"));
+  return [...CATEGORY_ORDER, ...remaining];
+}
+
 export function initializeCatalog(db, state) {
-  const controls = ["search", "category", "availability", "sort"];
+  const controls = ["search", "category", "availability"];
   const renderDebounced = debounce(() => renderCatalog(db, state), 90);
   controls.forEach((id) => {
     const element = $(id);
@@ -14,9 +35,7 @@ export function initializeCatalog(db, state) {
 export function populateCategories(rows) {
   const select = $("category");
   const current = select.value;
-  const priorityCategories = ["Смартфоны", "Планшеты", "Смарт-часы", "Наушники", "Фитнес-браслеты", "Телевизоры"];
-  const categories = [...new Set([...priorityCategories, ...rows.map((row) => row.category).filter(Boolean)])]
-    .sort((a, b) => a.localeCompare(b, "ru"));
+  const categories = orderedCategories(rows);
   select.replaceChildren(new Option("Все категории", ""), ...categories.map((value) => new Option(value, value)));
   select.value = categories.includes(current) ? current : "";
 }
@@ -25,7 +44,6 @@ function filterRows(rows) {
   const search = normalizeText($("search").value);
   const category = $("category").value;
   const availability = $("availability").value;
-  const sort = $("sort").value;
   const filtered = rows.filter((row) => {
     if (category && row.category !== category) return false;
     const total = row.stock.warehouse + row.stock.display;
@@ -36,18 +54,7 @@ function filterRows(rows) {
       row.name, row.sku, row.model, row.memory, row.color, row.brand,
     ].join(" ")).includes(search);
   });
-  return filtered.sort((a, b) => {
-    if (sort === "stock-desc") {
-      return (b.stock.warehouse + b.stock.display) - (a.stock.warehouse + a.stock.display)
-        || a.name.localeCompare(b.name, "ru");
-    }
-    if (sort === "stock-asc") {
-      return (a.stock.warehouse + a.stock.display) - (b.stock.warehouse + b.stock.display)
-        || a.name.localeCompare(b.name, "ru");
-    }
-    if (sort === "name-desc") return b.name.localeCompare(a.name, "ru");
-    return a.name.localeCompare(b.name, "ru");
-  });
+  return filtered.sort(compareCatalogProducts);
 }
 
 export function renderCatalog(db, state) {
