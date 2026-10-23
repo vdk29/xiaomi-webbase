@@ -30,9 +30,17 @@
       if (error) throw error;
       return data.session;
     },
-    async signIn(email, password) {
+    async signIn(login, password) {
+      const username = String(login).trim();
+      const email = username.includes("@") ? username : "staff-" + Array.from(new TextEncoder().encode(username.toLowerCase())).map(x => x.toString(16).padStart(2,"0")).join("") + "@users.webbase.invalid";
       const { data, error } = await client.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      return data;
+    },
+    async createStaff(username,password) {
+      const {data,error}=await client.functions.invoke("webbase-create-staff",{body:{username,password}});
+      if(error) throw Error(data?.message || "Не удалось создать сотрудника");
+      if(!data?.created) throw Error(data?.message || "Создание не подтверждено");
       return data;
     },
     async signOut() {
