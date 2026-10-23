@@ -88,7 +88,8 @@ Deno.serve(async (req: Request) => {
 
     if (action === "create") {
       const username = canonicalUsername(body.username);
-      const displayName = String(body.displayName || "").trim();
+      // The fallback keeps the pre-PR GitHub Pages form working until this branch is merged.
+      const displayName = String(body.displayName || username).trim();
       const password = String(body.password || "");
       const role = body.role === "admin" ? "admin" : "staff";
       if (!/^[\p{L}\p{N}_-]{2,32}$/u.test(username)) return reply(req, 400, { ok: false, message: "Логин: 2–32 буквы, цифры, _ или -" });
