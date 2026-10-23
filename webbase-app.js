@@ -50,7 +50,6 @@ function renderAccount() {
   const label = state.profile?.display_name || state.profile?.username || state.user?.email || "";
   $("accountName").textContent = label;
   $("accountRole").textContent = state.admin ? "Администратор" : "Сотрудник";
-  $("adminNav").hidden = !state.admin;
   $("staffSectionNav").hidden = !state.admin;
   $("importSectionNav").hidden = !state.admin;
 }
