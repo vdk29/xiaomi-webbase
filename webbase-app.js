@@ -48,7 +48,7 @@ function render(){
  const container=$("catalog");container.replaceChildren();
  for(const r of rows){
  const card=document.createElement("article");card.className="item";
- const st=r.webbase_stock||{};card.innerHTML='<span class="category">'+safe(r.category||"Другое")+'</span><h3>'+safe(r.name)+'</h3><div class="stocks"><div><b>'+Number(st.display||0)+'</b><small>Витрина</small></div><div><b>'+Number(st.warehouse||0)+'</b><small>Склад</small></div></div>'+(st.ldu?'<p class="muted">LDU: '+Number(st.ldu)+'</p>':"");
+ const st=r.webbase_stock||{};card.innerHTML='<span class="category">'+safe(r.category||"Другое")+'</span><h3>'+safe(r.name)+'</h3><p class="muted">Артикул: '+safe(r.sku||"—")+'</p><div class="stocks"><div><b>'+Number(st.display||0)+'</b><small>Витрина</small></div><div><b>'+Number(st.warehouse||0)+'</b><small>Склад</small></div></div>'+(st.ldu?'<p class="muted">LDU: '+Number(st.ldu)+'</p>':"");
  if(r.image_path){const img=document.createElement("img");img.alt=r.name;card.insertBefore(img,card.firstChild);db.getImageUrl(r.image_path).then(url=>{if(url)img.src=url}).catch(()=>{});}
  if(state.admin){const edit=document.createElement("button");edit.className="secondary";edit.textContent="Изменить остатки";edit.onclick=()=>{state.editing=r;$("editorName").textContent=r.name;$("warehouse").value=st.warehouse||0;$("display").value=st.display||0;$("ldu").value=st.ldu||0;$("editor").showModal();};card.append(edit);}
  container.append(card);
@@ -61,35 +61,76 @@ async function saveStock(){
  const {error}=await db.client.from("webbase_stock").upsert({product_id:state.editing.id,warehouse,display,ldu,updated_at:new Date().toISOString(),updated_by:state.user.id},{onConflict:"product_id"});
  if(error)throw error;$("editor").close();await load();notice("Остатки сохранены.");
 }
+
 function classify(name){
  const s=norm(name);
- if(/^(итого|всего|номенклатура|остатки|товары|группа|подгруппа)$/.test(s)||/^(итого|всего)\s*[:(]/.test(s)||/\bpf\b/i.test(name))return null;
- if(/^(смартфоны|планшеты|телевизоры|наушники|аксессуары|смарт-часы|фитнес-браслеты|камеры|пылесосы)$/.test(s))return null;
- const groups=[["Аксессуары",/^(чехол|стекло|пленка|плёнка|кабель|зарядное устройство|зарядка|ремешок|адаптер|блок питания)\b/i],["Смартфоны",/^смартфон\s/i],["Планшеты",/^планшет\s/i],["Смарт-часы",/^(смарт-часы|умные часы)\s/i],["Фитнес-браслеты",/^фитнес-браслет\s/i],["Наушники",/^(наушники|гарнитура)\s/i],["Телевизоры",/^телевизор\s/i],["Камеры",/^камера\s/i],["Пылесосы",/^(пылесос|робот-пылесос)\s/i]];
- return groups.find(([_,re])=>re.test(name))?.[0]||null;
+ if(/^(смартфон|мобильный телефон)\s/.test(s))return "Смартфоны";
+ if(/^планшет\s/.test(s))return "Планшеты";
+ if(/^(смарт-часы|умные часы|часы)\s/.test(s))return "Смарт-часы";
+ if(/^(фитнес-браслет|браслет)\s/.test(s))return "Фитнес-браслеты";
+ if(/^(наушники|гарнитура|беспроводные наушники)\s/.test(s))return "Наушники";
+ if(/^телевизор\s/.test(s))return "Телевизоры";
+ if(/^(камера|видеокамера)\s/.test(s))return "Камеры";
+ if(/^(пылесос|робот-пылесос)\s/.test(s))return "Пылесосы";
+ if(/^(sim|сим-карта|сим карта)\b/i.test(s))return "SIM-карты";
+ return "Аксессуары и другое";
+}
+function normalizeItemName(value){
+ return String(value??"").replace(/^\s*\((?:ldu|лду)\)\s*/i,"").replace(/,\s*шт\s*\.?\s*$/i,"").replace(/\s+/g," ").trim();
+}
+function isDemo(row){
+ return /\(\s*(?:ldu|лду)\s*\)/i.test(String(row[0]??"")+" "+String(row[3]??""));
+}
+function isPF(row){
+ return /\(\s*(?:пф|pf)\s*\)/i.test(String(row[0]??"")+" "+String(row[3]??""));
 }
 async function previewImport(){
- state.pending=[];$("preview").replaceChildren();const file=$("excel").files?.[0];if(!file)return;
+ state.pending=[];$("preview").replaceChildren();
+ const file=$("excel").files?.[0];if(!file)return;
  if(!window.XLSX)throw Error("Не загрузилась библиотека Excel.");
- const workbook=XLSX.read(await file.arrayBuffer(),{type:"array"}),sheet=workbook.Sheets[workbook.SheetNames[0]];
+ const workbook=XLSX.read(await file.arrayBuffer(),{type:"array"});
+ const sheet=workbook.Sheets[workbook.SheetNames[0]];
  const rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:"",raw:true});
- const candidates=[],review=[],seen=new Set();
- for(let i=0;i<rows.length;i++){
- const r=rows[i],name=String(r[0]??"").trim();
- if(!name||/\bpf\b/i.test(name))continue;
- const category=classify(name);if(!category)continue;
- const warehouse=qty(r[4]),display=qty(r[6]),total=qty(r[7]);
- if([warehouse,display,total].some(v=>v===null)){review.push("Строка "+(i+1)+": неверные остатки — "+name);continue;}
- if(total!==warehouse+display){review.push("Строка "+(i+1)+": итог не равен сумме склада и витрины — "+name);continue;}
- const key=norm(name);if(seen.has(key)){review.push("Строка "+(i+1)+": повтор — "+name);continue;}seen.add(key);
- candidates.push({external_id:key,name,category,warehouse,display});
+ // Real 1C export: A=article, D=name, G=warehouse, H=defect, I=OV, J=total.
+ const header=rows.findIndex(r=>norm(r[0]).includes("артикул")&&norm(r[3]).includes("номенклатура"));
+ if(header<0)throw Error("Не найдены заголовки отчёта 1С (A: артикул, D: наименование). Импорт отменён.");
+ const head=rows[header].map(norm);
+ if(!head[6].includes("склад")||!head[8].includes("ов")||!head[9].includes("итого"))
+   throw Error("Не совпадают колонки склада/витрины/итога. Импорт отменён.");
+ const grouped=new Map(),review=[],excluded=[];
+ for(let i=header+1;i<rows.length;i++){
+   const r=rows[i],rawSku=String(r[0]??"").trim(),rawName=String(r[3]??"").trim();
+   if(!rawName||!rawSku||norm(rawSku)==="итого")continue;
+   if(isPF(r)){excluded.push(rawSku);continue;}
+   const name=normalizeItemName(rawName),sku=rawSku.replace(/\s*\(\s*(?:ldu|лду)\s*\)?\s*$/i,"").trim();
+   if(!name||!sku)continue;
+   const warehouse=qty(r[6]),defect=qty(r[7]),ov=qty(r[8]),total=qty(r[9]);
+   if([warehouse,defect,ov,total].some(x=>x===null)){review.push("Строка "+(i+1)+": неверное количество — "+name);continue;}
+   if(warehouse+defect+ov!==total){review.push("Строка "+(i+1)+": G+H+I не равно J — "+name);continue;}
+   // LDU is a display sample even if 1C places its count on the main warehouse.
+   const demo=isDemo(r);
+   const display=demo?warehouse+ov:ov;
+   const stock=demo?0:warehouse;
+   const key=norm(name);
+   if(!grouped.has(key))grouped.set(key,{external_id:key,name,category:classify(name),skuList:new Set(),warehouse:0,display:0,ldu:0,defect:0});
+   const p=grouped.get(key);p.skuList.add(sku);p.warehouse+=stock;p.display+=display;p.ldu+=demo?display:0;p.defect+=defect;
  }
+ const candidates=[...grouped.values()].map(p=>({...p,sku:[...p.skuList].join(" / ")}));
  state.pending=candidates;
- const box=$("preview");const title=document.createElement("p");title.textContent="К импорту: "+candidates.length+" · На проверку: "+review.length+" · Всего строк: "+rows.length;box.append(title);
- if(review.length){const p=document.createElement("p");p.className="warn";p.textContent=review.slice(0,8).join(" | ");box.append(p);}
- const wrapper=document.createElement("div");wrapper.className="preview";const table=document.createElement("table");table.innerHTML="<tr><th>Товар</th><th>Склад</th><th>Витрина</th></tr>"+candidates.slice(0,30).map(p=>"<tr><td>"+safe(p.name)+"</td><td>"+p.warehouse+"</td><td>"+p.display+"</td></tr>").join("");wrapper.append(table);box.append(wrapper);
- const button=document.createElement("button");button.textContent="Подтвердить импорт ("+candidates.length+")";button.disabled=!candidates.length||!!review.length;button.onclick=()=>applyImport(file.name).catch(e=>notice(e.message,true));box.append(button);
- if(review.length){const p=document.createElement("p");p.className="warn";p.textContent="Импорт заблокирован до исправления спорных строк. Это предотвращает повреждение остатков.";box.append(p);}
+ const box=$("preview"),title=document.createElement("p");
+ title.textContent="Карточек: "+candidates.length+" · LDU учтены на витрине · ПФ исключено: "+excluded.length+" · Спорных строк: "+review.length;
+ box.append(title);
+ if(review.length){const p=document.createElement("p");p.className="warn";p.textContent=review.slice(0,10).join(" | ");box.append(p);}
+ const wrapper=document.createElement("div");wrapper.className="preview";
+ const table=document.createElement("table");
+ table.innerHTML="<tr><th>Артикул</th><th>Товар</th><th>Склад</th><th>ОВ</th><th>Брак</th></tr>"+candidates.slice(0,40).map(p=>"<tr><td>"+safe(p.sku)+"</td><td>"+safe(p.name)+"</td><td>"+p.warehouse+"</td><td>"+p.display+"</td><td>"+p.defect+"</td></tr>").join("");
+ wrapper.append(table);box.append(wrapper);
+ const button=document.createElement("button");button.textContent="Импортировать "+candidates.length+" карточек";
+ button.disabled=!candidates.length||!!review.length;button.onclick=()=>applyImport(file.name).catch(e=>notice(e.message,true));box.append(button);
+ if(review.length){const p=document.createElement("p");p.className="warn";p.textContent="Исправьте спорные строки в Excel. До этого импорт заблокирован.";box.append(p);}
+ const warning=document.createElement("p");warning.className="muted";
+ warning.textContent="ОВ включает LDU. Брак показывается только в предпросмотре и не прибавляется к доступному остатку. Существующие совпадающие карточки будут обновлены.";
+ box.append(warning);
 }
 async function applyImport(filename){
  if(!state.admin||!state.pending.length)return;
@@ -100,10 +141,10 @@ async function applyImport(filename){
  try{
  for(let i=0;i<state.pending.length;i+=100){
  const part=state.pending.slice(i,i+100);
- const {data,error}=await db.client.from("webbase_products").upsert(part.map(({external_id,name,category})=>({external_id,name,category})),{onConflict:"external_id"}).select("id,external_id");
+ const {data,error}=await db.client.from("webbase_products").upsert(part.map(({external_id,name,category,sku})=>({external_id,name,category,sku})),{onConflict:"external_id"}).select("id,external_id");
  if(error)throw error;
  const ids=new Map(data.map(r=>[r.external_id,r.id]));
- const {error:stockError}=await db.client.from("webbase_stock").upsert(part.map(p=>({product_id:ids.get(p.external_id),warehouse:p.warehouse,display:p.display,updated_by:state.user.id,updated_at:new Date().toISOString()})),{onConflict:"product_id"});
+ const {error:stockError}=await db.client.from("webbase_stock").upsert(part.map(p=>({product_id:ids.get(p.external_id),warehouse:p.warehouse,display:p.display,ldu:p.ldu,updated_by:state.user.id,updated_at:new Date().toISOString()})),{onConflict:"product_id"});
  if(stockError)throw stockError;
  }
  await db.client.from("webbase_imports").update({status:"applied"}).eq("id",batch.id);
