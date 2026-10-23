@@ -6,14 +6,14 @@
 <header><div class="brand"><span class="mark">mi</span><div><b>Xiaomi WebBase</b><small>Каталог и остатки магазина</small></div></div><div id="account"></div></header>
 <main>
 <section id="authPanel" class="panel auth"><h1>Вход для сотрудников</h1><p>Доступ к остаткам только для одобренных сотрудников.</p>
-<form id="authForm"><label>Email<input id="email" type="email" autocomplete="email" required></label>
+<form id="authForm"><label>Логин<input id="email" type="text" autocomplete="username" required></label>
 <label>Пароль<input id="password" type="password" autocomplete="current-password" minlength="6" required></label>
 <div class="actions"><button type="submit">Войти</button></div></form>
 <p id="authStatus" role="status"></p></section>
 <section id="workspace" hidden>
 <div class="heading"><div><h1>Товары</h1><p>Наличие на витрине и складе</p></div><span id="count" class="count"></span></div>
 <div class="panel tools"><input id="search" type="search" placeholder="Поиск по модели, цвету, памяти, артикулу…"><select id="category"><option value="">Все категории</option></select><button id="refresh" class="secondary">Обновить</button></div>
-<div id="adminTools" class="panel" hidden><div class="heading"><div><h2>Импорт из 1С</h2><p>Предпросмотр перед записью в базу. A — артикул, D — товар, G — склад, I — ОВ (витрина), J — итого.</p></div></div>
+<div id="staffAdmin" class="panel" hidden><h2>Сотрудники</h2><form id="staffForm"><label>Логин<input id="staffLogin" required minlength="2" maxlength="32"></label><label>Временный пароль<input id="staffPassword" type="password" required minlength="6"></label><button type="submit">Создать сотрудника</button></form><p id="staffStatus" role="status"></p></div><div id="adminTools" class="panel" hidden><div class="heading"><div><h2>Импорт из 1С</h2><p>Предпросмотр перед записью в базу. A — артикул, D — товар, G — склад, I — ОВ (витрина), J — итого.</p></div></div>
 <input id="excel" type="file" accept=".xlsx,.xls,.csv"><div id="preview"></div></div>
 <div id="notice" role="status"></div><div id="catalog" class="catalog"></div>
 </section></main>
