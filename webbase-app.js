@@ -12,7 +12,6 @@ async function boot(){
  db.client.auth.onAuthStateChange(()=>{setTimeout(()=>refreshSession().catch(e=>notice(e.message,true)),0);});
  await refreshSession();
  $("authForm").addEventListener("submit",async e=>{e.preventDefault();try{await db.signIn($("email").value,$("password").value);$("authStatus").textContent="Вход выполнен.";}catch(err){$("authStatus").textContent=err.message;}});
- $("register").onclick=async()=>{const form=$("authForm");if(!form.reportValidity())return;const email=$("email").value.trim(),password=$("password").value;if(!email||!password){$("authStatus").textContent="Сначала введите email и пароль.";return;}const button=$("register");button.disabled=true;try{const {error}=await db.client.auth.signUp({email,password});if(error)throw error;$("authStatus").textContent="Заявка на регистрацию отправлена. Подтвердите почту, если требуется, и дождитесь одобрения администратора.";}catch(e){$("authStatus").textContent=e.message;}finally{button.disabled=false;}};
  $("refresh").onclick=()=>load().catch(e=>notice(e.message,true));
  $("search").oninput=render;$("category").onchange=render;
  $("excel").onchange=()=>previewImport().catch(e=>notice(e.message,true));
