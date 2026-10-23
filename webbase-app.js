@@ -60,6 +60,7 @@ async function refreshSession() {
   state.profile = context.profile;
   state.admin = context.admin;
   const approved = Boolean(context.user && context.profile?.active);
+  $("sessionLoading").hidden = true;
   $("authPanel").hidden = approved;
   $("appShell").hidden = !approved;
   if (!context.user) return;
@@ -78,6 +79,8 @@ async function refreshSession() {
 
 async function boot() {
   if (!db) {
+    $("sessionLoading").hidden = true;
+    $("authPanel").hidden = false;
     $("authStatus").textContent = "Не удалось загрузить безопасное подключение к Supabase.";
     return;
   }
@@ -115,5 +118,7 @@ async function boot() {
 
 boot().catch((error) => {
   console.error(error);
+  $("sessionLoading").hidden = true;
+  $("authPanel").hidden = false;
   $("authStatus").textContent = errorMessage(error);
 });

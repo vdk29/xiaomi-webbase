@@ -7,10 +7,15 @@
   <meta name="color-scheme" content="light">
   <title>Xiaomi WebBase</title>
   <link rel="stylesheet" href="webbase.css?v=20261023-5">
-  <link rel="stylesheet" href="catalog-overrides.css?v=20261023-5">
+  <link rel="stylesheet" href="catalog-overrides.css?v=20261023-7">
 </head>
 <body>
-  <section id="authPanel" class="auth-layout">
+  <div id="sessionLoading" class="session-loading" role="status" aria-live="polite">
+    <span class="mi-mark large">mi</span>
+    <strong>Проверяю доступ…</strong>
+  </div>
+
+  <section id="authPanel" class="auth-layout" hidden>
     <div class="auth-brand">
       <span class="mi-mark large">mi</span>
       <p class="eyebrow">Внутренний инструмент магазина</p>
@@ -98,6 +103,6 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="supabase-config.js?v=20261023-4"></script>
   <script src="supabase-client.js?v=20261023-4"></script>
-  <script type="module" src="webbase-app.js?v=20261023-6"></script>
+  <script type="module" src="webbase-app.js?v=20261023-7"></script>
 </body>
 </html>
