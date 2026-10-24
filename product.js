@@ -1,9 +1,9 @@
 import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from "./js/utils.js?v=20261023-4";
 import { requireApprovedUser } from "./js/auth.js?v=20261023-4";
-import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261024-2";
+import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261024-3";
 import {
   deleteProductImage, prepareImage, reorderImages, setPrimaryImage, setSignedImage, uploadProductImage,
-} from "./js/images.js?v=20261024-1";
+} from "./js/images.js?v=20261024-3";
 
 const db = window.WebBaseDB;
 const state = { context: null, product: null, selectedImageId: null, preparedImage: null, dirty: false };

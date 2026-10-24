@@ -1,7 +1,7 @@
 import { $, errorMessage, setBusy } from "./js/utils.js?v=20261023-4";
 import { getAccessContext, safeNextUrl, signIn } from "./js/auth.js?v=20261023-4";
-import { listProducts } from "./js/products.js?v=20261024-2";
-import { initializeCatalog, populateCategories, renderCatalog } from "./js/catalog.js?v=20261024-2";
+import { listProducts } from "./js/products.js?v=20261024-3";
+import { initializeCatalog, populateCategories, renderCatalog } from "./js/catalog.js?v=20261024-3";
 import { initializeEmployees, refreshEmployees } from "./js/employees.js?v=20261023-4";
 import { initializeImporter } from "./js/importer.js?v=20261024-2";
 

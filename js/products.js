@@ -1,3 +1,4 @@
+import { primeSignedUrls } from "./images.js?v=20261024-3";
 import { parseQuantity } from "./utils.js?v=20261023-4";
 
 export const PRODUCT_SELECT = `
@@ -39,6 +40,7 @@ export async function listProducts(db) {
     rows.push(...data.map(normalizeProduct));
     if (data.length < 500) break;
   }
+  void primeSignedUrls(db, rows.map(row => row.primaryImage?.storage_path)).catch(() => {});
   return rows;
 }
 
@@ -53,7 +55,9 @@ export async function getProduct(db, productId) {
     .eq("active", true)
     .maybeSingle();
   if (error) throw error;
-  return data ? normalizeProduct(data) : null;
+  const product = data ? normalizeProduct(data) : null;
+  if (product) void primeSignedUrls(db, product.images.map(image => image.storage_path)).catch(() => {});
+  return product;
 }
 
 export function readProductForm(form) {

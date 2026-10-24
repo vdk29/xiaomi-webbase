@@ -1,7 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.95.0";
 import manifest from "./manifest.json" with { type: "json" };
 
-// Fixed reviewed sources only. No arbitrary URLs, keys or product updates accepted.
+// Only reviewed, preprocessed files at fixed paths may be staged or attached.
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
   const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
@@ -13,42 +13,37 @@ Deno.serve(async (req) => {
     authorized = data?.role === "admin" && data.active;
   }
   if (!authorized) return new Response("Admin only", { status: 403 });
-  const { start = 0 } = await req.json();
-  if (!Number.isInteger(start) || start < 0 || start >= manifest.length) return new Response("Invalid offset", { status: 400 });
+  const body = await req.json();
+  const { start = 0, action = "verify" } = body;
+  if (!Number.isInteger(start) || start < 0 || start >= manifest.length || !["stage", "verify", "attach"].includes(action)) return new Response("Invalid request", { status: 400 });
   const results = [];
-  for (const entry of manifest.slice(start, start + 3)) {
-    let path: string | null = null;
+  for (const entry of manifest.slice(start, start + 10)) {
     try {
-      const { data: product, error: productError } = await db.from("webbase_products").select("id,sku").eq("sku", entry.sku).single();
-      if (productError || !product) throw new Error("Product SKU not found");
-      const { data: images, error: imagesError } = await db.from("webbase_product_images").select("id,source_url,original_name").eq("product_id", product.id);
-      if (imagesError) throw imagesError;
-      const originalName = "original_name" in entry ? entry.original_name : `Официальное изображение модели: ${entry.name}`;
-      if (images!.some(i => "original_name" in entry ? i.original_name === originalName : i.source_url === entry.source_url) || images!.length >= 3) {
-        results.push({ sku: entry.sku, status: "already-present" }); continue;
+      if (action === "stage") {
+        const { data, error } = await db.storage.from("webbase-products").createSignedUploadUrl(entry.path);
+        if (error) throw error;
+        results.push({ sku: entry.sku, path: entry.path, signedUrl: data.signedUrl });
+        continue;
       }
-      const imageUrl = new URL(entry.image_url);
-      if (imageUrl.protocol !== "https:" || !["i02.appmifile.com", "i01.appmifile.com", "www.borofone.com", "mi-shop.com"].includes(imageUrl.hostname)) throw new Error("Unapproved source");
-      const response = await fetch(imageUrl, { redirect: "error", signal: AbortSignal.timeout(20000) });
-      if (!response.ok) throw new Error(`Image HTTP ${response.status}`);
-      const bytes = await response.arrayBuffer();
-      if (bytes.byteLength > 5242880 || bytes.byteLength === 0) throw new Error("Invalid image size");
-      // Accept actual raster signatures, not HTML pages or SVG.
-      const b = new Uint8Array(bytes);
-      const mime = b[0] === 0xff && b[1] === 0xd8 ? "image/jpeg" : b[0] === 0x89 && b[1] === 0x50 ? "image/png" : null;
-      if (!mime) throw new Error("Unsupported image signature");
-      path = `products/${product.id}/${crypto.randomUUID()}.${mime === "image/png" ? "png" : "jpg"}`;
-      const { error: uploadError } = await db.storage.from("webbase-products").upload(path, bytes, { contentType: mime, upsert: false });
-      if (uploadError) throw uploadError;
-      const { error } = await db.from("webbase_product_images").insert({ product_id: product.id, storage_path: path,
-        mime_type: mime, byte_size: bytes.byteLength, source_url: entry.source_url,
-        original_name: originalName, sort_order: images!.length, is_primary: images!.length === 0 });
-      if (error) throw error;
-      results.push({ sku: entry.sku, status: "uploaded" });
-    } catch (error) {
-      if (path) await db.storage.from("webbase-products").remove([path]);
-      results.push({ sku: entry.sku, status: "error", message: String(error) });
-    }
+      const { data: blob, error: downloadError } = await db.storage.from("webbase-products").download(entry.path);
+      if (downloadError) throw downloadError;
+      const bytes = await blob.arrayBuffer();
+      const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map(b => b.toString(16).padStart(2, "0")).join("");
+      if (hash !== entry.sha256 || bytes.byteLength !== entry.byte_size) throw new Error("Prepared image checksum mismatch");
+      if (action === "attach") {
+        const { data: existing, error: lookupError } = await db.from("webbase_product_images").select("id").eq("storage_path", entry.path).maybeSingle();
+        if (lookupError) throw lookupError;
+        if (!existing) {
+          const { data: product, error: productError } = await db.from("webbase_products").select("id").eq("sku", entry.sku).single();
+          if (productError) throw productError;
+          const { count, error: countError } = await db.from("webbase_product_images").select("id", {count:"exact",head:true}).eq("product_id", product.id);
+          if (countError) throw countError;
+          const { error } = await db.from("webbase_product_images").insert({product_id:product.id,storage_path:entry.path,mime_type:"image/webp",byte_size:entry.byte_size,width:entry.width,height:entry.height,source_url:entry.source_url,original_name:entry.original_name,is_primary:count===0,sort_order:count || 0});
+          if (error) throw error;
+        }
+      }
+      results.push({ sku: entry.sku, status: action === "attach" ? "attached" : "verified" });
+    } catch (error) { results.push({ sku: entry.sku, status: "error", message: String(error) }); }
   }
   return Response.json({ results });
 });

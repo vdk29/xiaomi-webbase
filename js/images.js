@@ -1,56 +1,108 @@
 import { placeholderSvg } from "./utils.js?v=20261023-4";
 
-const signedUrlCache = new Map();
+const clientCaches = new WeakMap();
+const imageRequests = new WeakMap();
+const URL_LIFETIME = 15 * 60;
 const MAX_SOURCE_BYTES = 12 * 1024 * 1024;
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 const ACCEPTED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
+async function getCache(db) {
+  const session = db.getSession ? await db.getSession() : null;
+  const userId = session?.user?.id || "anonymous";
+  const key = `webbase-photo-links:${db.config.url}:${userId}`;
+  let cache = clientCaches.get(db);
+  if (cache?.key === key) return cache;
+  if (cache) {
+    try { sessionStorage.removeItem(cache.key); } catch { /* Storage can be unavailable. */ }
+  }
+  cache = { key, urls: new Map(), pending: new Map() };
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(key) || "[]");
+    for (const [path, entry] of saved) {
+      if (entry.expiresAt > Date.now()) cache.urls.set(path, entry);
+    }
+  } catch { /* Private browsing can disable sessionStorage. */ }
+  clientCaches.set(db, cache);
+  return cache;
+}
+
+function saveCache(cache) {
+  try {
+    const entries = [...cache.urls].filter(([, entry]) => entry.expiresAt > Date.now());
+    sessionStorage.setItem(cache.key, JSON.stringify(entries));
+  } catch { /* Keep the in-memory cache when storage is unavailable. */ }
+}
+
+export async function primeSignedUrls(db, paths) {
+  const cache = await getCache(db);
+  const unique = [...new Set(paths.filter(Boolean))];
+  const missing = unique.filter(path => !cache.pending.has(path) && !(cache.urls.get(path)?.expiresAt > Date.now()));
+  for (let offset = 0; offset < missing.length; offset += 100) {
+    const batch = missing.slice(offset, offset + 100);
+    const request = (async () => {
+      const { data, error } = await db.client.storage.from(db.config.bucket).createSignedUrls(batch, URL_LIFETIME);
+      if (error) throw error;
+      for (const entry of data || []) {
+        if (entry.signedUrl && !entry.error) cache.urls.set(entry.path, { url: entry.signedUrl, expiresAt: Date.now() + 12 * 60 * 1000 });
+      }
+      saveCache(cache);
+    })().finally(() => batch.forEach(path => cache.pending.delete(path)));
+    batch.forEach(path => cache.pending.set(path, request));
+  }
+  await Promise.all(unique.map(path => cache.pending.get(path)).filter(Boolean));
+}
+
 export async function getSignedUrl(db, path, force = false) {
   if (!path) return null;
-  const cached = signedUrlCache.get(path);
-  if (!force && cached && cached.expiresAt > Date.now()) return cached.url;
-  const { data, error } = await db.client.storage
-    .from(db.config.bucket)
-    .createSignedUrl(path, 15 * 60);
-  if (error) throw error;
-  signedUrlCache.set(path, { url: data.signedUrl, expiresAt: Date.now() + 12 * 60 * 1000 });
-  return data.signedUrl;
+  const cache = await getCache(db);
+  if (force) cache.urls.delete(path);
+  if (!(cache.urls.get(path)?.expiresAt > Date.now())) await primeSignedUrls(db, [path]);
+  const entry = cache.urls.get(path);
+  if (!entry) throw new Error("Фотография недоступна.");
+  return entry.url;
 }
 
 export async function setSignedImage(db, image, path, fallbackLabel = "Товар") {
-  image.src = placeholderSvg(fallbackLabel);
-  if (!path) return;
+  const ticket = (imageRequests.get(image) || 0) + 1;
+  imageRequests.set(image, ticket);
+  image.onerror = null;
+  image.decoding = "async";
+  if (!path || image.dataset.storagePath !== path) image.src = placeholderSvg(fallbackLabel);
+  if (!path) { delete image.dataset.storagePath; return; }
+  image.dataset.storagePath = path;
   try {
-    image.src = await getSignedUrl(db, path);
-    image.dataset.storagePath = path;
+    const url = await getSignedUrl(db, path);
+    if (imageRequests.get(image) !== ticket) return;
+    if (image.src !== url) image.src = url;
     image.onerror = async () => {
       image.onerror = null;
       try {
-        image.src = await getSignedUrl(db, path, true);
+        const refreshed = await getSignedUrl(db, path, true);
+        if (imageRequests.get(image) !== ticket) return;
+        image.onerror = () => { if (imageRequests.get(image) === ticket) image.src = placeholderSvg(fallbackLabel); image.onerror = null; };
+        image.src = refreshed;
       } catch {
-        image.src = placeholderSvg(fallbackLabel);
+        if (imageRequests.get(image) === ticket) image.src = placeholderSvg(fallbackLabel);
       }
     };
   } catch {
-    image.src = placeholderSvg(fallbackLabel);
+    if (imageRequests.get(image) === ticket) image.src = placeholderSvg(fallbackLabel);
   }
 }
 
 export function observeCatalogImages(db, root = document) {
   const images = [...root.querySelectorAll("img[data-lazy-path]")];
-  if (!("IntersectionObserver" in window)) {
-    images.forEach((image) => setSignedImage(db, image, image.dataset.lazyPath, image.alt));
-    return () => {};
-  }
-  const observer = new IntersectionObserver((entries) => {
+  const load = image => { image.loading = "eager"; return setSignedImage(db, image, image.dataset.lazyPath, image.alt); };
+  if (!("IntersectionObserver" in window)) { images.forEach(load); return () => {}; }
+  const observer = new IntersectionObserver(entries => {
     for (const entry of entries) {
       if (!entry.isIntersecting) continue;
-      const image = entry.target;
-      observer.unobserve(image);
-      setSignedImage(db, image, image.dataset.lazyPath, image.alt);
+      observer.unobserve(entry.target);
+      load(entry.target);
     }
-  }, { rootMargin: "300px" });
-  images.forEach((image) => observer.observe(image));
+  }, { rootMargin: "600px" });
+  images.forEach((image, index) => index < 8 ? load(image) : observer.observe(image));
   return () => observer.disconnect();
 }
 
@@ -79,7 +131,7 @@ export async function prepareImage(file) {
   const source = await decodeImage(file);
   const width = source.width || source.naturalWidth;
   const height = source.height || source.naturalHeight;
-  const scale = Math.min(1, 1920 / Math.max(width, height));
+  const scale = Math.min(1, 1024 / Math.max(width, height));
   const canvas = document.createElement("canvas");
   canvas.width = Math.max(1, Math.round(width * scale));
   canvas.height = Math.max(1, Math.round(height * scale));
@@ -151,7 +203,9 @@ export async function deleteProductImage(db, image) {
   if (storageError) {
     console.warn("WebBase: orphaned storage object after metadata deletion", image.storage_path, storageError);
   }
-  signedUrlCache.delete(image.storage_path);
+  const cache = await getCache(db);
+  cache.urls.delete(image.storage_path);
+  saveCache(cache);
 }
 
 export async function setPrimaryImage(db, image) {
