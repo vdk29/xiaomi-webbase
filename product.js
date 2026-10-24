@@ -1,6 +1,6 @@
 import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from "./js/utils.js?v=20261023-4";
 import { requireApprovedUser } from "./js/auth.js?v=20261023-4";
-import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261024-3";
+import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261024-5";
 import {
   deleteProductImage, prepareImage, reorderImages, setPrimaryImage, setSignedImage, uploadProductImage,
 } from "./js/images.js?v=20261024-3";
@@ -112,8 +112,9 @@ async function renderProduct() {
   source.href = sourceUrl || "#";
   $("specsVerified").textContent = product.specs?._verified_at ? `Данные проверены ${formatDate(`${product.specs._verified_at}T00:00:00`)}` : "";
   $("adminActions").hidden = !state.context.admin;
-  $("addPhoto").disabled = product.images.length >= 3;
-  $("addPhoto").textContent = `Добавить фотографию (${product.images.length}/3)`;
+  const ownPhotos = product.images.filter(image => !image.inherited).length;
+  $("addPhoto").disabled = ownPhotos >= 3;
+  $("addPhoto").textContent = `Добавить фотографию (${ownPhotos}/3)`;
   await renderGallery();
   $("productView").hidden = false;
   $("pageStatus").hidden = true;
@@ -137,7 +138,8 @@ async function renderGallery() {
   }
   gallery.innerHTML = images.map((image, index) => `<div class="gallery-item ${image.id === selected?.id ? "active" : ""}">
       <button class="gallery-select" type="button" data-image-id="${image.id}" aria-label="Фото ${index + 1}"><img src="${placeholderSvg("Фото")}" data-gallery-path="${escapeHtml(image.storage_path)}" alt="${escapeHtml(state.product.name)} — фото ${index + 1}"></button>
-      ${state.context.admin ? `<span class="gallery-controls">
+      ${image.inherited ? '<span class="muted">Фото модели и цвета</span>' : ""}
+      ${state.context.admin && !image.inherited ? `<span class="gallery-controls">
         <button type="button" data-image-action="left" data-image-id="${image.id}" title="Переместить влево">←</button>
         <button type="button" data-image-action="primary" data-image-id="${image.id}" title="Сделать главной">★</button>
         <button type="button" data-image-action="delete" data-image-id="${image.id}" title="Удалить">×</button>
@@ -177,7 +179,7 @@ function closeDialog(dialog) {
 
 async function handleGalleryAction(button) {
   const image = state.product.images.find((item) => item.id === button.dataset.imageId);
-  if (!image) return;
+  if (!image || image.inherited) return;
   const action = button.dataset.imageAction;
   if (action === "primary") {
     await setPrimaryImage(db, image);

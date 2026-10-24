@@ -33,3 +33,12 @@ After a deployment:
 4. Test employee creation with a temporary account, then delete the account.
 5. Test an image on a non-critical product and remove it after verification if desired.
 6. Enable leaked-password protection in Auth settings when the project plan supports it.
+
+## Shared memory-variant galleries
+
+Apply `supabase/migrations/20261024100914_shared_model_color_photos.sql` before
+deploying frontend version `20261024-5`. It adds nullable image `variant_key`
+metadata, internal triggers and the security-invoker read RPC
+`webbase_shared_product_images(uuid[])`; it does not modify products, stock or
+Storage files. Existing full-SKU restoration remains in place. Run
+`tests/shared-photos.sql` and `tests/photo-reimport.sql` (both roll back fixtures).

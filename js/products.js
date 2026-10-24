@@ -27,6 +27,30 @@ export function normalizeProduct(row) {
   };
 }
 
+export async function fillSharedImages(db, products) {
+  const missing = products.filter(product => !product.images.length);
+  // At most 600 image rows per response, below the Data API's 1000-row limit.
+  for (let offset = 0; offset < missing.length; offset += 200) {
+    const batch = missing.slice(offset, offset + 200);
+    const { data, error } = await db.client.rpc("webbase_shared_product_images", {
+      p_product_ids: batch.map(product => product.id),
+    });
+    if (error) throw error;
+    const galleries = new Map();
+    for (const { target_product_id: id, image } of data || []) {
+      if (!galleries.has(id)) galleries.set(id, []);
+      galleries.get(id).push({ ...image, inherited: true });
+    }
+    for (const product of batch) {
+      const images = galleries.get(product.id);
+      if (!images?.length) continue;
+      const resolved = normalizeProduct({ ...product, webbase_product_images: images });
+      product.images = resolved.images;
+      product.primaryImage = resolved.primaryImage;
+    }
+  }
+}
+
 export async function listProducts(db) {
   const rows = [];
   for (let offset = 0; ; offset += 500) {
@@ -40,6 +64,7 @@ export async function listProducts(db) {
     rows.push(...data.map(normalizeProduct));
     if (data.length < 500) break;
   }
+  await fillSharedImages(db, rows);
   void primeSignedUrls(db, rows.map(row => row.primaryImage?.storage_path)).catch(() => {});
   return rows;
 }
@@ -56,6 +81,7 @@ export async function getProduct(db, productId) {
     .maybeSingle();
   if (error) throw error;
   const product = data ? normalizeProduct(data) : null;
+  if (product) await fillSharedImages(db, [product]);
   if (product) void primeSignedUrls(db, product.images.map(image => image.storage_path)).catch(() => {});
   return product;
 }
