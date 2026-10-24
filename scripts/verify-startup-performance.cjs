@@ -8,8 +8,15 @@ const cold=await browser.newContext();const page=await cold.newPage();let extern
 await page.route('**/*',route=>{const url=new URL(route.request().url());if(url.pathname.includes('xlsx-'))excel++;if(url.protocol.startsWith('http')&&url.origin!==origin){external++;return route.abort()}return route.continue()});
 const start=Date.now();await page.goto(base);await page.locator('#authPanel').waitFor();assert.equal(excel,0);assert.equal(external,0);console.log('Cold login ready with all external domains blocked:',Date.now()-start,'ms; Excel requests:',excel);
 await cold.close();
+const brokenContext=await browser.newContext();const broken=await brokenContext.newPage();
+await broken.addInitScript(()=>{const original=window.setTimeout;window.setTimeout=(fn,ms,...args)=>original(fn,ms===15000?40:ms,...args)});
+await broken.route('**/webbase-app.js*',route=>route.abort('connectionreset'));
+await broken.goto(base);await broken.locator('#sessionLoading button').waitFor();assert.match(await broken.locator('#sessionLoading').innerText(),/Не удалось получить файлы/);await brokenContext.close();
+console.log('PASS: a dropped application script shows a retry action instead of an endless access screen');
 // Exercise the real pinned SDK and adapter, with auth/table responses intercepted.
 const sdkContext=await browser.newContext();const sdk=await sdkContext.newPage();let signIns=0;
+sdk.on('pageerror',e=>console.log('SDK page error:',e.message));
+sdk.on('requestfailed',r=>console.log('SDK failed resource:',new URL(r.url()).pathname,r.failure()?.errorText));
 const uid='11111111-1111-4111-8111-111111111111';
 const jwt=[{alg:'HS256',typ:'JWT'},{sub:uid,aud:'authenticated',role:'authenticated',exp:Math.floor(Date.now()/1000)+3600}].map(x=>Buffer.from(JSON.stringify(x)).toString('base64url')).join('.')+'.c2lnbmF0dXJl';
 await sdk.route('https://dazniyfntumbljkocjoo.supabase.co/**',route=>{
@@ -20,7 +27,9 @@ if(path==='/rest/v1/webbase_staff')return route.fulfill({json:[{user_id:uid,acti
 if(path==='/rest/v1/webbase_products')return route.fulfill({json:[]});
 return route.abort();
 });
-await sdk.goto(base);await sdk.locator('#authPanel').waitFor();await sdk.fill('#login','qa@example.invalid');await sdk.fill('#password','isolated-test-password');await sdk.locator('#authForm button').click();await sdk.locator('#appShell').waitFor();assert.equal(signIns,1);await sdk.locator('#signOut').click();await sdk.locator('#authPanel').waitFor();assert.equal(await sdk.locator('#appShell').isVisible(),false);await sdkContext.close();
+await sdk.goto(base);await sdk.locator('#authPanel').waitFor();
+for(let cycle=0;cycle<3;cycle++){await sdk.fill('#login','qa@example.invalid');await sdk.fill('#password','isolated-test-password');await sdk.locator('#authForm button').click();await sdk.locator('#appShell').waitFor();assert.equal(signIns,cycle+1);await sdk.locator('#signOut').click();await sdk.locator('#authPanel').waitFor();assert.equal(await sdk.locator('#appShell').isVisible(),false)}
+await sdkContext.close();
 console.log('PASS: real bundled SDK sign-in and 204 logout, no production auth requests');
 const context=await browser.newContext({viewport:{width:390,height:844}});const p=await context.newPage();let excelRequests=0;p.on('request',r=>{if(r.url().includes('xlsx-'))excelRequests++});
 await p.route('**/supabase-client.js*',route=>route.fulfill({contentType:'text/javascript',body:`

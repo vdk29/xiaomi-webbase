@@ -183,10 +183,13 @@ async function checkSession() {
 }
 
 async function boot() {
+  window.WebBaseStartup?.ready();
   if (!db) {
     $("sessionLoading").hidden = true;
     $("authPanel").hidden = false;
     $("authStatus").textContent = "Не удалось загрузить безопасное подключение к Supabase.";
+    $("retrySession").hidden = false;
+    $("retrySession").onclick = () => location.reload();
     return;
   }
   initializeListingNavigation(() => state.section);

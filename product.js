@@ -211,6 +211,7 @@ async function handleGalleryAction(button) {
 }
 
 async function boot() {
+  window.WebBaseStartup?.ready();
   if (!db) throw new Error("Не удалось подключиться к Supabase.");
   state.context = await requireApprovedUser(db);
   if (!state.context) return;

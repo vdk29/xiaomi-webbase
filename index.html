@@ -123,9 +123,26 @@
   </div>
   <div id="notice" class="toast" role="status" aria-live="polite"></div>
 
+  <script>
+    (() => {
+      const host = document.getElementById('sessionLoading') || document.getElementById('pageStatus');
+      const label = host.querySelector('strong') || host;
+      const original = label.textContent;
+      const retry = document.createElement('button');
+      retry.type = 'button'; retry.className = 'button ghost'; retry.textContent = 'Повторить открытие'; retry.hidden = true;
+      retry.onclick = () => location.reload();
+      host.append(retry);
+      const timer = setTimeout(() => {
+        label.textContent = 'Не удалось получить файлы приложения. Проверьте подключение и повторите открытие.';
+        if (!host.contains(retry)) host.append(retry);
+        retry.hidden = false;
+      }, 15000);
+      window.WebBaseStartup = { ready() { clearTimeout(timer); label.textContent = original; retry.hidden = true; } };
+    })();
+  </script>
   <script src="vendor/supabase-2.95.0.min.js"></script>
   <script src="supabase-config.js?v=20261023-4"></script>
   <script src="supabase-client.js?v=20261024-11"></script>
-  <script type="module" src="webbase-app.js?v=20261024-11"></script>
+  <script type="module" src="webbase-app.js?v=20261024-12"></script>
 </body>
 </html>
