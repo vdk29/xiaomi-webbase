@@ -1,6 +1,6 @@
 const FILTERS = {
   q: 'search', category: 'category', availability: 'availability',
-  model: 'compatibilitySearch', kind: 'compatibilityKind', conditional: 'compatibilityConditional',
+  model: 'compatibilitySearch', kind: 'compatibilityKind',
 };
 let pendingScroll = null;
 
@@ -31,6 +31,7 @@ export function productReturnUrl(productHref) {
 
 export function syncListingLocation(section, { resetScroll = true } = {}) {
   const url = new URL(location.href);
+  url.searchParams.delete('conditional');
   if (section === 'compatibility') url.searchParams.set('section', section);
   else url.searchParams.delete('section');
   for (const [key, id] of Object.entries(FILTERS)) {

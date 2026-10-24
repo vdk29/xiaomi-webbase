@@ -43,7 +43,9 @@
   .product-card__media { height: 124px; }
   .product-card__media img { padding: 10px; }
 }
-.compatibility-toggle { display: flex; align-items: center; gap: 10px; }
-.compatibility-toggle input { width: 20px; height: 20px; flex: 0 0 auto; }
+[data-section="compatibility"] .filters { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+@media (max-width: 560px) {
+  [data-section="compatibility"] .filters { grid-template-columns: 1fr; }
+}
 .compatibility-summary { border-top: 1px solid #eee; margin-top: 12px; padding-top: 12px; font-size: 13px; }
 .compatibility-summary p { margin: 6px 0; }

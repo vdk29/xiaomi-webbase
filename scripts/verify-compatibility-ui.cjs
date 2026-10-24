@@ -16,12 +16,14 @@ const rows=${JSON.stringify(rows)};window.WebBaseDB={config:{url:'https://test.i
 const base=process.env.WEBBASE_TEST_URL||'http://127.0.0.1:4173/';
 await page.goto(base);await page.locator('#catalog .product-card').first().waitFor();assert.equal(await page.locator('#staffSectionNav').isVisible(),false);
 await page.locator('[data-nav="compatibility"]').click();assert.equal(await page.locator('#compatibilityCatalog .product-card').count(),7);
-await page.fill('#compatibilitySearch','S20');await page.waitForFunction(()=>document.querySelectorAll('#compatibilityCatalog .product-card').length===2);
+await page.fill('#compatibilitySearch','S20');await page.waitForFunction(()=>document.querySelectorAll('#compatibilityCatalog .product-card').length===3);
 assert.doesNotMatch(await page.locator('#compatibilityCatalog').innerText(),/S20\+/);
-await page.fill('#compatibilitySearch','S20+');await page.waitForFunction(()=>[...document.querySelectorAll('#compatibilityCatalog h3')].every(e=>e.textContent.includes('S20+'))&&document.querySelectorAll('#compatibilityCatalog .product-card').length===2);
-await page.fill('#compatibilitySearch','E10');await page.waitForFunction(()=>document.querySelectorAll('#compatibilityCatalog .product-card').length===0);
-await page.check('#compatibilityConditional');await page.waitForFunction(()=>document.querySelectorAll('#compatibilityCatalog .product-card').length===3);
+await page.fill('#compatibilitySearch','S20+');await page.waitForFunction(()=>[...document.querySelectorAll('#compatibilityCatalog h3')].some(e=>e.textContent.includes('S20+'))&&document.querySelectorAll('#compatibilityCatalog .product-card').length===3);
+await page.fill('#compatibilitySearch','E10');await page.waitForFunction(()=>document.querySelectorAll('#compatibilityCatalog .product-card').length===3&&[...document.querySelectorAll('#compatibilityCatalog .compatibility-summary strong')].every(e=>e.textContent.includes('Нужно сверить')));
 assert.match(await page.locator('#compatibilityCatalog').innerText(),/Нужно сверить/);
+assert.equal(await page.locator('#compatibilityConditional').count(),0);
+assert.equal(await page.locator('#compatibilityKind option[value=vacuum]').innerText(),'Для пылесосов');
+await page.selectOption('#compatibilityKind','vacuum');
 await page.fill('#compatibilitySearch','X10');await page.waitForFunction(()=>document.querySelectorAll('#compatibilityCatalog .product-card').length===2);
 const card=page.locator('#compatibilityCatalog .product-card').first();const href=await card.getAttribute('href');assert.match(href,/from=compatibility/);await card.click();await page.locator('#productView').waitFor();
 assert.match(await page.locator('#productCompatibility').innerText(),/B101CN-BS/);

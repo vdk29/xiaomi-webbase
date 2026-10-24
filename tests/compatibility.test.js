@@ -22,22 +22,31 @@ test('S20 and S20+ and X20/Pro/Max are distinct, including model aliases', () =>
   assert.equal(compatibilityMatch(plain, 'S20+'), null);
   assert.equal(compatibilityMatch(plus, 'S20+'), 'direct');
   assert.equal(compatibilityMatch(plus, 'S20 plus'), 'direct');
-  assert.equal(compatibilityMatch(plus, 'X20', true), null);
-  assert.equal(compatibilityMatch(plus, 'X20 Pro', true), 'conditional');
-  assert.equal(compatibilityMatch(plus, 'X20 Max', true), 'conditional');
+  assert.equal(compatibilityMatch(plus, 'X20'), null);
+  assert.equal(compatibilityMatch(plus, 'X20 Pro'), 'conditional');
+  assert.equal(compatibilityMatch(plus, 'X20 Max'), 'conditional');
   assert.equal(compatibilityMatch(plain, 'основная S20'), 'direct');
 });
 
-test('extended models require explicit inclusion and remain conditional by part code', () => {
+test('extended models participate in search without a checkbox and keep their part-code conditions', () => {
   const main = brush('4640171485785');
-  assert.equal(compatibilityMatch(main, 'E10'), null);
-  assert.equal(compatibilityMatch(main, 'E10', true), 'conditional');
-  assert.equal(compatibilityMatch(main, 'S10', true), null);
-  assert.equal(compatibilityMatch(brush('4640171485792'), 'S10', true), 'conditional');
-  assert.equal(compatibilityMatch(brush('4640171485822'), 'X10', true), null);
-  assert.equal(compatibilityMatch(brush('4640171485839'), 'X10', true), 'conditional');
+  assert.equal(compatibilityMatch(main, 'E10'), 'conditional');
+  assert.equal(compatibilityMatch(main, 'S10'), null);
+  assert.equal(compatibilityMatch(brush('4640171485792'), 'S10'), 'conditional');
+  assert.equal(compatibilityMatch(brush('4640171485822'), 'X10'), null);
+  assert.equal(compatibilityMatch(brush('4640171485839'), 'X10'), 'conditional');
   assert.match(compatibilityDetailsMarkup(main), /B112-ZS/);
   assert.match(compatibilityDetailsMarkup(main), /Соответствие складского артикула/);
+});
+
+test('new numbered vacuum models are selected without being confused with Pro variants', () => {
+  for (const model of ['5', '5 Pro', '6', '6 Pro']) {
+    const product = { sku: `NEW-${model}`, name: `Фильтр для пылесоса Xiaomi Robot Vacuum ${model}` };
+    assert.equal(accessoryKind(product), 'vacuum');
+    assert.equal(compatibilityMatch(product, `Vacuum ${model}`), 'direct');
+    const other = model.endsWith('Pro') ? model.replace(' Pro', '') : `${model} Pro`;
+    assert.equal(compatibilityMatch(product, `Vacuum ${other}`), null);
+  }
 });
 
 test('unknown imported SKUs get only declared models and never inherit another brush family', () => {
@@ -45,7 +54,7 @@ test('unknown imported SKUs get only declared models and never inherit another b
   assert.deepEqual(getCompatibility(unknown).conditional_models, []);
   assert.equal(compatibilityMatch(unknown, 'S20+'), 'direct');
   assert.equal(compatibilityMatch(unknown, 'S20'), null);
-  assert.equal(compatibilityMatch(unknown, 'X20+', true), null);
+  assert.equal(compatibilityMatch(unknown, 'X20+'), null);
   const reused = { sku: '4640171485785', name: 'Щетка для пылесоса E5' };
   assert.deepEqual(getCompatibility(reused).conditional_models, []);
 });
@@ -53,11 +62,11 @@ test('unknown imported SKUs get only declared models and never inherit another b
 test('band Pro/Active versions and strap width do not become unconditional matches', () => {
   const band = { ...COMPATIBILITY_BY_SKU['4640171463554'] };
   assert.equal(compatibilityMatch(band, 'Mi Band 9'), 'direct');
-  assert.equal(compatibilityMatch(band, 'Smart Band 9 Pro', true), null);
-  assert.equal(compatibilityMatch(band, 'Smart Band 9 Active', true), null);
+  assert.equal(compatibilityMatch(band, 'Smart Band 9 Pro'), null);
+  assert.equal(compatibilityMatch(band, 'Smart Band 9 Active'), null);
   const width = { name: 'Ремешок для часов 20 mm', sku: 'NEW-20' };
   assert.equal(compatibilityMatch(width, '20 мм'), 'direct');
-  assert.equal(compatibilityMatch(width, 'GTS 4', true), null);
+  assert.equal(compatibilityMatch(width, 'GTS 4'), null);
 });
 
 test('compatibility markup escapes content and rejects unsafe source links', () => {

@@ -22,7 +22,7 @@ test('compatibility section and its separate filters also survive return', () =>
   assert.equal(params.get('section'), 'compatibility');
   assert.equal(params.get('model'), 'S20+');
   assert.equal(params.get('kind'), 'vacuum');
-  assert.equal(params.get('conditional'), '1');
+  assert.equal(params.has('conditional'), false);
 });
 
 test('return links cannot redirect offsite, outside this project, or carry auth redirects', () => {
