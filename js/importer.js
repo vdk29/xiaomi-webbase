@@ -1,3 +1,4 @@
+import { loadExcelLibrary } from './excel-loader.js?v=20261024-11';
 import { $, escapeHtml, normalizeText, parseQuantity, setBusy, splitSkus } from "./utils.js?v=20261023-4";
 
 export function classifyProduct(name) {
@@ -141,8 +142,12 @@ export function initializeImporter(db, state, { notify, reloadProducts }) {
     const file = $("excel").files?.[0];
     if (!file) return;
     try {
-      if (!window.XLSX) throw new Error("Не загрузилась библиотека Excel.");
-      const workbook = XLSX.read(await file.arrayBuffer(), { type: "array" });
+      if (state.catalogComplete === false) throw new Error('Дождитесь полной загрузки каталога перед импортом.');
+      $("importPreview").textContent = 'Читаю Excel…';
+      await loadExcelLibrary();
+      const bytes = await file.arrayBuffer();
+      if (state.catalogComplete === false) throw new Error('Дождитесь полной загрузки каталога перед импортом.');
+      const workbook = XLSX.read(bytes, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "", raw: true });
       state.importPreview = { ...analyze1CRows(rows, state.rows), filename: file.name, showAll: false };
@@ -162,6 +167,7 @@ export function initializeImporter(db, state, { notify, reloadProducts }) {
     }
     const button = event.target.closest("button[data-import]");
     if (!button || !state.importPreview) return;
+    if (state.catalogComplete === false) return notify('Каталог загружен не полностью. Обновите его перед импортом.', true);
     if (!confirm(`Применить ${state.importPreview.items.length} карточек? Остатки обновятся одной транзакцией, ручные поля и фото сохранятся.`)) return;
     setBusy(button, true, "Импортирую…");
     try {

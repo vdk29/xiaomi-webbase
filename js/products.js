@@ -1,4 +1,4 @@
-import { primeSignedUrls } from "./images.js?v=20261024-3";
+import { primeSignedUrls } from "./images.js?v=20261024-11";
 import { parseQuantity } from "./utils.js?v=20261023-4";
 import { readWithRetry, abortableRead } from './network.js?v=20261024-8';
 
@@ -15,6 +15,8 @@ export const PRODUCT_SELECT = `
   webbase_stock(warehouse,display,ldu,updated_at),
   webbase_product_images(id,storage_path,sort_order,is_primary,mime_type,byte_size,width,height,created_at,original_name,source_url)
 `;
+
+const canSharePhotos = row => !row.images.length && /^(смартфон|планшет)\s/i.test(row.name || '') && /\d+\s*(gb|гб|tb|тб)/i.test(row.name || '');
 
 export function normalizeProduct(row) {
   const stock = Array.isArray(row.webbase_stock) ? row.webbase_stock[0] : row.webbase_stock;
@@ -60,7 +62,7 @@ export async function fillSharedImages(db, products) {
   }
 }
 
-export async function listProducts(db) {
+export async function listProducts(db, { onProgress, backgroundImages = false, onImages } = {}) {
   const rows = [];
   const pageSize = 50;
   for (let offset = 0; ; offset += pageSize) {
@@ -68,15 +70,30 @@ export async function listProducts(db) {
       .from("webbase_products")
       .select(CATALOG_SELECT)
       .eq("active", true)
+      .order('category', { ascending: false, nullsFirst: false })
       .order("name")
       .order("id")
       .range(offset, offset + pageSize - 1), signal));
     if (error) throw error;
     rows.push(...data.map(normalizeProduct));
+    if (onProgress) {
+      if (offset === 0) void primeSignedUrls(db, rows.map(row => row.primaryImage?.storage_path)).catch(() => {});
+      onProgress({ loaded: rows.length, rows: offset === 0 ? [...rows] : null });
+    }
     if (data.length < pageSize) break;
   }
-  try { await fillSharedImages(db, rows); }
-  catch { rows.sharedImagesUnavailable = true; }
+  // Other accessory categories cannot match the database's model/color photo key.
+  const variants = rows.filter(canSharePhotos);
+  if (variants.length) {
+    const hydrate = async () => {
+      try { await fillSharedImages(db, variants); }
+      catch { rows.sharedImagesUnavailable = true; }
+      void primeSignedUrls(db, variants.map(row => row.primaryImage?.storage_path)).catch(() => {});
+      onImages?.(rows);
+    };
+    if (backgroundImages) void hydrate();
+    else await hydrate();
+  }
   void primeSignedUrls(db, rows.map(row => row.primaryImage?.storage_path)).catch(() => {});
   return rows;
 }
@@ -93,7 +110,7 @@ export async function getProduct(db, productId) {
     .maybeSingle(), signal));
   if (error) throw error;
   const product = data ? normalizeProduct(data) : null;
-  if (product) {
+  if (product && canSharePhotos(product)) {
     try { await fillSharedImages(db, [product]); }
     catch { product.sharedImagesUnavailable = true; }
   }

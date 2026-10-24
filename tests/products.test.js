@@ -50,7 +50,7 @@ test('shared lookup batches large catalogs below the Data API row limit', async 
 
 test('catalog pages retry independently and a failed photo lookup does not discard products', async () => {
   const ranges = [];
-  const data = Array.from({ length: 51 }, (_, id) => ({ id: String(id), name: `Product ${id}`, compatibility: id === 0 ? { kind: 'vacuum' } : null }));
+  const data = Array.from({ length: 51 }, (_, id) => ({ id: String(id), name: `Смартфон Xiaomi Test ${id} 8GB+256GB Black`, compatibility: id === 0 ? { kind: 'vacuum' } : null }));
   let firstPageCalls = 0;
   const db = { config: { url: 'test', bucket: 'test' }, client: {
     from: () => {
@@ -71,4 +71,29 @@ test('catalog pages retry independently and a failed photo lookup does not disca
   assert.equal(rows[0].specs._compatibility.kind, 'vacuum');
   assert.equal(rows.sharedImagesUnavailable, true);
   assert.doesNotMatch(CATALOG_SELECT, /description|original_name|byte_size/);
+});
+
+test('first page is delivered early, accessory photo lookups are skipped, and photo work can run in background', async () => {
+  const pages = [];
+  const data = Array.from({ length: 51 }, (_, id) => ({ id: String(id), name: `Чехол ${id}` }));
+  let rpcCalls = 0; let release;
+  const db = { config: { url: 'test', bucket: 'test' }, client: {
+    from: () => { const q = { select: () => q, eq: () => q, order: () => q,
+      range: async (from, to) => ({ data: data.slice(from, to + 1) }) }; return q; },
+    rpc: () => { rpcCalls++; return new Promise(resolve => { release = resolve; }); },
+  } };
+  const accessories = await listProducts(db, { onProgress: p => pages.push(p) });
+  assert.equal(accessories.length, 51);
+  assert.equal(pages[0].rows.length, 50);
+  assert.equal(pages[1].loaded, 51);
+  assert.equal(rpcCalls, 0);
+  data[50].name = 'Смартфон Xiaomi Test 8GB+512GB Black';
+  let hydrated;
+  const rows = await listProducts(db, { backgroundImages: true, onImages: rows => { hydrated = rows; } });
+  assert.equal(rows.length, 51);
+  assert.equal(hydrated, undefined);
+  assert.equal(rpcCalls, 1);
+  release({ data: [] });
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(hydrated, rows);
 });

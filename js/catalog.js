@@ -1,5 +1,5 @@
 import { $, debounce, escapeHtml, normalizeText, placeholderSvg, splitSkus } from "./utils.js?v=20261023-4";
-import { observeCatalogImages } from "./images.js?v=20261024-3";
+import { observeCatalogImages } from "./images.js?v=20261024-11";
 
 export const CATEGORY_ORDER = ["Смартфоны", "Планшеты", "Смарт-часы", "Наушники", "Фитнес-браслеты", "Телевизоры", "Пылесосы", "Бытовая техника для дома", "Умный дом", "Аксессуары для пылесосов"];
 

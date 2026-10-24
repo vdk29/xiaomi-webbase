@@ -7,7 +7,7 @@ const page=await browser.newPage({viewport:{width:390,height:844}});
 await page.route('https://cdn.jsdelivr.net/**',r=>r.fulfill({contentType:'text/javascript',body:''}));
 await page.route('**/supabase-client.js*',r=>r.fulfill({contentType:'text/javascript',body:`
 const state=window.testTransport={mode:'down',calls:0,recoveredFailure:false};
-const rows=Array.from({length:51},(_,i)=>({id:'11111111-1111-4111-8111-'+String(i+1).padStart(12,'0'),sku:'TEST'+i,name:'Товар '+i,category:'Аксессуары и другое',webbase_product_images:[],webbase_stock:{warehouse:1,display:0}}));
+const rows=Array.from({length:51},(_,i)=>({id:'11111111-1111-4111-8111-'+String(i+1).padStart(12,'0'),sku:'TEST'+i,name:'Смартфон Xiaomi Test '+i+' 8GB+256GB Black',category:'Аксессуары и другое',webbase_product_images:[],webbase_stock:{warehouse:1,display:0}}));
 window.WebBaseDB={config:{url:'https://test.invalid',bucket:'test'},getSession:async()=>({user:{id:'test-staff'}}),client:{auth:{onAuthStateChange:()=>({})},from:table=>{const q={select:()=>q,eq:()=>q,order:()=>q,maybeSingle:async()=>({data:{active:true,role:'staff'}}),range:async(from,to)=>{state.calls++;if(state.mode==='down'||(state.mode==='recover'&&!state.recoveredFailure)){state.recoveredFailure=true;return {status:200,error:{message:'TypeError: Failed to fetch',code:''}}}return {data:rows.slice(from,to+1)}}};return q},rpc:async(name)=>{if(name!=='webbase_shared_product_images')throw Error('Unexpected write');return state.mode==='photo-fail'?{error:{message:'Failed to fetch'}}:{data:[]}}}};
 `}));
 await page.goto(process.env.WEBBASE_TEST_URL||'http://127.0.0.1:4173/');

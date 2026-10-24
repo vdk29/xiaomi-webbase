@@ -36,6 +36,18 @@ test("simultaneous requests for an uncached photo share one signing call", async
   assert.equal(calls.length, 1);
 });
 
+test('known image-cache identity avoids repeated SDK session locks and stays user-scoped', async () => {
+  const calls = []; const db = dbFor('unused', calls);
+  let userId = 'identity-a';
+  db.getUserId = () => userId;
+  db.getSession = () => { throw new Error('Should not acquire another auth lock'); };
+  const first = await getSignedUrl(db, 'identity.webp');
+  userId = 'identity-b';
+  await getSignedUrl(db, 'identity.webp');
+  assert.ok(first);
+  assert.equal(calls.length, 2);
+});
+
 test("a delayed previous selection cannot replace the currently selected photo", async () => {
   const { setSignedImage } = await import("../js/images.js");
   const calls=[];const db=dbFor("staff-race",calls);

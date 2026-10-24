@@ -1,11 +1,11 @@
 import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from "./js/utils.js?v=20261024-8";
-import { requireApprovedUser } from "./js/auth.js?v=20261024-8";
-import { compatibilityDetailsMarkup } from "./js/compatibility.js?v=20261024-10";
+import { requireApprovedUser } from "./js/auth.js?v=20261024-11";
+import { compatibilityDetailsMarkup } from "./js/compatibility.js?v=20261024-11";
 import { productReturnUrl } from './js/listing-navigation.js?v=20261024-10';
-import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261024-8";
+import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261024-11";
 import {
   deleteProductImage, prepareImage, reorderImages, setPrimaryImage, setSignedImage, uploadProductImage,
-} from "./js/images.js?v=20261024-3";
+} from "./js/images.js?v=20261024-11";
 
 const db = window.WebBaseDB;
 const state = { context: null, product: null, selectedImageId: null, preparedImage: null, dirty: false };

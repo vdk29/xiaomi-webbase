@@ -8,8 +8,7 @@ const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 const ACCEPTED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 async function getCache(db) {
-  const session = db.getSession ? await db.getSession() : null;
-  const userId = session?.user?.id || "anonymous";
+  const userId = db.getUserId ? (db.getUserId() || 'anonymous') : ((db.getSession ? await db.getSession() : null)?.user?.id || 'anonymous');
   const key = `webbase-photo-links:${db.config.url}:${userId}`;
   let cache = clientCaches.get(db);
   if (cache?.key === key) return cache;
