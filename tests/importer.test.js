@@ -65,3 +65,43 @@ test("home and smart-home categories stay separate from vacuum accessories", () 
   ];
   for (const [name, category] of cases) assert.equal(classifyProduct(name), category, name);
 });
+
+test("1C recognizes OV before defect stock in a two-row header", () => {
+  const swapped = ["Номенклатура.Артикул", "", "", "Номенклатура, Ед. изм.", "", "", "Склад магазина", "Склад магазина ОВ", "Склад магазина Брак", "Итого"];
+  const result = analyze1CRows([
+    ["Остатки на складах"], [], swapped,
+    ["", "", "", "", "", "", "Количество", "Количество", "Количество", "Количество"],
+    ["SKU-1", "", "", "Смартфон тестовый, шт", "", "", 4, 2, 3, 9],
+    ["SKU-LDU (LDU)", "", "", "(LDU) Смартфон тестовый, шт", "", "", 0, 1, 2, 3],
+  ]);
+  assert.equal(result.errors.length, 0);
+  assert.deepEqual(result.columns, { warehouse: 6, display: 7, defect: 8, total: 9 });
+  assert.equal(result.items.length, 1);
+  assert.equal(result.items[0].warehouse, 4);
+  assert.equal(result.items[0].display, 3, "defective units must not become display stock");
+  assert.equal(result.items[0].ldu, 1, "defective LDU units must not become available");
+});
+
+test("warehouse names containing ов inside a word are not display stock", () => {
+  const row = [...header]; row[6] = "Склад Новый Город";
+  const result = analyze1CRows([row, ["SKU", "", "", "Товар", "", "", 5, 1, 2, 8]]);
+  assert.equal(result.errors.length, 0);
+  assert.equal(result.items[0].warehouse, 5);
+  assert.equal(result.items[0].display, 2);
+});
+
+test("changed column order still validates the total", () => {
+  const row = [...header]; [row[7], row[8]] = [row[8], row[7]];
+  const result = analyze1CRows([row, ["SKU", "", "", "Товар", "", "", 4, 2, 3, 8]]);
+  assert.equal(result.errors.length, 1);
+  assert.match(result.errors[0], /не равно J/);
+});
+
+test("missing, duplicate and additional stock headers block import", () => {
+  const missing = [...header]; missing[8] = "";
+  assert.throws(() => analyze1CRows([missing]), /ОВ.*не найден/);
+  const duplicate = [...header, "Другой склад"];
+  assert.throws(() => analyze1CRows([duplicate]), /основной склад.*несколько/);
+  const unknown = [...header, "Резерв"];
+  assert.throws(() => analyze1CRows([unknown]), /неизвестные столбцы: K/);
+});

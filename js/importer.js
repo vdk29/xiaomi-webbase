@@ -25,14 +25,43 @@ const cleanName = (value) => String(value ?? "")
 const isDemo = (row) => /\(\s*(?:ldu|лду)\s*\)/i.test(`${row[0] ?? ""} ${row[3] ?? ""}`);
 const isDefective = (row) => /\(\s*(?:пф|pf)\s*\)/i.test(`${row[0] ?? ""} ${row[3] ?? ""}`);
 
+const columnLetter = (index) => {
+  let result = "";
+  for (let value = index + 1; value > 0; value = Math.floor((value - 1) / 26)) {
+    result = String.fromCharCode(65 + (value - 1) % 26) + result;
+  }
+  return result;
+};
+
+export function detect1CColumns(header) {
+  const found = { warehouse: [], display: [], defect: [], total: [] };
+  const unknown = [];
+  const token = (text, word) => new RegExp(`(?:^|[^а-яa-z0-9])(?:${word})(?:$|[^а-яa-z0-9])`, "u").test(text);
+  header.forEach((value, index) => {
+    if (index < 6) return; // A–F contain the merged article and product name fields.
+    const title = normalizeText(value);
+    if (!title) return;
+    if (/^итог(?:о)?(?:\s|$)/u.test(title)) found.total.push(index);
+    else if (title.includes("брак") || token(title, "пф|pf")) found.defect.push(index);
+    else if (token(title, "ов")) found.display.push(index);
+    else if (title.includes("склад")) found.warehouse.push(index);
+    else unknown.push(index);
+  });
+  const labels = { warehouse: "основной склад", display: "ОВ (витрина)", defect: "брак / ПФ", total: "итого" };
+  const invalid = Object.keys(found).filter(key => found[key].length !== 1);
+  if (invalid.length || unknown.length) {
+    const details = invalid.map(key => `«${labels[key]}»${found[key].length > 1 ? " — несколько столбцов" : " — не найден"}`);
+    if (unknown.length) details.push(`неизвестные столбцы: ${unknown.map(index => columnLetter(index)).join(", ")}`);
+    throw new Error(`Не удалось определить колонки остатков: ${details.join("; ")}. Импорт отменён.`);
+  }
+  return Object.fromEntries(Object.entries(found).map(([key, indices]) => [key, indices[0]]));
+}
+
 export function analyze1CRows(rows, existingProducts = []) {
   const header = rows.findIndex((row) => normalizeText(row[0]).includes("артикул")
     && normalizeText(row[3]).includes("номенклатура"));
   if (header < 0) throw new Error("Не найдены заголовки отчёта 1С (A: артикул, D: номенклатура).");
-  const head = rows[header].map(normalizeText);
-  if (!head[6]?.includes("склад") || !head[8]?.includes("ов") || !head[9]?.includes("итого")) {
-    throw new Error("Не совпадают колонки G/I/J: склад, ОВ и итог. Импорт отменён.");
-  }
+  const columns = detect1CColumns(rows[header]);
 
   const grouped = new Map();
   const errors = [];
@@ -48,16 +77,16 @@ export function analyze1CRows(rows, existingProducts = []) {
     }
     const name = cleanName(rawName);
     const sku = rawSku.replace(/\s*\(\s*(?:ldu|лду)\s*\)?\s*$/i, "").trim();
-    const warehouse = parseQuantity(row[6]);
-    const defect = parseQuantity(row[7]);
-    const displayValue = parseQuantity(row[8]);
-    const total = parseQuantity(row[9]);
+    const warehouse = parseQuantity(row[columns.warehouse]);
+    const defect = parseQuantity(row[columns.defect]);
+    const displayValue = parseQuantity(row[columns.display]);
+    const total = parseQuantity(row[columns.total]);
     if ([warehouse, defect, displayValue, total].some((value) => value === null)) {
       errors.push(`Строка ${index + 1}: некорректное количество — ${name}`);
       continue;
     }
     if (warehouse + defect + displayValue !== total) {
-      errors.push(`Строка ${index + 1}: G + H + I не равно J — ${name}`);
+      errors.push(`Строка ${index + 1}: ${columnLetter(columns.warehouse)} + ${columnLetter(columns.defect)} + ${columnLetter(columns.display)} не равно ${columnLetter(columns.total)} — ${name}`);
       continue;
     }
     const demo = isDemo(row);
@@ -104,7 +133,7 @@ export function analyze1CRows(rows, existingProducts = []) {
       matchedProductId: matches.size === 1 ? [...matches.keys()][0] : null,
     };
   });
-  return { items, errors, excluded, ambiguous: items.filter((item) => item.status === "ambiguous") };
+  return { items, errors, excluded, columns, ambiguous: items.filter((item) => item.status === "ambiguous") };
 }
 
 export function initializeImporter(db, state, { notify, reloadProducts }) {
@@ -167,6 +196,7 @@ function renderImportPreview(preview) {
       <span><strong>${created}</strong> новых</span>
       <span><strong>${preview.excluded}</strong> ПФ исключено</span>
     </div>
+    <p class="muted">Распознано: склад — ${columnLetter(preview.columns.warehouse)}, ОВ — ${columnLetter(preview.columns.display)}, брак / ПФ — ${columnLetter(preview.columns.defect)}, итог — ${columnLetter(preview.columns.total)}.</p>
     ${preview.errors.length ? `<div class="message error"><strong>Ошибки в Excel:</strong><br>${preview.errors.slice(0, 12).map(escapeHtml).join("<br>")}</div>` : ""}
     ${preview.ambiguous.length ? `<div class="message warning"><strong>Нужна ручная проверка:</strong> несколько карточек совпали по артикулам: ${preview.ambiguous.slice(0, 8).map((item) => escapeHtml(item.name)).join(", ")}.</div>` : ""}
     <div class="table-wrap"><table><thead><tr><th>Действие</th><th>Артикул</th><th>Товар</th><th>Склад</th><th>ОВ</th><th>LDU</th></tr></thead><tbody>

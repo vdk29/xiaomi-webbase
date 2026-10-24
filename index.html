@@ -90,7 +90,7 @@
         <div class="page-heading"><div><p class="eyebrow">Администрирование</p><h1>Импорт из 1С</h1><p>Сначала показываем изменения, затем применяем их одной транзакцией.</p></div></div>
         <div class="panel import-panel">
           <h2>Выгрузка остатков</h2>
-          <p class="muted">Ожидаются колонки A — артикул, D — номенклатура, G — склад, H — ПФ, I — ОВ, J — итог. Ручные данные и фотографии не перезаписываются.</p>
+          <p class="muted">Артикул — A, номенклатура — D. Колонки склада, ОВ, брака / ПФ и итога определяются по заголовкам; их порядок может меняться. Ручные данные и фотографии не перезаписываются.</p>
           <label class="file-picker">Выбрать Excel-файл<input id="excel" type="file" accept=".xlsx,.xls,.csv"></label>
           <div id="importPreview"></div>
         </div>
@@ -103,6 +103,6 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="supabase-config.js?v=20261023-4"></script>
   <script src="supabase-client.js?v=20261023-4"></script>
-  <script type="module" src="webbase-app.js?v=20261024-3"></script>
+  <script type="module" src="webbase-app.js?v=20261024-4"></script>
 </body>
 </html>
