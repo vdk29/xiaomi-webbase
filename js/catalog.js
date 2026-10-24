@@ -78,11 +78,15 @@ export function renderCatalog(db, state) {
     container.innerHTML = `<div class="empty-state"><span class="empty-icon">mi</span><h3>Товары не найдены</h3><p>Измените запрос или фильтры.</p></div>`;
     return;
   }
-  container.innerHTML = rows.map((row) => {
+  container.innerHTML = rows.map(row => renderProductCard(row)).join("");
+  state.stopImageObserver = observeCatalogImages(db, container);
+}
+
+export function renderProductCard(row, extra = "", hrefSuffix = "") {
     const total = row.stock.warehouse + row.stock.display;
     const path = row.primaryImage?.storage_path || "";
     const detail = [row.color, row.memory].filter(Boolean).join(" · ");
-    return `<a class="product-card" href="product.html?id=${encodeURIComponent(row.id)}" aria-label="Открыть ${escapeHtml(row.name)}">
+    return `<a class="product-card" href="product.html?id=${encodeURIComponent(row.id)}${hrefSuffix}" aria-label="Открыть ${escapeHtml(row.name)}">
       <div class="product-card__media">
         <img loading="lazy" src="${placeholderSvg(row.category || "Товар")}" ${path ? `data-lazy-path="${escapeHtml(path)}"` : ""} alt="${escapeHtml(row.name)}">
         ${!path ? '<span class="no-photo">Нет фото</span>' : ""}
@@ -97,8 +101,8 @@ export function renderCatalog(db, state) {
           <div><strong>${row.stock.display}</strong><span>ОВ</span></div>
           <div class="stock-total"><strong>${total}</strong><span>Всего</span></div>
         </div>
+        ${extra}
       </div>
     </a>`;
-  }).join("");
-  state.stopImageObserver = observeCatalogImages(db, container);
+
 }

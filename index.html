@@ -11,7 +11,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=20261024">
   <title>Xiaomi WebBase</title>
   <link rel="stylesheet" href="webbase.css?v=20261023-5">
-  <link rel="stylesheet" href="catalog-overrides.css?v=20261024-3">
+  <link rel="stylesheet" href="catalog-overrides.css?v=20261024-7">
 </head>
 <body>
   <div id="sessionLoading" class="session-loading" role="status" aria-live="polite">
@@ -56,6 +56,7 @@
 
     <nav class="main-nav" aria-label="Разделы">
       <button class="nav-button active" data-nav="catalog" type="button">Каталог</button>
+      <button class="nav-button" data-nav="compatibility" type="button">Совместимость</button>
       <button id="staffSectionNav" class="nav-button" data-nav="staff" type="button" hidden>Сотрудники</button>
       <button id="importSectionNav" class="nav-button" data-nav="import" type="button" hidden>Импорт 1С</button>
     </nav>
@@ -73,6 +74,20 @@
         </div>
         <p id="catalogLoading" class="loading">Загружаю каталог…</p>
         <div id="catalog" class="catalog" aria-live="polite"></div>
+      </section>
+
+      <section data-section="compatibility" hidden>
+        <div class="page-heading">
+          <div><p class="eyebrow">Аксессуары и расходники</p><h1>Совместимость</h1><p>Подберите расходники для пылесоса или ремешок для устройства.</p></div>
+          <span id="compatibilityCount" class="count"></span>
+        </div>
+        <div class="panel filters">
+          <label class="search-field"><span>Модель устройства или товар</span><input id="compatibilitySearch" type="search" placeholder="Например, S20+, S10, Smart Band 9, 20 мм…" autocomplete="off"></label>
+          <label><span>Тип аксессуара</span><select id="compatibilityKind"><option value="">Все аксессуары</option value="vacuum">Расходники для пылесосов</option><option value="strap">Ремешки</option><option value="other">Другие аксессуары</option></select></label>
+          <label class="compatibility-toggle"><input id="compatibilityConditional" type="checkbox"><span>Учитывать варианты со сверкой маркировки или крепления</span></label>
+        </div>
+        <p class="muted">Условия и источники указаны в карточке. S20 и S20+, основная и боковая щётки проверяются отдельно.</p>
+        <div id="compatibilityCatalog" class="catalog" aria-live="polite"></div>
       </section>
 
       <section id="adminNav" data-section="staff" hidden>
@@ -107,6 +122,6 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="supabase-config.js?v=20261023-4"></script>
   <script src="supabase-client.js?v=20261023-4"></script>
-  <script type="module" src="webbase-app.js?v=20261024-5"></script>
+  <script type="module" src="webbase-app.js?v=20261024-7"></script>
 </body>
 </html>

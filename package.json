@@ -4,6 +4,6 @@
   "type": "module",
   "scripts": {
     "test": "node --test",
-    "check": "node --check webbase-app.js && node --check product.js && node --check js/auth.js && node --check js/catalog.js && node --check js/employees.js && node --check js/images.js && node --check js/importer.js && node --check js/products.js && node --check js/utils.js"
+    "check": "node --check webbase-app.js && node --check product.js && node --check js/auth.js && node --check js/catalog.js && node --check js/employees.js && node --check js/images.js && node --check js/importer.js && node --check js/products.js && node --check js/utils.js && node --check js/compatibility.js && node --check js/compatibility-data.js"
   }
 }

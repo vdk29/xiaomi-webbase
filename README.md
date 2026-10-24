@@ -2,6 +2,9 @@
 
 Внутренний каталог магазина Xiaomi на GitHub Pages и Supabase.
 
+Раздел «Совместимость», условия подбора расходников и источники:
+[docs/COMPATIBILITY.md](docs/COMPATIBILITY.md).
+
 Заполнение описаний и перечень позиций для уточнения:
 [docs/DESCRIPTION_COVERAGE.md](docs/DESCRIPTION_COVERAGE.md).
 

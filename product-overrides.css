@@ -105,3 +105,7 @@
   .main-image { height: 240px; min-height: 0; }
   .main-image img { height: 100%; min-height: 0; padding: 12px; }
 }
+.compatibility-models { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; }
+.compatibility-models li { background: #f4f5f7; border-radius: 8px; padding: 7px 10px; font-size: 14px; }
+.compatibility-condition { border-left: 3px solid #ff6900; padding-left: 16px; margin: 20px 0; }
+.compatibility-sources a { display: block; margin: 8px 0; }

@@ -1,7 +1,8 @@
 import { $, errorMessage, setBusy } from "./js/utils.js?v=20261023-4";
 import { getAccessContext, safeNextUrl, signIn } from "./js/auth.js?v=20261023-4";
 import { listProducts } from "./js/products.js?v=20261024-5";
-import { initializeCatalog, populateCategories, renderCatalog } from "./js/catalog.js?v=20261024-3";
+import { initializeCatalog, populateCategories, renderCatalog } from "./js/catalog.js?v=20261024-7";
+import { initializeCompatibility, renderCompatibility } from "./js/compatibility.js?v=20261024-7";
 import { initializeEmployees, refreshEmployees } from "./js/employees.js?v=20261023-4";
 import { initializeImporter } from "./js/importer.js?v=20261024-4";
 
@@ -14,6 +15,8 @@ const state = {
   admin: false,
   importPreview: null,
   stopImageObserver: null,
+  stopCompatibilityObserver: null,
+  section: new URLSearchParams(location.search).get('section') === 'compatibility' ? 'compatibility' : 'catalog',
 };
 
 function notify(message, isError = false) {
@@ -30,13 +33,17 @@ async function reloadProducts() {
   try {
     state.rows = await listProducts(db);
     populateCategories(state.rows);
-    renderCatalog(db, state);
+    if (state.section === 'compatibility') renderCompatibility(db, state);
+    else renderCatalog(db, state);
   } finally {
     $("catalogLoading").hidden = true;
   }
 }
 
 function selectSection(name) {
+  state.section = name;
+  state.stopImageObserver?.();
+  state.stopCompatibilityObserver?.();
   document.querySelectorAll("[data-section]").forEach((section) => {
     section.hidden = section.dataset.section !== name;
   });
@@ -44,6 +51,12 @@ function selectSection(name) {
     button.classList.toggle("active", button.dataset.nav === name);
   });
   if (name === "staff" && state.admin) refreshEmployees(db, state, notify);
+  if (name === 'compatibility') renderCompatibility(db, state);
+  if (name === 'catalog') renderCatalog(db, state);
+  const url = new URL(location.href);
+  if (name === 'compatibility') url.searchParams.set('section', name);
+  else url.searchParams.delete('section');
+  history.replaceState(null, '', url);
 }
 
 function renderAccount() {
@@ -73,6 +86,7 @@ async function refreshSession() {
   }
   renderAccount();
   await reloadProducts();
+  selectSection(state.section);
   const next = safeNextUrl(new URLSearchParams(location.search).get("next"));
   if (next) location.replace(next);
 }
@@ -85,6 +99,7 @@ async function boot() {
     return;
   }
   initializeCatalog(db, state);
+  initializeCompatibility(db, state);
   initializeEmployees(db, state, notify);
   initializeImporter(db, state, { notify, reloadProducts });
 

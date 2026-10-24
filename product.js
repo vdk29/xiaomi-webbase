@@ -1,5 +1,6 @@
 import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from "./js/utils.js?v=20261023-4";
 import { requireApprovedUser } from "./js/auth.js?v=20261023-4";
+import { compatibilityDetailsMarkup } from "./js/compatibility.js?v=20261024-7";
 import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261024-5";
 import {
   deleteProductImage, prepareImage, reorderImages, setPrimaryImage, setSignedImage, uploadProductImage,
@@ -103,6 +104,14 @@ async function renderProduct() {
   $("stockUpdated").textContent = product.stock.updated_at ? `Обновлено ${formatDate(product.stock.updated_at)}` : "";
   $("descriptionSection").hidden = !product.description;
   $("productDescription").textContent = product.description || "";
+  const compatibility = compatibilityDetailsMarkup(product);
+  $("compatibilitySection").hidden = !compatibility;
+  $("productCompatibility").innerHTML = compatibility;
+  if (new URLSearchParams(location.search).get('from') === 'compatibility') {
+    const back = document.querySelector('.back-link');
+    back.href = 'index.html?section=compatibility';
+    back.textContent = '← Вернуться к совместимости';
+  }
   const specs = Object.entries(product.specs || {}).filter(([key, value]) => !key.startsWith("_") && value !== null && value !== "");
   $("specsSection").hidden = specs.length === 0;
   $("productSpecs").innerHTML = specs.map(([key, value]) => `<div><dt>${escapeHtml(key)}</dt><dd>${escapeHtml(Array.isArray(value) ? value.join(", ") : value)}</dd></div>`).join("");
