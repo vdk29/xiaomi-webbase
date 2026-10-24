@@ -3,7 +3,7 @@ import { requireApprovedUser } from "./js/auth.js?v=20261023-4";
 import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261023-4";
 import {
   deleteProductImage, prepareImage, reorderImages, setPrimaryImage, setSignedImage, uploadProductImage,
-} from "./js/images.js?v=20261023-4";
+} from "./js/images.js?v=20261024-1";
 
 const db = window.WebBaseDB;
 const state = { context: null, product: null, selectedImageId: null, preparedImage: null, dirty: false };
@@ -112,6 +112,8 @@ async function renderProduct() {
   source.href = sourceUrl || "#";
   $("specsVerified").textContent = product.specs?._verified_at ? `Данные проверены ${formatDate(`${product.specs._verified_at}T00:00:00`)}` : "";
   $("adminActions").hidden = !state.context.admin;
+  $("addPhoto").disabled = product.images.length >= 3;
+  $("addPhoto").textContent = `Добавить фотографию (${product.images.length}/3)`;
   await renderGallery();
   $("productView").hidden = false;
   $("pageStatus").hidden = true;

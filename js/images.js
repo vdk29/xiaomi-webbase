@@ -95,6 +95,10 @@ export async function prepareImage(file) {
 }
 
 export async function uploadProductImage(db, productId, prepared, userId, isPrimary = false) {
+  const { count, error: limitError } = await db.client.from("webbase_product_images")
+    .select("id", { count: "exact", head: true }).eq("product_id", productId);
+  if (limitError) throw limitError;
+  if (count >= 3) throw new Error("У товара может быть не более 3 фотографий.");
   const path = `products/${productId}/${crypto.randomUUID()}.webp`;
   const { error: uploadError } = await db.client.storage
     .from(db.config.bucket)

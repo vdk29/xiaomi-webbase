@@ -1,5 +1,5 @@
-import { $, debounce, escapeHtml, normalizeText, placeholderSvg } from "./utils.js?v=20261023-4";
-import { observeCatalogImages } from "./images.js?v=20261023-4";
+import { $, debounce, escapeHtml, normalizeText, placeholderSvg, splitSkus } from "./utils.js?v=20261023-4";
+import { observeCatalogImages } from "./images.js?v=20261024-1";
 
 export const CATEGORY_ORDER = ["Смартфоны", "Планшеты", "Смарт-часы", "Наушники", "Фитнес-браслеты", "Телевизоры"];
 
@@ -40,6 +40,20 @@ export function populateCategories(rows) {
   select.value = categories.includes(current) ? current : "";
 }
 
+export function matchesSkuSuffix(row, query) {
+  const search = normalizeText(query);
+  const skus = [...splitSkus(row.sku), ...(row.source_skus || [])];
+  return /^\d{4}$/.test(search) && skus.some(sku => String(sku).replace(/\D/g, "").endsWith(search));
+}
+
+export function matchesProductSearch(row, query) {
+  const search = normalizeText(query);
+  if (!search) return true;
+  const skus = [...splitSkus(row.sku), ...(row.source_skus || [])];
+  if (matchesSkuSuffix(row, search)) return true;
+  return normalizeText([row.name, row.sku, ...skus, row.model, row.memory, row.color, row.brand].join(" ")).includes(search);
+}
+
 function filterRows(rows) {
   const search = normalizeText($("search").value);
   const category = $("category").value;
@@ -50,11 +64,9 @@ function filterRows(rows) {
     if (availability === "available" && total <= 0) return false;
     if (availability === "display" && row.stock.display <= 0) return false;
     if (availability === "without-photo" && row.images.length > 0) return false;
-    return !search || normalizeText([
-      row.name, row.sku, row.model, row.memory, row.color, row.brand,
-    ].join(" ")).includes(search);
+    return matchesProductSearch(row, search);
   });
-  return filtered.sort(compareCatalogProducts);
+  return filtered.sort((a, b) => Number(matchesSkuSuffix(b, search)) - Number(matchesSkuSuffix(a, search)) || compareCatalogProducts(a, b));
 }
 
 export function renderCatalog(db, state) {
