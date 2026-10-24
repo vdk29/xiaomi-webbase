@@ -1,6 +1,6 @@
-import { $, errorMessage, setBusy } from "./js/utils.js?v=20261023-4";
-import { getAccessContext, safeNextUrl, signIn } from "./js/auth.js?v=20261023-4";
-import { listProducts } from "./js/products.js?v=20261024-5";
+import { $, errorMessage, setBusy } from "./js/utils.js?v=20261024-8";
+import { getAccessContext, safeNextUrl, signIn } from "./js/auth.js?v=20261024-8";
+import { listProducts } from "./js/products.js?v=20261024-8";
 import { initializeCatalog, populateCategories, renderCatalog } from "./js/catalog.js?v=20261024-7";
 import { initializeCompatibility, renderCompatibility } from "./js/compatibility.js?v=20261024-7";
 import { initializeEmployees, refreshEmployees } from "./js/employees.js?v=20261023-4";
@@ -28,15 +28,33 @@ function notify(message, isError = false) {
   }, 6000);
 }
 
+let productsRequest = null;
 async function reloadProducts() {
+  if (productsRequest) return productsRequest;
+  productsRequest = loadCatalog().finally(() => { productsRequest = null; });
+  return productsRequest;
+}
+
+async function loadCatalog() {
   $("catalogLoading").hidden = false;
+  $("catalogError").hidden = true;
+  $("retryCatalog").disabled = true;
   try {
     state.rows = await listProducts(db);
     populateCategories(state.rows);
     if (state.section === 'compatibility') renderCompatibility(db, state);
     else renderCatalog(db, state);
+    if (state.rows.sharedImagesUnavailable) {
+      $("catalogErrorText").textContent = 'Товары загружены. Общие фотографии вариантов памяти временно недоступны; попробуйте обновить каталог.';
+      $("catalogError").hidden = false;
+    }
+  } catch (error) {
+    $("catalogErrorText").textContent = `${errorMessage(error)}${state.rows.length ? ' Показаны ранее загруженные данные; остатки могут быть неактуальны.' : ''}`;
+    $("catalogError").hidden = false;
+    throw error;
   } finally {
     $("catalogLoading").hidden = true;
+    $("retryCatalog").disabled = false;
   }
 }
 
@@ -85,7 +103,8 @@ async function refreshSession() {
     return;
   }
   renderAccount();
-  await reloadProducts();
+  // A catalog transport failure does not mean the approved user is signed out.
+  await reloadProducts().catch(() => {});
   selectSection(state.section);
   const next = safeNextUrl(new URLSearchParams(location.search).get("next"));
   if (next) location.replace(next);
@@ -107,6 +126,7 @@ async function boot() {
     button.addEventListener("click", () => selectSection(button.dataset.nav));
   });
   $("refresh").addEventListener("click", () => reloadProducts().catch((error) => notify(errorMessage(error), true)));
+  $("retryCatalog").addEventListener("click", () => reloadProducts().catch(() => {}));
   $("signOut").addEventListener("click", () => db.signOut().catch((error) => notify(errorMessage(error), true)));
   $("authForm").addEventListener("submit", async (event) => {
     event.preventDefault();

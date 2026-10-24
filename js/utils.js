@@ -56,6 +56,7 @@ export const setBusy = (element, busy, busyText = "Сохраняю…") => {
 
 export const errorMessage = (error, fallback = "Не удалось выполнить операцию") => {
   const raw = error?.message || fallback;
+  if (error?.code === 'READ_TIMEOUT' || /failed to fetch|networkerror|network request failed|load failed|err_connection|econnreset|connection reset/i.test(raw)) return 'Соединение с сервером прервалось. Проверьте подключение и повторите загрузку.';
   if (/invalid login credentials/i.test(raw)) return "Неверный логин или пароль.";
   if (/user is banned/i.test(raw)) return "Учётная запись заблокирована.";
   if (/jwt expired/i.test(raw)) return "Сессия истекла. Войдите снова.";

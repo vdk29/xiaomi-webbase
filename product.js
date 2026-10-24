@@ -1,7 +1,7 @@
-import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from "./js/utils.js?v=20261023-4";
-import { requireApprovedUser } from "./js/auth.js?v=20261023-4";
+import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from "./js/utils.js?v=20261024-8";
+import { requireApprovedUser } from "./js/auth.js?v=20261024-8";
 import { compatibilityDetailsMarkup } from "./js/compatibility.js?v=20261024-7";
-import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261024-5";
+import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261024-8";
 import {
   deleteProductImage, prepareImage, reorderImages, setPrimaryImage, setSignedImage, uploadProductImage,
 } from "./js/images.js?v=20261024-3";

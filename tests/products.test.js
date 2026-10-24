@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fillSharedImages, normalizeProduct } from '../js/products.js';
+import { fillSharedImages, normalizeProduct, listProducts, CATALOG_SELECT } from '../js/products.js';
 
 test('shared gallery fills only empty cards and leaves stock and own photos unchanged', async () => {
   const own = normalizeProduct({ id: 'own', webbase_product_images: [{ id: 'own-photo', sort_order: 0 }], webbase_stock: { warehouse: 7 } });
@@ -46,4 +46,29 @@ test('shared lookup batches large catalogs below the Data API row limit', async 
   await fillSharedImages(db, products);
   assert.deepEqual(sizes, [200, 200, 1]);
   assert.ok(products.every(product => product.images.length === 3));
+});
+
+test('catalog pages retry independently and a failed photo lookup does not discard products', async () => {
+  const ranges = [];
+  const data = Array.from({ length: 51 }, (_, id) => ({ id: String(id), name: `Product ${id}`, compatibility: id === 0 ? { kind: 'vacuum' } : null }));
+  let firstPageCalls = 0;
+  const db = { config: { url: 'test', bucket: 'test' }, client: {
+    from: () => {
+      const query = { select: selection => { assert.equal(selection, CATALOG_SELECT); return query; }, eq: () => query, order: () => query,
+        range: async (from, to) => {
+          ranges.push([from, to]);
+          if (from === 0 && ++firstPageCalls === 1) return { error: { message: 'Failed to fetch' } };
+          return { data: data.slice(from, to + 1) };
+        } };
+      return query;
+    },
+    rpc: async () => ({ error: { message: 'Missing permission', code: '42501' }, status: 403 }),
+  } };
+  const rows = await listProducts(db);
+  assert.deepEqual(ranges, [[0, 49], [0, 49], [50, 99]]);
+  assert.equal(rows.length, 51);
+  assert.equal(new Set(rows.map(row => row.id)).size, 51);
+  assert.equal(rows[0].specs._compatibility.kind, 'vacuum');
+  assert.equal(rows.sharedImagesUnavailable, true);
+  assert.doesNotMatch(CATALOG_SELECT, /description|original_name|byte_size/);
 });

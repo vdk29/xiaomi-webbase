@@ -1,14 +1,15 @@
-import { errorMessage } from "./utils.js?v=20261023-4";
+import { errorMessage } from "./utils.js?v=20261024-8";
+import { readWithRetry, abortableRead } from './network.js?v=20261024-8';
 
 export async function getAccessContext(db) {
   const session = await db.getSession();
   if (!session?.user) return { session: null, user: null, profile: null, admin: false };
 
-  const { data: profile, error } = await db.client
+  const { data: profile, error } = await readWithRetry(signal => abortableRead(db.client
     .from("webbase_staff")
     .select("user_id,username,display_name,role,active,created_at")
     .eq("user_id", session.user.id)
-    .maybeSingle();
+    .maybeSingle(), signal));
   if (error) throw error;
   return {
     session,

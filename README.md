@@ -2,6 +2,9 @@
 
 Внутренний каталог магазина Xiaomi на GitHub Pages и Supabase.
 
+Восстановление после сетевых обрывов:
+[docs/NETWORK_RECOVERY.md](docs/NETWORK_RECOVERY.md).
+
 Раздел «Совместимость», условия подбора расходников и источники:
 [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md).
 

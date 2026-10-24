@@ -1,5 +1,13 @@
 import { primeSignedUrls } from "./images.js?v=20261024-3";
 import { parseQuantity } from "./utils.js?v=20261023-4";
+import { readWithRetry, abortableRead } from './network.js?v=20261024-8';
+
+export const CATALOG_SELECT = `
+  id,external_id,sku,name,source_name,source_skus,category,brand,model,memory,color,active,
+  compatibility:specs->_compatibility,
+  webbase_stock(warehouse,display,ldu,updated_at),
+  webbase_product_images(id,storage_path,sort_order,is_primary)
+`;
 
 export const PRODUCT_SELECT = `
   id,external_id,sku,name,source_name,source_skus,category,brand,model,memory,color,
@@ -16,6 +24,7 @@ export function normalizeProduct(row) {
   });
   return {
     ...row,
+    specs: row.specs || (row.compatibility ? { _compatibility: row.compatibility } : {}),
     stock: {
       warehouse: Number(stock?.warehouse || 0),
       display: Number(stock?.display || 0),
@@ -32,9 +41,9 @@ export async function fillSharedImages(db, products) {
   // At most 600 image rows per response, below the Data API's 1000-row limit.
   for (let offset = 0; offset < missing.length; offset += 200) {
     const batch = missing.slice(offset, offset + 200);
-    const { data, error } = await db.client.rpc("webbase_shared_product_images", {
+    const { data, error } = await readWithRetry(signal => abortableRead(db.client.rpc("webbase_shared_product_images", {
       p_product_ids: batch.map(product => product.id),
-    });
+    }), signal), { attempts: 2, timeoutMs: 3000 });
     if (error) throw error;
     const galleries = new Map();
     for (const { target_product_id: id, image } of data || []) {
@@ -53,18 +62,21 @@ export async function fillSharedImages(db, products) {
 
 export async function listProducts(db) {
   const rows = [];
-  for (let offset = 0; ; offset += 500) {
-    const { data, error } = await db.client
+  const pageSize = 50;
+  for (let offset = 0; ; offset += pageSize) {
+    const { data, error } = await readWithRetry(signal => abortableRead(db.client
       .from("webbase_products")
-      .select(PRODUCT_SELECT)
+      .select(CATALOG_SELECT)
       .eq("active", true)
       .order("name")
-      .range(offset, offset + 499);
+      .order("id")
+      .range(offset, offset + pageSize - 1), signal));
     if (error) throw error;
     rows.push(...data.map(normalizeProduct));
-    if (data.length < 500) break;
+    if (data.length < pageSize) break;
   }
-  await fillSharedImages(db, rows);
+  try { await fillSharedImages(db, rows); }
+  catch { rows.sharedImagesUnavailable = true; }
   void primeSignedUrls(db, rows.map(row => row.primaryImage?.storage_path)).catch(() => {});
   return rows;
 }
@@ -73,15 +85,18 @@ export async function getProduct(db, productId) {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(productId || "")) {
     throw new Error("Некорректный идентификатор товара.");
   }
-  const { data, error } = await db.client
+  const { data, error } = await readWithRetry(signal => abortableRead(db.client
     .from("webbase_products")
     .select(PRODUCT_SELECT)
     .eq("id", productId)
     .eq("active", true)
-    .maybeSingle();
+    .maybeSingle(), signal));
   if (error) throw error;
   const product = data ? normalizeProduct(data) : null;
-  if (product) await fillSharedImages(db, [product]);
+  if (product) {
+    try { await fillSharedImages(db, [product]); }
+    catch { product.sharedImagesUnavailable = true; }
+  }
   if (product) void primeSignedUrls(db, product.images.map(image => image.storage_path)).catch(() => {});
   return product;
 }

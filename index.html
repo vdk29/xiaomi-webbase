@@ -62,6 +62,10 @@
     </nav>
 
     <main class="main-content">
+      <div id="catalogError" class="panel" role="status" hidden>
+        <p id="catalogErrorText"></p>
+        <button id="retryCatalog" class="button primary" type="button">Повторить загрузку</button>
+      </div>
       <section data-section="catalog">
         <div class="page-heading">
           <div><p class="eyebrow">Ассортимент</p><h1>Каталог товаров</h1></div>
@@ -122,6 +126,6 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="supabase-config.js?v=20261023-4"></script>
   <script src="supabase-client.js?v=20261023-4"></script>
-  <script type="module" src="webbase-app.js?v=20261024-7"></script>
+  <script type="module" src="webbase-app.js?v=20261024-8"></script>
 </body>
 </html>
