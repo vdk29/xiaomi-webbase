@@ -1,6 +1,7 @@
 import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from "./js/utils.js?v=20261024-8";
 import { requireApprovedUser } from "./js/auth.js?v=20261024-8";
 import { compatibilityDetailsMarkup } from "./js/compatibility.js?v=20261024-7";
+import { productReturnUrl } from './js/listing-navigation.js?v=20261024-9';
 import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261024-8";
 import {
   deleteProductImage, prepareImage, reorderImages, setPrimaryImage, setSignedImage, uploadProductImage,
@@ -9,6 +10,12 @@ import {
 const db = window.WebBaseDB;
 const state = { context: null, product: null, selectedImageId: null, preparedImage: null, dirty: false };
 const productId = new URLSearchParams(location.search).get("id");
+const listingBackUrl = productReturnUrl(location.href);
+document.querySelector('.back-link').href = listingBackUrl;
+document.querySelector('.brand').href = listingBackUrl;
+if (new URL(listingBackUrl, location.href).searchParams.get('section') === 'compatibility') {
+  document.querySelector('.back-link').textContent = '← Вернуться к совместимости';
+}
 
 function notify(message, isError = false) {
   const element = $("notice");
@@ -107,11 +114,6 @@ async function renderProduct() {
   const compatibility = compatibilityDetailsMarkup(product);
   $("compatibilitySection").hidden = !compatibility;
   $("productCompatibility").innerHTML = compatibility;
-  if (new URLSearchParams(location.search).get('from') === 'compatibility') {
-    const back = document.querySelector('.back-link');
-    back.href = 'index.html?section=compatibility';
-    back.textContent = '← Вернуться к совместимости';
-  }
   const specs = Object.entries(product.specs || {}).filter(([key, value]) => !key.startsWith("_") && value !== null && value !== "");
   $("specsSection").hidden = specs.length === 0;
   $("productSpecs").innerHTML = specs.map(([key, value]) => `<div><dt>${escapeHtml(key)}</dt><dd>${escapeHtml(Array.isArray(value) ? value.join(", ") : value)}</dd></div>`).join("");

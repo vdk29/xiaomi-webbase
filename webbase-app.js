@@ -5,6 +5,7 @@ import { initializeCatalog, populateCategories, renderCatalog } from "./js/catal
 import { initializeCompatibility, renderCompatibility } from "./js/compatibility.js?v=20261024-7";
 import { initializeEmployees, refreshEmployees } from "./js/employees.js?v=20261023-4";
 import { initializeImporter } from "./js/importer.js?v=20261024-4";
+import { initializeListingNavigation, syncListingLocation, restoreListingScroll } from './js/listing-navigation.js?v=20261024-9';
 
 const db = window.WebBaseDB;
 const state = {
@@ -44,6 +45,7 @@ async function loadCatalog() {
     populateCategories(state.rows);
     if (state.section === 'compatibility') renderCompatibility(db, state);
     else renderCatalog(db, state);
+    restoreListingScroll();
     if (state.rows.sharedImagesUnavailable) {
       $("catalogErrorText").textContent = 'Товары загружены. Общие фотографии вариантов памяти временно недоступны; попробуйте обновить каталог.';
       $("catalogError").hidden = false;
@@ -58,7 +60,7 @@ async function loadCatalog() {
   }
 }
 
-function selectSection(name) {
+function selectSection(name, { restore = false } = {}) {
   state.section = name;
   state.stopImageObserver?.();
   state.stopCompatibilityObserver?.();
@@ -71,10 +73,7 @@ function selectSection(name) {
   if (name === "staff" && state.admin) refreshEmployees(db, state, notify);
   if (name === 'compatibility') renderCompatibility(db, state);
   if (name === 'catalog') renderCatalog(db, state);
-  const url = new URL(location.href);
-  if (name === 'compatibility') url.searchParams.set('section', name);
-  else url.searchParams.delete('section');
-  history.replaceState(null, '', url);
+  syncListingLocation(name, { resetScroll: !restore });
 }
 
 function renderAccount() {
@@ -105,7 +104,7 @@ async function refreshSession() {
   renderAccount();
   // A catalog transport failure does not mean the approved user is signed out.
   await reloadProducts().catch(() => {});
-  selectSection(state.section);
+  selectSection(state.section, { restore: true });
   const next = safeNextUrl(new URLSearchParams(location.search).get("next"));
   if (next) location.replace(next);
 }
@@ -117,6 +116,7 @@ async function boot() {
     $("authStatus").textContent = "Не удалось загрузить безопасное подключение к Supabase.";
     return;
   }
+  initializeListingNavigation(() => state.section);
   initializeCatalog(db, state);
   initializeCompatibility(db, state);
   initializeEmployees(db, state, notify);
