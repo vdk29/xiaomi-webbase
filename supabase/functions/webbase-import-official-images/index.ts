@@ -21,13 +21,14 @@ Deno.serve(async (req) => {
     try {
       const { data: product, error: productError } = await db.from("webbase_products").select("id,sku").eq("sku", entry.sku).single();
       if (productError || !product) throw new Error("Product SKU not found");
-      const { data: images, error: imagesError } = await db.from("webbase_product_images").select("id,source_url").eq("product_id", product.id);
+      const { data: images, error: imagesError } = await db.from("webbase_product_images").select("id,source_url,original_name").eq("product_id", product.id);
       if (imagesError) throw imagesError;
-      if (images!.some(i => i.source_url === entry.source_url) || images!.length >= 3) {
+      const originalName = "original_name" in entry ? entry.original_name : `Официальное изображение модели: ${entry.name}`;
+      if (images!.some(i => "original_name" in entry ? i.original_name === originalName : i.source_url === entry.source_url) || images!.length >= 3) {
         results.push({ sku: entry.sku, status: "already-present" }); continue;
       }
       const imageUrl = new URL(entry.image_url);
-      if (imageUrl.protocol !== "https:" || !["i02.appmifile.com", "i01.appmifile.com", "www.borofone.com"].includes(imageUrl.hostname)) throw new Error("Unapproved source");
+      if (imageUrl.protocol !== "https:" || !["i02.appmifile.com", "i01.appmifile.com", "www.borofone.com", "mi-shop.com"].includes(imageUrl.hostname)) throw new Error("Unapproved source");
       const response = await fetch(imageUrl, { redirect: "error", signal: AbortSignal.timeout(20000) });
       if (!response.ok) throw new Error(`Image HTTP ${response.status}`);
       const bytes = await response.arrayBuffer();
@@ -41,7 +42,7 @@ Deno.serve(async (req) => {
       if (uploadError) throw uploadError;
       const { error } = await db.from("webbase_product_images").insert({ product_id: product.id, storage_path: path,
         mime_type: mime, byte_size: bytes.byteLength, source_url: entry.source_url,
-        original_name: `Официальное изображение модели: ${entry.name}`, sort_order: images!.length, is_primary: images!.length === 0 });
+        original_name: originalName, sort_order: images!.length, is_primary: images!.length === 0 });
       if (error) throw error;
       results.push({ sku: entry.sku, status: "uploaded" });
     } catch (error) {

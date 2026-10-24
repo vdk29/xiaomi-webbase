@@ -1,6 +1,6 @@
 import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from "./js/utils.js?v=20261023-4";
 import { requireApprovedUser } from "./js/auth.js?v=20261023-4";
-import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261023-4";
+import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261024-2";
 import {
   deleteProductImage, prepareImage, reorderImages, setPrimaryImage, setSignedImage, uploadProductImage,
 } from "./js/images.js?v=20261024-1";
@@ -125,6 +125,10 @@ async function renderGallery() {
   state.selectedImageId = selected?.id || null;
   const main = $("mainImage");
   main.alt = state.product.name;
+  const imageSource = $("imageSource");
+  const sourceUrl = trustedHttpUrl(selected?.source_url);
+  imageSource.hidden = !sourceUrl;
+  imageSource.href = sourceUrl || "#";
   await setSignedImage(db, main, selected?.storage_path, state.product.category || "Товар");
   const gallery = $("gallery");
   if (!images.length) {

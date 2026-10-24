@@ -4,7 +4,7 @@ export const PRODUCT_SELECT = `
   id,external_id,sku,name,source_name,source_skus,category,brand,model,memory,color,
   description,specs,active,created_at,updated_at,last_imported_at,
   webbase_stock(warehouse,display,ldu,updated_at),
-  webbase_product_images(id,storage_path,sort_order,is_primary,mime_type,byte_size,width,height,created_at,original_name)
+  webbase_product_images(id,storage_path,sort_order,is_primary,mime_type,byte_size,width,height,created_at,original_name,source_url)
 `;
 
 export function normalizeProduct(row) {

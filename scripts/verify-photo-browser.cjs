@@ -26,6 +26,6 @@ const fs=require('fs');
  await page.reload();await page.locator('#productView').waitFor();await page.waitForFunction(()=>document.querySelector('#mainImage').naturalWidth>0);
  if(errors.length)throw Error(errors.join(';'));
  await page.screenshot({path:process.env.WEBBASE_SCREENSHOT || '/tmp/webbase-photo-product.png'});
- console.log('PASS: 55 real photos decode after reload, suffix search, product page reload, mobile viewport');
+ console.log(`PASS: ${after.decoded} stored photos decode after reload, suffix search, product page reload, mobile viewport`);
  await browser.close();
 })().catch(e=>{console.error(e);process.exit(1)});

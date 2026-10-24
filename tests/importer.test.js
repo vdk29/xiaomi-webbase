@@ -48,3 +48,20 @@ test("1C import blocks invalid totals and ambiguous SKU matches", () => {
   const ambiguous = analyze1CRows(rows, existing);
   assert.equal(ambiguous.ambiguous.length, 1);
 });
+
+test("home and smart-home categories stay separate from vacuum accessories", () => {
+  const cases = [
+    ["Щётка основная для робот-пылесоса Xiaomi S20", "Аксессуары для пылесосов"],
+    ["Фильтр для пылесоса Xiaomi", "Аксессуары для пылесосов"],
+    ["Робот-пылесос Xiaomi E5 Black", "Пылесосы"],
+    ["Аэрогриль Xiaomi Smart Air Fryer 6,5L White", "Бытовая техника для дома"],
+    ["Увлажнитель Xiaomi", "Бытовая техника для дома"],
+    ["Очиститель воздуха Xiaomi", "Бытовая техника для дома"],
+    ["Фен Mi Ionic Hair Dryer H300", "Бытовая техника для дома"],
+    ["Датчик Mi Temperature and Humidity Monitor Pro", "Умный дом"],
+    ["Умная лампочка Xiaomi", "Умный дом"],
+    ["Камера Xiaomi Outdoor Camera BW300", "Умный дом"],
+    ["Ремешок для часов Xiaomi", "Аксессуары и другое"],
+  ];
+  for (const [name, category] of cases) assert.equal(classifyProduct(name), category, name);
+});

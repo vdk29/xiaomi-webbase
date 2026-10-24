@@ -1,7 +1,7 @@
 import { $, debounce, escapeHtml, normalizeText, placeholderSvg, splitSkus } from "./utils.js?v=20261023-4";
 import { observeCatalogImages } from "./images.js?v=20261024-1";
 
-export const CATEGORY_ORDER = ["Смартфоны", "Планшеты", "Смарт-часы", "Наушники", "Фитнес-браслеты", "Телевизоры"];
+export const CATEGORY_ORDER = ["Смартфоны", "Планшеты", "Смарт-часы", "Наушники", "Фитнес-браслеты", "Телевизоры", "Пылесосы", "Бытовая техника для дома", "Умный дом", "Аксессуары для пылесосов"];
 
 function categoryRank(category) {
   const index = CATEGORY_ORDER.indexOf(category);
