@@ -1,5 +1,7 @@
 import { placeholderSvg } from "./utils.js?v=20261023-4";
 
+import { readWithRetry } from './network.js?v=20261024-8';
+
 const clientCaches = new WeakMap();
 const imageRequests = new WeakMap();
 const URL_LIFETIME = 15 * 60;
@@ -40,7 +42,7 @@ export async function primeSignedUrls(db, paths) {
   for (let offset = 0; offset < missing.length; offset += 100) {
     const batch = missing.slice(offset, offset + 100);
     const request = (async () => {
-      const { data, error } = await db.client.storage.from(db.config.bucket).createSignedUrls(batch, URL_LIFETIME);
+      const { data, error } = await readWithRetry(() => db.client.storage.from(db.config.bucket).createSignedUrls(batch, URL_LIFETIME), { attempts: 2, timeoutMs: 5000 });
       if (error) throw error;
       for (const entry of data || []) {
         if (entry.signedUrl && !entry.error) cache.urls.set(entry.path, { url: entry.signedUrl, expiresAt: Date.now() + 12 * 60 * 1000 });
@@ -93,15 +95,22 @@ export async function setSignedImage(db, image, path, fallbackLabel = "Това�
 export function observeCatalogImages(db, root = document) {
   const images = [...root.querySelectorAll("img[data-lazy-path]")];
   const load = image => { image.loading = "eager"; return setSignedImage(db, image, image.dataset.lazyPath, image.alt); };
-  if (!("IntersectionObserver" in window)) { images.forEach(load); return () => {}; }
+  const loadBatch = batch => {
+    void primeSignedUrls(db, batch.map(image => image.dataset.lazyPath)).catch(() => {});
+    batch.forEach(load);
+  };
+  if (!("IntersectionObserver" in window)) { loadBatch(images); return () => {}; }
   const observer = new IntersectionObserver(entries => {
+    const visible = [];
     for (const entry of entries) {
       if (!entry.isIntersecting) continue;
       observer.unobserve(entry.target);
-      load(entry.target);
+      visible.push(entry.target);
     }
-  }, { rootMargin: "600px" });
-  images.forEach((image, index) => index < 8 ? load(image) : observer.observe(image));
+    loadBatch(visible);
+  }, { rootMargin: "300px" });
+  loadBatch(images.slice(0, 8));
+  images.slice(8).forEach(image => observer.observe(image));
   return () => observer.disconnect();
 }
 

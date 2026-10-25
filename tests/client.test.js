@@ -26,8 +26,17 @@ test('logout can return 204 and non-auth writes pass through untouched', async (
   const { options } = adapter(async () => response);
   assert.equal((await options.global.fetch('https://test.invalid/auth/v1/logout')).status, 204);
   assert.equal(await options.global.fetch('https://test.invalid/rest/v1/rpc/webbase_apply_import'), response);
+  assert.equal(await options.global.fetch('https://test.invalid/storage/v1/object/webbase-products/upload.webp', {method:'POST'}),response);
 });
 test('a stuck SDK session lock cannot keep the access screen waiting indefinitely', async () => {
   const { db } = adapter(async () => {}, () => new Promise(() => {}));
   await assert.rejects(db.getSession(), { code: 'SESSION_TIMEOUT' });
+});
+
+
+test('a stalled image-signing body is aborted without aborting a product upload', async()=>{
+  let calls=0;
+  const {options}=adapter(async (_, {signal})=>{calls++;return {arrayBuffer:()=>new Promise((_,reject)=>signal.addEventListener('abort',()=>reject(new Error('signing aborted'))))}});
+  await assert.rejects(options.global.fetch('https://test.invalid/storage/v1/object/sign/webbase-products',{method:'POST'}),/signing aborted/);
+  assert.equal(calls,1);
 });

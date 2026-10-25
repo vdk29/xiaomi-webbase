@@ -65,7 +65,7 @@ test('catalog pages retry independently and a failed photo lookup does not disca
     rpc: async () => ({ error: { message: 'Missing permission', code: '42501' }, status: 403 }),
   } };
   const rows = await listProducts(db);
-  assert.deepEqual(ranges, [[0, 49], [0, 49], [50, 99]]);
+  assert.deepEqual(ranges, [[0, 49], [0, 49], [50, 249]]);
   assert.equal(rows.length, 51);
   assert.equal(new Set(rows.map(row => row.id)).size, 51);
   assert.equal(rows[0].specs._compatibility.kind, 'vacuum');
@@ -96,4 +96,21 @@ test('first page is delivered early, accessory photo lookups are skipped, and ph
   release({ data: [] });
   await new Promise(resolve => setTimeout(resolve, 0));
   assert.equal(hydrated, rows);
+});
+
+test('494 products use stock-first server order, four reads and sign only the first visible images', async()=>{
+  const data=Array.from({length:494},(_,i)=>({id:String(i),name:'Чехол '+i,webbase_stock:{warehouse:i<202?1:0},webbase_product_images:[{storage_path:'image-'+i,is_primary:true}]}));
+  const ranges=[],orders=[],signed=[],sources=[];
+  const db={config:{url:'priority-test',bucket:'private'},getUserId:()=> 'priority',client:{
+    from:source=>{sources.push(source);const q={select:()=>q,eq:()=>q,order:(key,options)=>{orders.push([key,options]);return q},range:async(a,b)=>{ranges.push([a,b]);return{data:data.slice(a,b+1)}}};return q},
+    storage:{from:()=>({createSignedUrls:async paths=>{signed.push(...paths);return{data:paths.map(path=>({path,signedUrl:'https://images.invalid/'+path}))}}})}
+  }};
+  const progress=[];const rows=await listProducts(db,{onProgress:p=>progress.push(p)});
+  await new Promise(resolve=>setTimeout(resolve,0));
+  assert.equal(rows.length,494);assert.deepEqual(ranges,[[0,49],[50,249],[250,449],[450,649]]);
+  assert.ok(sources.every(s=>s==='webbase_catalog'));
+  assert.deepEqual(orders[0],['catalog_in_stock',{ascending:false}]);
+  assert.ok(progress[0].rows.every(r=>r.stock.warehouse>0));
+  assert.equal(progress[0].rows.length,50);
+  assert.deepEqual(signed,data.slice(0,8).map(p=>p.webbase_product_images[0].storage_path));
 });

@@ -24,7 +24,7 @@ const path=new URL(route.request().url()).pathname;
 if(path==='/auth/v1/token'){signIns++;return route.fulfill({json:{access_token:jwt,refresh_token:'isolated-test-refresh',token_type:'bearer',expires_in:3600,user:{id:uid,email:'qa@example.invalid',aud:'authenticated',role:'authenticated'}}})}
 if(path==='/auth/v1/logout')return route.fulfill({status:204,body:''});
 if(path==='/rest/v1/webbase_staff')return route.fulfill({json:[{user_id:uid,active:true,role:'staff'}]});
-if(path==='/rest/v1/webbase_products')return route.fulfill({json:[]});
+if((path==='/rest/v1/webbase_products'||path==='/rest/v1/webbase_catalog'))return route.fulfill({json:[]});
 return route.abort();
 });
 await sdk.goto(base);await sdk.locator('#authPanel').waitFor();

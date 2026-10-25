@@ -42,3 +42,13 @@ test("four-digit suffix distinguishes a full-SKU ending from a middle substring"
   assert.equal(matchesSkuSuffix({sku:"6941812777756"}, "7756"), true);
   assert.equal(matchesSkuSuffix({sku:"6934177756016"}, "7756"), false);
 });
+
+test('available products sort before zero stock across categories and within a category', () => {
+  const rows=[
+    {name:'A phone',category:'Смартфоны',stock:{warehouse:0,display:0}},
+    {name:'Z TV',category:'Телевизоры',stock:{warehouse:0,display:1,ldu:1}},
+    {name:'Z phone',category:'Смартфоны',stock:{warehouse:1,display:0}},
+    {name:'Demo counter only',category:'Смартфоны',stock:{warehouse:0,display:0,ldu:2}},
+  ].sort(compareCatalogProducts);
+  assert.deepEqual(rows.map(r=>r.name),['Z phone','Z TV','A phone','Demo counter only']);
+});

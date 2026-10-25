@@ -1,5 +1,5 @@
 import { $, debounce, escapeHtml, normalizeText, placeholderSvg, splitSkus } from "./utils.js?v=20261023-4";
-import { observeCatalogImages } from "./images.js?v=20261024-11";
+import { observeCatalogImages } from "./images.js?v=20261025-14";
 
 export const CATEGORY_ORDER = ["Смартфоны", "Планшеты", "Смарт-часы", "Наушники", "Фитнес-браслеты", "Телевизоры", "Пылесосы", "Бытовая техника для дома", "Умный дом", "Компьютерная техника", "Видеонаблюдение", "Аудио", "Аксессуары для пылесосов"];
 
@@ -9,7 +9,9 @@ function categoryRank(category) {
 }
 
 export function compareCatalogProducts(a, b) {
-  return categoryRank(a.category) - categoryRank(b.category)
+  const available = row => Number(row.stock?.warehouse || 0) + Number(row.stock?.display || 0) > 0;
+  return Number(available(b)) - Number(available(a))
+    || categoryRank(a.category) - categoryRank(b.category)
     || String(a.category || "").localeCompare(String(b.category || ""), "ru")
     || a.name.localeCompare(b.name, "ru");
 }

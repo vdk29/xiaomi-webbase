@@ -7,15 +7,18 @@
     return;
   }
 
-  // Bound the entire auth response, including its body. Do not retry auth writes.
-  const authFetch = async (input, init = {}) => {
+  // Bound auth and read-only image signing, including response bodies.
+  // Imports, uploads, product writes and staff mutations keep their original fetch.
+  const boundedFetch = async (input, init = {}) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-    if (!url?.includes('/auth/v1/')) return fetch(input, init);
+    const authRequest = url?.includes('/auth/v1/');
+    const signingRequest = url?.includes('/storage/v1/object/sign/');
+    if (!authRequest && !signingRequest) return fetch(input, init);
     const controller = new AbortController();
     const forwardAbort = () => controller.abort();
     if (init.signal?.aborted) forwardAbort();
     init.signal?.addEventListener('abort', forwardAbort, { once: true });
-    const timer = setTimeout(() => controller.abort(), 12000);
+    const timer = setTimeout(() => controller.abort(), authRequest ? 12000 : 6000);
     try {
       const response = await fetch(input, { ...init, signal: controller.signal });
       const body = await response.arrayBuffer();
@@ -29,7 +32,7 @@
     }
   };
   const client = window.supabase.createClient(config.url, config.publishableKey, {
-    global: { fetch: authFetch },
+    global: { fetch: boundedFetch },
     auth: {
       persistSession: true,
       autoRefreshToken: true,

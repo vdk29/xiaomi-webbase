@@ -24,7 +24,7 @@ const { chromium } = require('playwright');
        client:{auth:{onAuthStateChange:()=>({})},from:table=>{
         let id; const q={select:()=>q,eq:(key,value)=>{if(key==='id')id=value;return q},order:()=>q,range:()=>q,
          maybeSingle:async()=>({data:table==='webbase_staff'?profile:rows.find(p=>p.id===id)}),
-         then:(resolve,reject)=>Promise.resolve({data:table==='webbase_products'?rows:[]}).then(resolve,reject)};return q;
+         then:(resolve,reject)=>Promise.resolve({data:(table==='webbase_products'||table==='webbase_catalog')?rows:[]}).then(resolve,reject)};return q;
        },rpc:async(name,payload)=>{
         if(name!=='webbase_shared_product_images')throw Error('Unexpected write RPC');
         return {data:!own&&payload.p_product_ids.includes(target)?[{target_product_id:target,image:{...image,inherited:true}}]:[]};

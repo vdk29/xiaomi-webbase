@@ -42,3 +42,13 @@ metadata, internal triggers and the security-invoker read RPC
 `webbase_shared_product_images(uuid[])`; it does not modify products, stock or
 Storage files. Existing full-SKU restoration remains in place. Run
 `tests/shared-photos.sql` and `tests/photo-reimport.sql` (both roll back fixtures).
+
+## Stock-priority catalog
+
+Apply `supabase/migrations/20261025095850_prioritize_available_catalog.sql` before
+frontend `20261025-14`. The security-invoker view `webbase_catalog` adds live
+`catalog_in_stock` ordering while keeping product/stock RLS and embedded image
+relationships. Authenticated staff have read access; anonymous users have none.
+No product, image or stock values are changed. Run `tests/catalog-priority.sql`
+(the stock fixture rolls back). Catalog details and writes continue using the
+existing tables/RPCs. See `docs/NETWORK_RECOVERY.md` for paging and image budgets.

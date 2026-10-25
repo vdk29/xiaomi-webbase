@@ -60,3 +60,16 @@ test("a delayed previous selection cannot replace the currently selected photo",
   assert.equal(image.dataset.storagePath,"current.webp");
   assert.equal(image.src,"https://photos.test/current.webp");
 });
+
+test('a stalled signer releases its pending cache and the next attempt can recover', async t=>{
+  t.mock.timers.enable({apis:['setTimeout']});
+  const {setImmediate}=await import('node:timers/promises');
+  const db=dbFor('hung-signer',[]);let calls=0;
+  db.client.storage.from=()=>({createSignedUrls:()=>{calls++;return new Promise(()=>{})}});
+  const failed=assert.rejects(primeSignedUrls(db,['hung.webp']),e=>e.code==='READ_TIMEOUT');
+  await setImmediate();t.mock.timers.tick(5000);await setImmediate();
+  t.mock.timers.tick(400);await setImmediate();t.mock.timers.tick(5000);await failed;
+  assert.equal(calls,2);
+  db.client.storage.from=()=>({createSignedUrls:async()=>({data:[{path:'hung.webp',signedUrl:'https://photos.test/recovered'}]})});
+  assert.equal(await getSignedUrl(db,'hung.webp'),'https://photos.test/recovered');
+});

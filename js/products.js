@@ -1,4 +1,4 @@
-import { primeSignedUrls } from "./images.js?v=20261024-11";
+import { primeSignedUrls } from "./images.js?v=20261025-14";
 import { parseQuantity } from "./utils.js?v=20261023-4";
 import { readWithRetry, abortableRead } from './network.js?v=20261024-8';
 
@@ -64,12 +64,13 @@ export async function fillSharedImages(db, products) {
 
 export async function listProducts(db, { onProgress, backgroundImages = false, onImages } = {}) {
   const rows = [];
-  const pageSize = 50;
-  for (let offset = 0; ; offset += pageSize) {
+  for (let offset = 0; ;) {
+    const pageSize = offset === 0 ? 50 : 200;
     const { data, error } = await readWithRetry(signal => abortableRead(db.client
-      .from("webbase_products")
+      .from("webbase_catalog")
       .select(CATALOG_SELECT)
       .eq("active", true)
+      .order('catalog_in_stock', { ascending: false })
       .order('category', { ascending: false, nullsFirst: false })
       .order("name")
       .order("id")
@@ -77,10 +78,11 @@ export async function listProducts(db, { onProgress, backgroundImages = false, o
     if (error) throw error;
     rows.push(...data.map(normalizeProduct));
     if (onProgress) {
-      if (offset === 0) void primeSignedUrls(db, rows.map(row => row.primaryImage?.storage_path)).catch(() => {});
+      if (offset === 0) void primeSignedUrls(db, rows.slice(0,8).map(row => row.primaryImage?.storage_path)).catch(() => {});
       onProgress({ loaded: rows.length, rows: offset === 0 ? [...rows] : null });
     }
     if (data.length < pageSize) break;
+    offset += pageSize;
   }
   // Other accessory categories cannot match the database's model/color photo key.
   const variants = rows.filter(canSharePhotos);
@@ -88,13 +90,12 @@ export async function listProducts(db, { onProgress, backgroundImages = false, o
     const hydrate = async () => {
       try { await fillSharedImages(db, variants); }
       catch { rows.sharedImagesUnavailable = true; }
-      void primeSignedUrls(db, variants.map(row => row.primaryImage?.storage_path)).catch(() => {});
+      // Visible cards sign their own image links after hydration.
       onImages?.(rows);
     };
     if (backgroundImages) void hydrate();
     else await hydrate();
   }
-  void primeSignedUrls(db, rows.map(row => row.primaryImage?.storage_path)).catch(() => {});
   return rows;
 }
 
