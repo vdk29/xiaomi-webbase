@@ -22,8 +22,8 @@ test("category filter uses the same priority order", () => {
     { category: "Смартфоны" },
   ]);
   assert.deepEqual(categories.slice(0, 6), ["Смартфоны", "Планшеты", "Смарт-часы", "Наушники", "Фитнес-браслеты", "Телевизоры"]);
-  assert.deepEqual(categories.slice(6, 10), ["Пылесосы", "Бытовая техника для дома", "Умный дом", "Аксессуары для пылесосов"]);
-  assert.deepEqual(categories.slice(10), ["Аксессуары и другое"]);
+  assert.deepEqual(categories.slice(6, 13), ["Пылесосы", "Бытовая техника для дома", "Умный дом", "Компьютерная техника", "Видеонаблюдение", "Аудио", "Аксессуары для пылесосов"]);
+  assert.deepEqual(categories.slice(13), ["Аксессуары и другое"]);
 });
 
 test("search supports last four digits of every source SKU and keeps text search", async () => {

@@ -1,10 +1,10 @@
 import { $, errorMessage, setBusy } from "./js/utils.js?v=20261024-8";
 import { getAccessContext, safeNextUrl, signIn } from "./js/auth.js?v=20261024-11";
 import { listProducts } from "./js/products.js?v=20261024-11";
-import { initializeCatalog, populateCategories, renderCatalog } from "./js/catalog.js?v=20261024-11";
-import { initializeCompatibility, renderCompatibility } from "./js/compatibility.js?v=20261024-11";
+import { initializeCatalog, populateCategories, renderCatalog } from "./js/catalog.js?v=20261025-13";
+import { initializeCompatibility, renderCompatibility } from "./js/compatibility.js?v=20261025-13";
 import { initializeEmployees, refreshEmployees } from "./js/employees.js?v=20261023-4";
-import { initializeImporter } from "./js/importer.js?v=20261024-11";
+import { initializeImporter } from "./js/importer.js?v=20261025-13";
 import { initializeListingNavigation, syncListingLocation, restoreListingScroll } from './js/listing-navigation.js?v=20261024-10';
 
 const db = window.WebBaseDB;

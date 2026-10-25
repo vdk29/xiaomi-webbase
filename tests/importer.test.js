@@ -60,7 +60,7 @@ test("home and smart-home categories stay separate from vacuum accessories", () 
     ["Фен Mi Ionic Hair Dryer H300", "Бытовая техника для дома"],
     ["Датчик Mi Temperature and Humidity Monitor Pro", "Умный дом"],
     ["Умная лампочка Xiaomi", "Умный дом"],
-    ["Камера Xiaomi Outdoor Camera BW300", "Умный дом"],
+    ["Камера Xiaomi Outdoor Camera BW300", "Видеонаблюдение"],
     ["Ремешок для часов Xiaomi", "Аксессуары и другое"],
   ];
   for (const [name, category] of cases) assert.equal(classifyProduct(name), category, name);
@@ -104,4 +104,20 @@ test("missing, duplicate and additional stock headers block import", () => {
   assert.throws(() => analyze1CRows([duplicate]), /основной склад.*несколько/);
   const unknown = [...header, "Резерв"];
   assert.throws(() => analyze1CRows([unknown]), /неизвестные столбцы: K/);
+});
+
+test('import recognizes computing, surveillance and new household devices', () => {
+  const cases = [
+    ['Ноутбук Xiaomi RedmiBook', 'Компьютерная техника'],
+    ['Монитор Xiaomi A27i', 'Компьютерная техника'],
+    ['Wi-Fi роутер Xiaomi AX3000', 'Компьютерная техника'],
+    ['Камера Xiaomi C500', 'Видеонаблюдение'],
+    ['Видеорегистратор 70mai', 'Видеонаблюдение'],
+    ['Холодильник Mijia 502L', 'Бытовая техника для дома'],
+    ['Стиральная машина Xiaomi', 'Бытовая техника для дома'],
+    ['Моющий пылесос Xiaomi W30 Pro', 'Пылесосы'],
+    ['Портативная колонка Xiaomi Sound', 'Аудио'],
+    ['Умная лампочка Xiaomi', 'Умный дом'],
+  ];
+  for (const [name, expected] of cases) assert.equal(classifyProduct(name), expected, name);
 });
