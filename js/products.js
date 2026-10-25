@@ -1,6 +1,6 @@
 import { primeSignedUrls } from "./images.js?v=20261025-14";
 import { parseQuantity } from "./utils.js?v=20261023-4";
-import { readWithRetry, abortableRead } from './network.js?v=20261024-8';
+import { readWithRetry, abortableRead, isTransientReadError } from './network.js?v=20261024-8';
 
 export const CATALOG_SELECT = `
   id,external_id,sku,name,source_name,source_skus,category,brand,model,memory,color,active,
@@ -64,9 +64,12 @@ export async function fillSharedImages(db, products) {
 
 export async function listProducts(db, { onProgress, backgroundImages = false, onImages } = {}) {
   const rows = [];
+  let pageSize = 50;
+  let reduced = false;
   for (let offset = 0; ;) {
-    const pageSize = offset === 0 ? 50 : 200;
-    const { data, error } = await readWithRetry(signal => abortableRead(db.client
+    let result;
+    try {
+      result = await readWithRetry(signal => abortableRead(db.client
       .from("webbase_catalog")
       .select(CATALOG_SELECT)
       .eq("active", true)
@@ -74,15 +77,26 @@ export async function listProducts(db, { onProgress, backgroundImages = false, o
       .order('category', { ascending: false, nullsFirst: false })
       .order("name")
       .order("id")
-      .range(offset, offset + pageSize - 1), signal));
-    if (error) throw error;
+      .range(offset, offset + pageSize - 1), signal), { attempts: pageSize >= 200 ? 1 : 2 });
+    } catch (error) {
+      if (isTransientReadError(error) && pageSize > 20) {
+        pageSize = pageSize > 50 ? 50 : 20;
+        reduced = true;
+        onProgress?.({ loaded: rows.length, rows: null, reconnecting: true, pageSize });
+        continue; // Retry the same offset with a smaller response, never skip rows.
+      }
+      error.catalogRead = { offset, pageSize, loaded: rows.length };
+      throw error;
+    }
+    const { data } = result;
     rows.push(...data.map(normalizeProduct));
     if (onProgress) {
       if (offset === 0) void primeSignedUrls(db, rows.slice(0,8).map(row => row.primaryImage?.storage_path)).catch(() => {});
-      onProgress({ loaded: rows.length, rows: offset === 0 ? [...rows] : null });
+      onProgress({ loaded: rows.length, rows: offset === 0 || data.length === pageSize ? [...rows] : null });
     }
     if (data.length < pageSize) break;
     offset += pageSize;
+    if (!reduced) pageSize = 200;
   }
   // Other accessory categories cannot match the database's model/color photo key.
   const variants = rows.filter(canSharePhotos);

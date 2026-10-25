@@ -1,6 +1,7 @@
+import { catalogDiagnostic, downloadCatalogDiagnostic } from './js/catalog-diagnostics.js?v=20261025-15';
 import { $, errorMessage, setBusy } from "./js/utils.js?v=20261024-8";
 import { getAccessContext, safeNextUrl, signIn } from "./js/auth.js?v=20261024-11";
-import { listProducts } from "./js/products.js?v=20261025-14";
+import { listProducts } from "./js/products.js?v=20261025-15";
 import { initializeCatalog, populateCategories, renderCatalog } from "./js/catalog.js?v=20261025-14";
 import { initializeCompatibility, renderCompatibility } from "./js/compatibility.js?v=20261025-14";
 import { initializeEmployees, refreshEmployees } from "./js/employees.js?v=20261023-4";
@@ -30,6 +31,9 @@ function notify(message, isError = false) {
     if (element.textContent === message) element.textContent = "";
   }, 6000);
 }
+
+let lastCatalogDiagnostic = null;
+$('downloadCatalogDiagnostic').addEventListener('click', () => downloadCatalogDiagnostic(lastCatalogDiagnostic));
 
 let productsRequest = null;
 let productsRequestUser = null;
@@ -66,13 +70,16 @@ async function loadCatalog() {
   $("catalogProgress").hidden = false;
   $("catalogProgress").textContent = 'Подключаюсь к каталогу…';
   $("catalogError").hidden = true;
+  $("downloadCatalogDiagnostic").hidden = true;
   $("retryCatalog").disabled = true;
   try {
     const rows = await listProducts(db, {
       backgroundImages: true,
-      onProgress: ({ loaded, rows }) => {
+      onProgress: ({ loaded, rows, reconnecting }) => {
         if (state.user?.id !== userId) return;
-        $("catalogProgress").textContent = `Загружено ${loaded} товаров. Продолжаю загрузку полного каталога…`;
+        $("catalogProgress").textContent = reconnecting
+          ? `Загружено ${loaded} товаров. Восстанавливаю соединение, загружаю небольшими порциями…`
+          : `Загружено ${loaded} товаров. Продолжаю загрузку полного каталога…`;
         if (progressive && rows) {
           state.rows = rows;
           state.partialCatalog = true;
@@ -94,6 +101,8 @@ async function loadCatalog() {
     showPhotoWarning(rows);
   } catch (error) {
     if (state.user?.id !== userId) return;
+    lastCatalogDiagnostic = catalogDiagnostic(error, { loaded: state.rows.length });
+    $("downloadCatalogDiagnostic").hidden = false;
     $("catalogErrorText").textContent = `${errorMessage(error)}${state.partialCatalog ? ' Загружена только часть каталога. Импорт доступен после полной загрузки.' : state.rows.length ? ' Показаны ранее загруженные данные; остатки могут быть неактуальны.' : ''}`;
     $("catalogError").hidden = false;
     throw error;

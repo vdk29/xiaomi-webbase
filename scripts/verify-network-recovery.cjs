@@ -12,9 +12,10 @@ window.WebBaseDB={config:{url:'https://test.invalid',bucket:'test'},getSession:a
 `}));
 await page.goto(process.env.WEBBASE_TEST_URL||'http://127.0.0.1:4173/');
 await page.locator('#catalogError').waitFor();assert.equal(await page.locator('#appShell').isVisible(),true);assert.equal(await page.locator('#authPanel').isVisible(),false);
-assert.match(await page.locator('#catalogErrorText').innerText(),/Соединение с сервером прервалось/);assert.equal(await page.evaluate(()=>testTransport.calls),3);
+assert.match(await page.locator('#catalogErrorText').innerText(),/Соединение с сервером прервалось/);assert.equal(await page.evaluate(()=>testTransport.calls),4);
+const downloadPromise=page.waitForEvent('download');await page.locator('#downloadCatalogDiagnostic').click();const download=await downloadPromise;const diagnostic=JSON.parse(require('node:fs').readFileSync(await download.path()));assert.equal(diagnostic.offset,0);assert.equal(diagnostic.pageSize,20);assert.equal(diagnostic.loaded,0);assert.equal(diagnostic.httpStatus,200);
 await page.evaluate(()=>{testTransport.mode='recover';testTransport.recoveredFailure=false});await page.locator('#retryCatalog').click();await page.waitForFunction(()=>document.querySelectorAll('#catalog .product-card').length===51);
-assert.equal(await page.locator('#catalogError').isVisible(),false);assert.equal(await page.evaluate(()=>testTransport.calls),6);
+assert.equal(await page.locator('#catalogError').isVisible(),false);assert.equal(await page.evaluate(()=>testTransport.calls),7);
 await page.evaluate(()=>testTransport.mode='photo-fail');await page.locator('#refresh').click();await page.locator('#catalogError').waitFor();assert.match(await page.locator('#catalogErrorText').innerText(),/Товары загружены/);assert.equal(await page.locator('#catalog .product-card').count(),51);assert.equal(await page.locator('#authPanel').isVisible(),false);
 console.log('PASS: reset reproduced, bounded retries, session retained, manual recovery, 51 paginated products, optional photo failure does not block catalog');
 }finally{await browser.close()}

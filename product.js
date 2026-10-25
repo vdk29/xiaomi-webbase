@@ -2,7 +2,7 @@ import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from
 import { requireApprovedUser } from "./js/auth.js?v=20261024-11";
 import { compatibilityDetailsMarkup } from "./js/compatibility.js?v=20261025-14";
 import { productReturnUrl } from './js/listing-navigation.js?v=20261024-10';
-import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261025-14";
+import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261025-15";
 import {
   deleteProductImage, prepareImage, reorderImages, setPrimaryImage, setSignedImage, uploadProductImage,
 } from "./js/images.js?v=20261025-14";

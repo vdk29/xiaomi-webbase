@@ -114,3 +114,21 @@ test('494 products use stock-first server order, four reads and sign only the fi
   assert.equal(progress[0].rows.length,50);
   assert.deepEqual(signed,data.slice(0,8).map(p=>p.webbase_product_images[0].storage_path));
 });
+
+test('interrupted large responses shrink to 50 then 20 at the same offset and publish each successful batch', async()=>{
+  const data=Array.from({length:137},(_,i)=>({id:String(i),name:'Чехол '+i}));const calls=[],progress=[];
+  const db={config:{url:'adaptive-test',bucket:'private'},client:{from:()=>{const q={select:()=>q,eq:()=>q,order:()=>q,range:async(a,b)=>{
+    calls.push([a,b]);return a===50&&b-a+1>20?{error:{message:'Failed to fetch'},status:200}:{data:data.slice(a,b+1)};
+  }};return q}}};
+  const rows=await listProducts(db,{onProgress:p=>progress.push(p)});
+  assert.equal(rows.length,137);assert.equal(new Set(rows.map(r=>r.id)).size,137);
+  assert.deepEqual(calls.slice(0,5),[[0,49],[50,249],[50,99],[50,99],[50,69]]);
+  assert.deepEqual(progress.filter(p=>p.reconnecting).map(p=>p.pageSize),[50,20]);
+  assert.ok(progress.some(p=>p.rows?.length===70));assert.ok(progress.some(p=>p.rows?.length===90));
+});
+
+test('permission failures never shrink/retry a page and include safe failure coordinates', async()=>{
+  let calls=0;const db={client:{from:()=>{const q={select:()=>q,eq:()=>q,order:()=>q,range:async()=>{calls++;return{error:{message:'Forbidden',code:'42501'},status:403}}};return q}}};
+  await assert.rejects(listProducts(db),e=>e.code==='42501'&&e.catalogRead.offset===0&&e.catalogRead.pageSize===50);
+  assert.equal(calls,1);
+});
