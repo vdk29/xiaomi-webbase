@@ -6,7 +6,7 @@ import { initializeCatalog, populateCategories, renderCatalog } from "./js/catal
 import { initializeCompatibility, renderCompatibility } from "./js/compatibility.js?v=20261025-14";
 import { initializeEmployees, refreshEmployees } from "./js/employees.js?v=20261023-4";
 import { initializeImporter } from "./js/importer.js?v=20261025-13";
-import { initializeListingNavigation, syncListingLocation, restoreListingScroll } from './js/listing-navigation.js?v=20261106-17';
+import { initializeListingNavigation, syncListingLocation, restoreListingScroll } from './js/listing-navigation.js?v=20261106-18';
 
 const db = window.WebBaseDB;
 const state = {
@@ -123,12 +123,12 @@ function showPreorder() {
   const css = new Promise((resolve, reject) => {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'preorder.css?v=20261106-17';
+    link.href = 'preorder.css?v=20261106-18';
     link.onload = resolve;
     link.onerror = () => { link.remove(); reject(new Error('Не удалось загрузить оформление')); };
     document.head.append(link);
   });
-  preorderLoad = Promise.all([css, import('./js/preorder.js?v=20261106-17')])
+  preorderLoad = Promise.all([css, import('./js/preorder.js?v=20261106-18')])
     .then(async ([, module]) => { preorderController = await module.mountPreorder($('preorderContent')); })
     .catch(() => {
       preorderLoad = null;

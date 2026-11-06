@@ -1,5 +1,4 @@
-// Global-only presentation. Reported EU details are explicitly preliminary.
-// Do not fill missing Global fields from another regional specification.
+// Manufacturer specifications for the China editions. Only the two requested models.
 export const PREORDER_VERIFIED_AT = "2026-11-06";
 export const PREORDER_MODELS = [
   {
@@ -7,18 +6,40 @@ export const PREORDER_MODELS = [
     "name": "Xiaomi 18 Pro",
     "tag": "Компактный флагман",
     "line": "Маленький корпус. Большие возможности.",
-    "description": "Компактный Pro для тех, кто предпочитает небольшой корпус.",
-    "region": "Global",
-    "verifiedAt": "2026-11-06",
-    "specStatus": "preliminary",
+    "description": "6,4-дюймовый флагман с двумя камерами по 200 Мп, аппаратной защитой экрана от бокового просмотра и полноценным вторым дисплеем.",
+    "display": "6,4″",
+    "resolution": "2436 × 1120",
+    "hz": 120,
+    "brightness": 4000,
+    "rear": "2,7″ AMOLED",
+    "rearResolution": "912 × 596",
     "chip": "Snapdragon 8 Elite Gen 6",
-    "battery": 6000,
-    "wired": 90,
-    "ram": "12 ГБ",
+    "process": "2 нм",
+    "cpu": "Oryon, до 5 ГГц",
+    "battery": 7000,
+    "minimum": 6860,
+    "wired": 100,
+    "wireless": 50,
+    "reverse": "27 Вт по проводу; беспроводная обратная зарядка",
+    "ram": "12 / 16 ГБ LPDDR5X",
+    "storage": "256 / 512 ГБ / 1 ТБ · UFS 4.1",
     "variants": [
       "12/256 ГБ",
-      "12/512 ГБ"
+      "12/512 ГБ",
+      "16/512 ГБ",
+      "16 ГБ / 1 ТБ"
     ],
+    "dimensions": "151,8 × 72 × 8,46–8,56 мм",
+    "weight": "203 г; синий и прозрачный — 208 г",
+    "protection": "IP68",
+    "os": "Xiaomi HyperOS 4",
+    "bluetooth": "6.0",
+    "wifi": "Wi-Fi 7, MLO, 2×2 MIMO",
+    "usb": "USB 3.2 Gen 1",
+    "fingerprint": "Ультразвуковой сканер под экраном",
+    "speakers": "Стерео, два динамика; Dolby Atmos",
+    "front": "50 Мп; видео 4K до 60 кадров/с",
+    "video": "8K 30; 4K 30/60/120 кадров/с",
     "colors": [
       {
         "id": "black",
@@ -31,148 +52,94 @@ export const PREORDER_MODELS = [
         "label": "Белый",
         "hex": "#efeee9",
         "image": "assets/preorder/20261106/xiaomi-18-pro-white.webp"
+      },
+      {
+        "id": "pink",
+        "label": "Ледяной персик",
+        "hex": "#e7b6c5",
+        "image": "assets/preorder/20261106/xiaomi-18-pro-pink.webp"
+      },
+      {
+        "id": "blue",
+        "label": "Звёздный синий",
+        "hex": "#3c42ad",
+        "image": "assets/preorder/20261106/xiaomi-18-pro-blue.webp"
+      },
+      {
+        "id": "transparent",
+        "label": "Прозрачный красный · Special Edition",
+        "hex": "#b32631",
+        "image": "assets/preorder/20261106/xiaomi-18-pro-transparent.webp"
       }
     ],
+    "tele": "3,2×",
+    "cameras": [
+      [
+        "200 Мп",
+        "Основная",
+        "Light Hunter 960 · 1/1,28″ · f/1,67 · 23 мм · OIS",
+        "Детали, сложный свет и повседневная съёмка."
+      ],
+      [
+        "200 Мп",
+        "Перископический телевик",
+        "1/1,56″ · f/2,4 · 3,2× · OIS · макро от 12 см",
+        "Портреты с естественной перспективой и крупные планы."
+      ],
+      [
+        "50 Мп",
+        "Сверхширокоугольная",
+        "f/2,4 · 17 мм · 102° · AF · макро от 5 см",
+        "Архитектура, пейзажи и вся компания в одном кадре."
+      ]
+    ],
     "accent": "#6c74c9",
-    "source": "https://www.mi.com/sg/launch/xiaomi-launch-november-2026",
-    "specSource": "https://www.gsmarena.com/xiaomi_18_pro_and_18_pro_max_get_listed_by_european_retailer_before_their_global_launch-news-75215.php",
-    "colorsNote": "В предварительных европейских списках также есть Velvet Red. Фотография этого исполнения пока не опубликована.",
-    "specGroups": [
-      {
-        "title": "Процессор и система",
-        "items": [
-          {
-            "label": "Процессор",
-            "value": "Snapdragon 8 Elite Gen 6",
-            "status": "reported",
-            "source": "https://www.gsmarena.com/xiaomi_18_pro_and_18_pro_max_get_listed_by_european_retailer_before_their_global_launch-news-75215.php"
-          },
-          {
-            "label": "Система",
-            "value": "Xiaomi HyperOS 4 · Android 17",
-            "status": "reported",
-            "source": "https://www.gsmdome.com/xiaomi-18-pro-and-18-pro-max-emerge-in-european-retail-listings-with-smaller-batteries"
-          }
-        ]
-      },
-      {
-        "title": "Аккумулятор и зарядка",
-        "items": [
-          {
-            "label": "Ёмкость аккумулятора",
-            "value": "6000 мА·ч",
-            "status": "reported",
-            "source": "https://www.gsmarena.com/xiaomi_18_pro_and_18_pro_max_get_listed_by_european_retailer_before_their_global_launch-news-75215.php"
-          },
-          {
-            "label": "Проводная зарядка",
-            "value": "До 90 Вт",
-            "status": "reported",
-            "source": "https://www.gsmarena.com/xiaomi_18_pro_and_18_pro_max_get_listed_by_european_retailer_before_their_global_launch-news-75215.php"
-          },
-          {
-            "label": "Беспроводная и обратная зарядка",
-            "value": "Точные режимы для Global не опубликованы",
-            "status": "unconfirmed"
-          }
-        ]
-      },
-      {
-        "title": "Память и цвета",
-        "items": [
-          {
-            "label": "Оперативная память",
-            "value": "12 ГБ в предварительных европейских списках",
-            "status": "reported",
-            "source": "https://www.gsmarena.com/xiaomi_18_pro_and_18_pro_max_get_listed_by_european_retailer_before_their_global_launch-news-75215.php"
-          },
-          {
-            "label": "Встроенная память",
-            "value": "256 / 512 ГБ",
-            "status": "reported",
-            "source": "https://www.gsmarena.com/xiaomi_18_pro_and_18_pro_max_get_listed_by_european_retailer_before_their_global_launch-news-75215.php"
-          },
-          {
-            "label": "Цвета",
-            "value": "Чёрный, белый, Velvet Red — предварительные данные для Европы",
-            "status": "reported",
-            "source": "https://www.gsmarena.com/xiaomi_18_pro_and_18_pro_max_get_listed_by_european_retailer_before_their_global_launch-news-75215.php"
-          }
-        ]
-      },
-      {
-        "title": "Экран и корпус",
-        "items": [
-          {
-            "label": "Основной и задний дисплеи",
-            "value": "Диагональ, разрешение, частоты и яркость Global требуют подтверждения",
-            "status": "unconfirmed"
-          },
-          {
-            "label": "Корпус",
-            "value": "Точные размеры, масса, материалы и степень защиты Global не опубликованы",
-            "status": "unconfirmed"
-          }
-        ]
-      },
-      {
-        "title": "Камеры и съёмка",
-        "items": [
-          {
-            "label": "Камеры Global",
-            "value": "Состав модулей, сенсоры, оптический зум и параметры фронтальной камеры требуют подтверждения",
-            "status": "unconfirmed"
-          },
-          {
-            "label": "Видео",
-            "value": "Разрешения, частоты кадров и режимы стабилизации Global не опубликованы",
-            "status": "unconfirmed"
-          }
-        ]
-      },
-      {
-        "title": "Связь, сервисы и комплект",
-        "items": [
-          {
-            "label": "Сеть и SIM",
-            "value": "Региональные диапазоны LTE/5G и поддержка eSIM требуют подтверждения",
-            "status": "unconfirmed"
-          },
-          {
-            "label": "Беспроводные интерфейсы и USB",
-            "value": "Версии Wi-Fi, Bluetooth, USB и режимы NFC для Global не опубликованы",
-            "status": "unconfirmed"
-          },
-          {
-            "label": "Региональные функции",
-            "value": "Языки, Google-сервисы, AI и возможности заднего экрана уточняются для конкретной поставки",
-            "status": "unconfirmed"
-          },
-          {
-            "label": "Комплект и гарантия",
-            "value": "Уточняются для поставки в магазин; адаптер в комплекте не обещаем",
-            "status": "unconfirmed"
-          }
-        ]
-      }
-    ]
+    "region": "Китай",
+    "verifiedAt": "2026-11-06",
+    "source": "https://www.mi.com/prod/xiaomi-18-pro",
+    "specSource": "https://www.mi.com/prod/xiaomi-18-pro/specs",
+    "bands5g": "n1 / n2 / n3 / n5 / n7 / n8 / n12 / n18 / n20 / n25 / n26 / n28 / n38 / n40 / n41 / n48 / n66 / n77 / n78 / n79 / n80 / n81 / n83 / n84 / n89",
+    "bands4g": "FDD-LTE：B1 / B2 / B3 / B4 / B5 / B7 / B8 / B12 / B17 / B18 / B19 / B20 / B25 / B26 / B28 / B66"
   },
   {
     "id": "xiaomi-18-pro-max",
     "name": "Xiaomi 18 Pro Max",
     "tag": "Максимум возможностей",
     "line": "Больше экрана. Больше свободы.",
-    "description": "Pro Max для тех, кто предпочитает большой формат.",
-    "region": "Global",
-    "verifiedAt": "2026-11-06",
-    "specStatus": "preliminary",
+    "description": "Большой 6,9-дюймовый экран, аккумулятор 8500 мА·ч и более крупный задний дисплей. Для тех, кто снимает, играет и проводит весь день в движении.",
+    "display": "6,9″",
+    "resolution": "2624 × 1208",
+    "hz": 120,
+    "brightness": 4000,
+    "rear": "2,9″ AMOLED",
+    "rearResolution": "976 × 596",
     "chip": "Snapdragon 8 Elite Extreme Gen 6",
-    "battery": 7050,
+    "process": "2 нм",
+    "cpu": "Oryon, до 5 ГГц",
+    "battery": 8500,
+    "minimum": 8350,
     "wired": 100,
-    "ram": "12 ГБ",
+    "wireless": 50,
+    "reverse": "27 Вт по проводу; беспроводная обратная зарядка",
+    "ram": "12 / 16 ГБ LPDDR5X",
+    "storage": "256 / 512 ГБ / 1 ТБ · UFS 4.1",
     "variants": [
-      "12/512 ГБ"
+      "12/256 ГБ",
+      "12/512 ГБ",
+      "16/512 ГБ",
+      "16 ГБ / 1 ТБ"
     ],
+    "dimensions": "163,39 × 77,6 × 8,39–8,47 мм",
+    "weight": "235 г; синий и прозрачный — 240 г",
+    "protection": "IP68",
+    "os": "Xiaomi HyperOS 4",
+    "bluetooth": "6.0",
+    "wifi": "Wi-Fi 7; 2,4 ГГц 2×2 MIMO, 5 ГГц 4×4 MIMO",
+    "usb": "USB 3.2 Gen 1",
+    "fingerprint": "Ультразвуковой сканер под экраном",
+    "speakers": "Стерео, три динамика; Dolby Atmos",
+    "front": "50 Мп; видео 4K до 60 кадров/с",
+    "video": "8K 30; 4K 30/60/120 кадров/с",
     "colors": [
       {
         "id": "black",
@@ -185,130 +152,53 @@ export const PREORDER_MODELS = [
         "label": "Белый",
         "hex": "#efeee9",
         "image": "assets/preorder/20261106/xiaomi-18-pro-max-white.webp"
+      },
+      {
+        "id": "pink",
+        "label": "Ледяной персик",
+        "hex": "#e7b6c5",
+        "image": "assets/preorder/20261106/xiaomi-18-pro-max-pink.webp"
+      },
+      {
+        "id": "blue",
+        "label": "Звёздный синий",
+        "hex": "#3c42ad",
+        "image": "assets/preorder/20261106/xiaomi-18-pro-max-blue.webp"
+      },
+      {
+        "id": "transparent",
+        "label": "Прозрачный красный · Special Edition",
+        "hex": "#b32631",
+        "image": "assets/preorder/20261106/xiaomi-18-pro-max-transparent.webp"
       }
     ],
+    "tele": "3,2×",
+    "cameras": [
+      [
+        "200 Мп",
+        "Основная",
+        "Light Hunter 960L · 1/1,28″ · f/1,67 · 23 мм · OIS",
+        "Высокий динамический диапазон и большой запас деталей."
+      ],
+      [
+        "200 Мп",
+        "Перископический телевик",
+        "1/1,56″ · f/2,4 · 3,2× · OIS · макро от 12 см",
+        "Портреты, удалённые объекты и детали крупным планом."
+      ],
+      [
+        "50 Мп",
+        "Сверхширокоугольная",
+        "f/2,4 · 17 мм · 102° · AF · макро от 5 см",
+        "Широкий угол для города, природы и групповых снимков."
+      ]
+    ],
     "accent": "#738bbe",
-    "source": "https://www.mi.com/sg/launch/xiaomi-launch-november-2026",
-    "specSource": "https://www.gsmarena.com/xiaomi_18_pro_and_18_pro_max_get_listed_by_european_retailer_before_their_global_launch-news-75215.php",
-    "colorsNote": "В предварительных европейских списках также есть Velvet Red. Фотография этого исполнения пока не опубликована.",
-    "specGroups": [
-      {
-        "title": "Процессор и система",
-        "items": [
-          {
-            "label": "Процессор",
-            "value": "Snapdragon 8 Elite Extreme Gen 6",
-            "status": "reported",
-            "source": "https://www.gsmarena.com/xiaomi_18_pro_and_18_pro_max_get_listed_by_european_retailer_before_their_global_launch-news-75215.php"
-          },
-          {
-            "label": "Система",
-            "value": "Xiaomi HyperOS 4 · Android 17",
-            "status": "reported",
-            "source": "https://www.gsmdome.com/xiaomi-18-pro-and-18-pro-max-emerge-in-european-retail-listings-with-smaller-batteries"
-          }
-        ]
-      },
-      {
-        "title": "Аккумулятор и зарядка",
-        "items": [
-          {
-            "label": "Ёмкость аккумулятора",
-            "value": "7050 мА·ч",
-            "status": "reported",
-            "source": "https://www.gsmarena.com/xiaomi_18_pro_and_18_pro_max_get_listed_by_european_retailer_before_their_global_launch-news-75215.php"
-          },
-          {
-            "label": "Проводная зарядка",
-            "value": "До 100 Вт",
-            "status": "reported",
-            "source": "https://www.gsmarena.com/xiaomi_18_pro_and_18_pro_max_get_listed_by_european_retailer_before_their_global_launch-news-75215.php"
-          },
-          {
-            "label": "Беспроводная и обратная зарядка",
-            "value": "Точные режимы для Global не опубликованы",
-            "status": "unconfirmed"
-          }
-        ]
-      },
-      {
-        "title": "Память и цвета",
-        "items": [
-          {
-            "label": "Оперативная память",
-            "value": "12 ГБ в предварительных европейских списках",
-            "status": "reported",
-            "source": "https://www.gsmarena.com/xiaomi_18_pro_and_18_pro_max_get_listed_by_european_retailer_before_their_global_launch-news-75215.php"
-          },
-          {
-            "label": "Встроенная память",
-            "value": "512 ГБ",
-            "status": "reported",
-            "source": "https://www.gsmarena.com/xiaomi_18_pro_and_18_pro_max_get_listed_by_european_retailer_before_their_global_launch-news-75215.php"
-          },
-          {
-            "label": "Цвета",
-            "value": "Чёрный, белый, Velvet Red — предварительные данные для Европы",
-            "status": "reported",
-            "source": "https://www.gsmarena.com/xiaomi_18_pro_and_18_pro_max_get_listed_by_european_retailer_before_their_global_launch-news-75215.php"
-          }
-        ]
-      },
-      {
-        "title": "Экран и корпус",
-        "items": [
-          {
-            "label": "Основной и задний дисплеи",
-            "value": "Диагональ, разрешение, частоты и яркость Global требуют подтверждения",
-            "status": "unconfirmed"
-          },
-          {
-            "label": "Корпус",
-            "value": "Точные размеры, масса, материалы и степень защиты Global не опубликованы",
-            "status": "unconfirmed"
-          }
-        ]
-      },
-      {
-        "title": "Камеры и съёмка",
-        "items": [
-          {
-            "label": "Камеры Global",
-            "value": "Состав модулей, сенсоры, оптический зум и параметры фронтальной камеры требуют подтверждения",
-            "status": "unconfirmed"
-          },
-          {
-            "label": "Видео",
-            "value": "Разрешения, частоты кадров и режимы стабилизации Global не опубликованы",
-            "status": "unconfirmed"
-          }
-        ]
-      },
-      {
-        "title": "Связь, сервисы и комплект",
-        "items": [
-          {
-            "label": "Сеть и SIM",
-            "value": "Региональные диапазоны LTE/5G и поддержка eSIM требуют подтверждения",
-            "status": "unconfirmed"
-          },
-          {
-            "label": "Беспроводные интерфейсы и USB",
-            "value": "Версии Wi-Fi, Bluetooth, USB и режимы NFC для Global не опубликованы",
-            "status": "unconfirmed"
-          },
-          {
-            "label": "Региональные функции",
-            "value": "Языки, Google-сервисы, AI и возможности заднего экрана уточняются для конкретной поставки",
-            "status": "unconfirmed"
-          },
-          {
-            "label": "Комплект и гарантия",
-            "value": "Уточняются для поставки в магазин; адаптер в комплекте не обещаем",
-            "status": "unconfirmed"
-          }
-        ]
-      }
-    ]
+    "region": "Китай",
+    "verifiedAt": "2026-11-06",
+    "source": "https://www.mi.com/prod/xiaomi-18-pro-max",
+    "specSource": "https://www.mi.com/prod/xiaomi-18-pro-max/specs",
+    "bands5g": "n1 / n2 / n3 / n5 / n7 / n8 / n12 / n13 / n14 / n18 / n20 / n25 / n26 / n28 / n29 / n38 / n40 / n41 / n48 / n66 / n70 / n71 / n77 / n78 / n79 / n80 / n81 / n83 / n84 / n89",
+    "bands4g": "FDD-LTE：B1 / B2 / B3 / B4 / B5 / B7 / B8 / B12 / B13 / B14 /B17 / B18 / B19 / B20 / B25 / B26 /"
   }
 ];
