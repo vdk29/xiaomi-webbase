@@ -32,7 +32,8 @@ export function productReturnUrl(productHref) {
 export function syncListingLocation(section, { resetScroll = true } = {}) {
   const url = new URL(location.href);
   url.searchParams.delete('conditional');
-  if (section === 'compatibility') url.searchParams.set('section', section);
+  if (section !== 'preorder' && url.hash.startsWith('#po-')) url.hash = '';
+  if (['compatibility', 'preorder'].includes(section)) url.searchParams.set('section', section);
   else url.searchParams.delete('section');
   for (const [key, id] of Object.entries(FILTERS)) {
     const field = document.getElementById(id);

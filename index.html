@@ -58,17 +58,20 @@
 
     <nav class="main-nav" aria-label="Разделы">
       <button class="nav-button active" data-nav="catalog" type="button">Каталог</button>
+      <button class="nav-button" data-nav="preorder" type="button">Предзаказ</button>
       <button class="nav-button" data-nav="compatibility" type="button">Совместимость</button>
       <button id="staffSectionNav" class="nav-button" data-nav="staff" type="button" hidden>Сотрудники</button>
       <button id="importSectionNav" class="nav-button" data-nav="import" type="button" hidden>Импорт 1С</button>
     </nav>
 
     <main class="main-content">
+      <div id="catalogStatus">
       <p id="catalogProgress" class="loading" role="status" hidden></p>
       <div id="catalogError" class="panel" role="status" hidden>
         <p id="catalogErrorText"></p>
         <button id="retryCatalog" class="button primary" type="button">Повторить загрузку</button>
         <button id="downloadCatalogDiagnostic" class="button ghost" type="button" hidden>Скачать диагностику</button>
+      </div>
       </div>
       <section data-section="catalog">
         <div class="page-heading">
@@ -83,6 +86,8 @@
         <p id="catalogLoading" class="loading">Загружаю каталог…</p>
         <div id="catalog" class="catalog" aria-live="polite"></div>
       </section>
+
+      <section data-section="preorder" hidden aria-label="Презентация новых смартфонов"><div id="preorderContent"><p class="loading" role="status">Открываю презентацию…</p></div></section>
 
       <section data-section="compatibility" hidden>
         <div class="page-heading">
@@ -144,6 +149,6 @@
   <script src="vendor/supabase-2.95.0.min.js"></script>
   <script src="supabase-config.js?v=20261023-4"></script>
   <script src="supabase-client.js?v=20261025-14"></script>
-  <script type="module" src="webbase-app.js?v=20261025-15"></script>
+  <script type="module" src="webbase-app.js?v=20261106-16"></script>
 </body>
 </html>

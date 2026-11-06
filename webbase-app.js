@@ -6,7 +6,7 @@ import { initializeCatalog, populateCategories, renderCatalog } from "./js/catal
 import { initializeCompatibility, renderCompatibility } from "./js/compatibility.js?v=20261025-14";
 import { initializeEmployees, refreshEmployees } from "./js/employees.js?v=20261023-4";
 import { initializeImporter } from "./js/importer.js?v=20261025-13";
-import { initializeListingNavigation, syncListingLocation, restoreListingScroll } from './js/listing-navigation.js?v=20261024-10';
+import { initializeListingNavigation, syncListingLocation, restoreListingScroll } from './js/listing-navigation.js?v=20261106-16';
 
 const db = window.WebBaseDB;
 const state = {
@@ -20,7 +20,7 @@ const state = {
   partialCatalog: false,
   stopImageObserver: null,
   stopCompatibilityObserver: null,
-  section: new URLSearchParams(location.search).get('section') === 'compatibility' ? 'compatibility' : 'catalog',
+  section: ['compatibility', 'preorder'].includes(new URLSearchParams(location.search).get('section')) ? new URLSearchParams(location.search).get('section') : 'catalog',
 };
 
 function notify(message, isError = false) {
@@ -116,8 +116,38 @@ async function loadCatalog() {
   }
 }
 
+let preorderLoad = null;
+let preorderController = null;
+function showPreorder() {
+  if (preorderLoad) return preorderLoad;
+  const css = new Promise((resolve, reject) => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'preorder.css?v=20261106-16';
+    link.onload = resolve;
+    link.onerror = () => { link.remove(); reject(new Error('Не удалось загрузить оформление')); };
+    document.head.append(link);
+  });
+  preorderLoad = Promise.all([css, import('./js/preorder.js?v=20261106-16')])
+    .then(async ([, module]) => { preorderController = await module.mountPreorder($('preorderContent')); })
+    .catch(() => {
+      preorderLoad = null;
+      $('preorderContent').replaceChildren();
+      const message = document.createElement('p');
+      message.textContent = 'Не удалось открыть презентацию. Проверьте соединение и повторите загрузку.';
+      const retry = document.createElement('button');
+      retry.type = 'button'; retry.className = 'button primary'; retry.textContent = 'Повторить загрузку';
+      retry.onclick = () => { retry.disabled = true; showPreorder(); };
+      $('preorderContent').append(message, retry);
+    });
+  return preorderLoad;
+}
+
 function selectSection(name, { restore = false, render = true } = {}) {
   state.section = name;
+  $("catalogStatus").hidden = !["catalog", "compatibility"].includes(name);
+  if (name === "preorder") showPreorder();
+  else preorderController?.pause();
   state.stopImageObserver?.();
   state.stopCompatibilityObserver?.();
   document.querySelectorAll("[data-section]").forEach((section) => {
@@ -130,6 +160,7 @@ function selectSection(name, { restore = false, render = true } = {}) {
   if (render && name === 'compatibility') renderCompatibility(db, state);
   if (render && name === 'catalog') renderCatalog(db, state);
   syncListingLocation(name, { resetScroll: !restore });
+  if (!restore && ["catalog", "compatibility"].includes(name) && !state.catalogComplete) reloadProducts().catch(() => {});
 }
 
 function renderAccount() {
@@ -185,7 +216,7 @@ async function checkSession() {
   if (previousUser === context.user.id && state.catalogComplete) return;
   selectSection(state.section, { restore: true, render: false });
   // A catalog transport failure does not mean the approved user is signed out.
-  await reloadProducts().catch(() => {});
+  if (["catalog", "compatibility"].includes(state.section)) await reloadProducts().catch(() => {});
   syncListingLocation(state.section, { resetScroll: false });
   const next = safeNextUrl(new URLSearchParams(location.search).get("next"));
   if (next) location.replace(next);
@@ -237,6 +268,7 @@ async function boot() {
     if (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') return;
     sessionVersion++;
     if (event === 'SIGNED_OUT') {
+      preorderController?.pause();
       state.user = null;
       state.rows = [];
       state.catalogComplete = false;
