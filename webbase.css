@@ -8,3 +8,12 @@
 .sale-stock--available .sale-stock__status i{background:#1fa252;box-shadow:0 0 8px #26b56488}
 #productStock{display:block}#productStock .sale-stock{max-width:420px;padding:18px 20px;margin-top:0}#productStock .sale-stock>strong{font-size:35px}
 @media(max-width:560px){.product-card .sale-stock{padding:10px 8px;gap:5px 4px;margin-top:10px}.product-card .sale-stock__label{font-size:12px}.product-card .sale-stock>strong{font-size:24px}.product-card .sale-stock>strong small{font-size:10px}.product-card .sale-stock__status{font-size:10px;gap:5px}.product-card .sale-stock__status i{width:6px;height:6px}}
+
+/* Keep the sale badge at the same level within each catalog row. */
+.product-card{display:flex;flex-direction:column}
+.product-card__media{flex-shrink:0}
+.product-card__body{display:flex;flex-direction:column;flex:1;min-width:0}
+.product-card .sale-stock{margin-top:auto;min-height:84px;order:1}
+.product-card .sale-stock>strong{grid-row:1}
+.product-card .sale-stock__status{grid-column:1/-1;white-space:nowrap}
+@media(max-width:560px){.product-card .sale-stock{min-height:72px}}
