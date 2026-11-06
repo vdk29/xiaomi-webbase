@@ -9,7 +9,7 @@ function categoryRank(category) {
 }
 
 export function compareCatalogProducts(a, b) {
-  const available = row => Number(row.stock?.warehouse || 0) + Number(row.stock?.display || 0) > 0;
+  const available = row => Number(row.stock?.warehouse || 0) > 0;
   return Number(available(b)) - Number(available(a))
     || categoryRank(a.category) - categoryRank(b.category)
     || String(a.category || "").localeCompare(String(b.category || ""), "ru")
@@ -62,9 +62,8 @@ function filterRows(rows) {
   const availability = $("availability").value;
   const filtered = rows.filter((row) => {
     if (category && row.category !== category) return false;
-    const total = row.stock.warehouse + row.stock.display;
+    const total = row.stock.warehouse;
     if (availability === "available" && total <= 0) return false;
-    if (availability === "display" && row.stock.display <= 0) return false;
     if (availability === "without-photo" && row.images.length > 0) return false;
     return matchesProductSearch(row, search);
   });
@@ -85,7 +84,6 @@ export function renderCatalog(db, state) {
 }
 
 export function renderProductCard(row, extra = "", hrefSuffix = "") {
-    const total = row.stock.warehouse + row.stock.display;
     const path = row.primaryImage?.storage_path || "";
     const detail = [row.color, row.memory].filter(Boolean).join(" · ");
     return `<a class="product-card" href="product.html?id=${encodeURIComponent(row.id)}${hrefSuffix}" aria-label="Открыть ${escapeHtml(row.name)}">
@@ -98,13 +96,14 @@ export function renderProductCard(row, extra = "", hrefSuffix = "") {
         <h3>${escapeHtml(row.name)}</h3>
         <p class="product-meta">${escapeHtml(detail || `Артикул: ${row.sku || "—"}`)}</p>
         ${detail ? `<p class="product-sku">Артикул: ${escapeHtml(row.sku || "—")}</p>` : ""}
-        <div class="stock-grid compact">
-          <div><strong>${row.stock.warehouse}</strong><span>Склад</span></div>
-          <div><strong>${row.stock.display}</strong><span>ОВ</span></div>
-          <div class="stock-total"><strong>${total}</strong><span>Всего</span></div>
-        </div>
+        ${saleStockMarkup(row.stock)}
         ${extra}
       </div>
     </a>`;
 
+}
+
+export function saleStockMarkup(stock) {
+  const quantity = Number(stock?.warehouse || 0);
+  return `<div class="sale-stock ${quantity > 0 ? 'sale-stock--available' : 'sale-stock--empty'}"><span class="sale-stock__label">Склад</span><strong>${quantity}<small> шт.</small></strong><span class="sale-stock__status"><i aria-hidden="true"></i>${quantity > 0 ? 'Могу продать' : 'Нет в наличии'}</span></div>`;
 }

@@ -1,6 +1,6 @@
 import { $, debounce, escapeHtml, normalizeText } from './utils.js?v=20261023-4';
 import { COMPATIBILITY_BY_SKU } from './compatibility-data.js?v=20261024-7';
-import { renderProductCard, matchesProductSearch } from './catalog.js?v=20261025-14';
+import { renderProductCard, matchesProductSearch } from './catalog.js?v=20261106-19';
 import { observeCatalogImages } from './images.js?v=20261025-14';
 
 export function accessoryKind(product) {

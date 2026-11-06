@@ -126,7 +126,7 @@ export function analyze1CRows(rows, existingProducts = []) {
     const sourceSkus = [...item.source_skus];
     const matches = new Map();
     sourceSkus.forEach((sku) => (bySku.get(normalizeText(sku)) || []).forEach((product) => matches.set(product.id, product)));
-    const externalMatch = existingProducts.find((product) => product.external_id === item.source_key);
+    const externalMatch = existingProducts.find((product) => normalizeText(product.external_id) === item.source_key);
     if (externalMatch) matches.set(externalMatch.id, externalMatch);
     const status = matches.size > 1 ? "ambiguous" : matches.size === 1 ? "update" : "new";
     return {
@@ -137,13 +137,32 @@ export function analyze1CRows(rows, existingProducts = []) {
       matchedProductId: matches.size === 1 ? [...matches.keys()][0] : null,
     };
   });
-  return { items, errors, excluded, columns, ambiguous: items.filter((item) => item.status === "ambiguous") };
+  const targets = new Map();
+  const reportSkus = new Map();
+  for (const item of items) {
+    if (item.matchedProductId) {
+      if (targets.has(item.matchedProductId)) errors.push(`Несколько строк отчёта совпали с одной карточкой: ${item.name}. Объедините или уточните названия.`);
+      targets.set(item.matchedProductId, item);
+    }
+    for (const sku of item.source_skus) {
+      const key = normalizeText(sku);
+      if (reportSkus.has(key) && reportSkus.get(key) !== item) errors.push(`Артикул ${sku} повторяется у разных товаров. Импорт отменён.`);
+      reportSkus.set(key, item);
+    }
+  }
+  const zeroedProducts = existingProducts.filter(product => !targets.has(product.id)
+    && ['warehouse', 'display', 'ldu'].some(key => Number(product.stock?.[key] || 0) > 0));
+  return { items, errors, excluded, columns, zeroedProducts, ambiguous: items.filter((item) => item.status === "ambiguous") };
 }
 
 export function initializeImporter(db, state, { notify, reloadProducts }) {
+  let fileReadVersion = 0;
+  let applying = false;
   $("excel").addEventListener("change", async () => {
+    const version = ++fileReadVersion;
+    state.importPreview = null;
     const file = $("excel").files?.[0];
-    if (!file) return;
+    if (!file) return $("importPreview").replaceChildren();
     try {
       if (state.catalogComplete === false) throw new Error('Дождитесь полной загрузки каталога перед импортом.');
       $("importPreview").textContent = 'Читаю Excel…';
@@ -153,9 +172,11 @@ export function initializeImporter(db, state, { notify, reloadProducts }) {
       const workbook = XLSX.read(bytes, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "", raw: true });
+      if (version !== fileReadVersion) return;
       state.importPreview = { ...analyze1CRows(rows, state.rows), filename: file.name, showAll: false };
       renderImportPreview(state.importPreview);
     } catch (error) {
+      if (version !== fileReadVersion) return;
       state.importPreview = null;
       $("importPreview").innerHTML = `<p class="message error">${escapeHtml(error.message)}</p>`;
     }
@@ -169,9 +190,13 @@ export function initializeImporter(db, state, { notify, reloadProducts }) {
       return;
     }
     const button = event.target.closest("button[data-import]");
-    if (!button || !state.importPreview) return;
+    if (!button || !state.importPreview || applying) return;
     if (state.catalogComplete === false) return notify('Каталог загружен не полностью. Обновите его перед импортом.', true);
-    if (!confirm(`Применить ${state.importPreview.items.length} карточек? Остатки обновятся одной транзакцией, ручные поля и фото сохранятся.`)) return;
+    const preview = state.importPreview;
+    if (!preview.items.length || preview.errors.length || preview.ambiguous.length) return notify('Исправьте ошибки отчёта перед импортом.', true);
+    if (!confirm(`Синхронизировать остатки с полным отчётом (${preview.items.length} товаров)? Товары, которых нет в файле, получат нулевой остаток. Фото и ручные поля сохранятся.`)) return;
+    applying = true;
+    $("excel").disabled = true;
     setBusy(button, true, "Импортирую…");
     try {
       const { data, error } = await db.client.rpc("webbase_apply_import", {
@@ -179,7 +204,7 @@ export function initializeImporter(db, state, { notify, reloadProducts }) {
         p_items: state.importPreview.items.map(({ status, matchedProductId, ...item }) => item),
       });
       if (error) throw error;
-      notify(`Импорт завершён: обновлено ${data.updated}, создано ${data.created}.`);
+      notify(`Импорт завершён: обновлено ${data.updated}, создано ${data.created}, обнулено ${data.zeroed || 0}.`);
       state.importPreview = null;
       $("excel").value = "";
       $("importPreview").replaceChildren();
@@ -187,6 +212,8 @@ export function initializeImporter(db, state, { notify, reloadProducts }) {
     } catch (error) {
       notify(error.message, true);
     } finally {
+      applying = false;
+      $("excel").disabled = !state.catalogComplete;
       setBusy(button, false);
     }
   });
@@ -204,6 +231,7 @@ function renderImportPreview(preview) {
       <span><strong>${updates}</strong> обновятся</span>
       <span><strong>${created}</strong> новых</span>
       <span><strong>${preview.excluded}</strong> ПФ исключено</span>
+      <span><strong>${preview.zeroedProducts.length}</strong> с остатками отсутствуют в файле</span>
     </div>
     <p class="muted">Распознано: склад — ${columnLetter(preview.columns.warehouse)}, ОВ — ${columnLetter(preview.columns.display)}, брак / ПФ — ${columnLetter(preview.columns.defect)}, итог — ${columnLetter(preview.columns.total)}.</p>
     ${preview.errors.length ? `<div class="message error"><strong>Ошибки в Excel:</strong><br>${preview.errors.slice(0, 12).map(escapeHtml).join("<br>")}</div>` : ""}
@@ -212,6 +240,7 @@ function renderImportPreview(preview) {
       ${visibleItems.map((item) => `<tr><td><span class="status ${item.status === "new" ? "status--new" : item.status === "update" ? "status--ok" : "status--blocked"}">${item.status === "new" ? "Новый" : item.status === "update" ? "Обновление" : "Проверить"}</span></td><td>${escapeHtml(item.sku)}</td><td>${escapeHtml(item.name)}</td><td>${item.warehouse}</td><td>${item.display}</td><td>${item.ldu}</td></tr>`).join("")}
     </tbody></table></div>
     ${hiddenItems > 0 ? `<p class="muted">Показаны первые ${visibleItems.length} из ${preview.items.length} товаров.</p><button class="button secondary" type="button" data-import-show-all>Показать все ${preview.items.length}</button>` : ""}
+    <p class="message warning"><strong>Полная синхронизация остатков.</strong> Загружайте полный отчёт магазина: у товаров, отсутствующих в этом файле, остатки станут нулевыми. Количества из файла заменят прежние, а не прибавятся к ним.</p>
     <p class="muted">Импорт меняет источник номенклатуры и остатки. Описание, характеристики, выбранная вручную категория и фотографии не перезаписываются.</p>
     <button class="button primary" data-import ${blocked ? "disabled" : ""}>Применить импорт</button>`;
 }

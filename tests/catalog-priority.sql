@@ -6,7 +6,7 @@ do $$
 declare product uuid; n integer;
 begin
  if has_table_privilege('anon','public.webbase_catalog','select') then raise exception 'Anonymous catalog access'; end if;
- if exists(select 1 from webbase_catalog c join webbase_stock s on s.product_id=c.id where c.catalog_in_stock is distinct from (s.warehouse+s.display>0)) then raise exception 'Availability mismatch'; end if;
+ if exists(select 1 from webbase_catalog c join webbase_stock s on s.product_id=c.id where c.catalog_in_stock is distinct from (s.warehouse>0)) then raise exception 'Availability mismatch'; end if;
  if (select count(*) from webbase_catalog)<>(select count(*) from webbase_products) then raise exception 'RLS or join dropped products'; end if;
  select count(*) into n from webbase_catalog where active and catalog_in_stock;
  if n>=50 and exists(select 1 from (select catalog_in_stock from webbase_catalog where active order by catalog_in_stock desc,category desc nulls last,name,id limit 50) first_page where not catalog_in_stock) then raise exception 'First page contains zero stock'; end if;

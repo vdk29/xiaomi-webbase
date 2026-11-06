@@ -1,6 +1,7 @@
+import { saleStockMarkup } from './js/catalog.js?v=20261106-19';
 import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from "./js/utils.js?v=20261024-8";
 import { requireApprovedUser } from "./js/auth.js?v=20261024-11";
-import { compatibilityDetailsMarkup } from "./js/compatibility.js?v=20261025-14";
+import { compatibilityDetailsMarkup } from "./js/compatibility.js?v=20261106-19";
 import { productReturnUrl } from './js/listing-navigation.js?v=20261106-16';
 import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261025-15";
 import {
@@ -102,12 +103,7 @@ async function renderProduct() {
     optionalField("Цвет", product.color),
     optionalField("Память", product.memory),
   ].join("");
-  const total = product.stock.warehouse + product.stock.display;
-  $("productStock").innerHTML = `
-    <div><strong>${product.stock.warehouse}</strong><span>Основной склад</span></div>
-    <div><strong>${product.stock.display}</strong><span>Витрина (ОВ)</span></div>
-    ${product.stock.ldu ? `<div><strong>${product.stock.ldu}</strong><span>LDU</span></div>` : ""}
-    <div class="stock-total"><strong>${total}</strong><span>Доступно всего</span></div>`;
+  $("productStock").innerHTML = saleStockMarkup(product.stock);
   $("stockUpdated").textContent = product.stock.updated_at ? `Обновлено ${formatDate(product.stock.updated_at)}` : "";
   $("descriptionSection").hidden = !product.description;
   $("productDescription").textContent = product.description || "";

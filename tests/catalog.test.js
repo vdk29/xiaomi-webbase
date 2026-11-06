@@ -50,5 +50,13 @@ test('available products sort before zero stock across categories and within a c
     {name:'Z phone',category:'Смартфоны',stock:{warehouse:1,display:0}},
     {name:'Demo counter only',category:'Смартфоны',stock:{warehouse:0,display:0,ldu:2}},
   ].sort(compareCatalogProducts);
-  assert.deepEqual(rows.map(r=>r.name),['Z phone','Z TV','A phone','Demo counter only']);
+  assert.deepEqual(rows.map(r=>r.name),['Z phone','A phone','Demo counter only','Z TV']);
+});
+
+test('sale stock shows only the main warehouse and never labels display/demo as sellable',async()=>{
+ const {saleStockMarkup,renderProductCard}=await import('../js/catalog.js');
+ const available=saleStockMarkup({warehouse:3,display:10,ldu:5});
+ assert.match(available,/Могу продать/);assert.match(available,/sale-stock--available/);assert.match(available,/<strong>3<small>/);assert.doesNotMatch(available,/ОВ|Всего|Витрина|10/);
+ const empty=saleStockMarkup({warehouse:0,display:10,ldu:5});assert.match(empty,/Нет в наличии/);assert.doesNotMatch(empty,/Могу продать/);
+ const card=renderProductCard({id:'id',name:'Test',stock:{warehouse:0,display:9},category:'Смартфоны'});assert.doesNotMatch(card,/ОВ|Всего/);
 });

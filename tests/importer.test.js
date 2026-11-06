@@ -121,3 +121,21 @@ test('import recognizes computing, surveillance and new household devices', () =
   ];
   for (const [name, expected] of cases) assert.equal(classifyProduct(name), expected, name);
 });
+
+test('full report previews stock resets for missing products while keeping zero-stock and matched cards',()=>{
+ const existing=[
+ {id:'matched',sku:'SKU',source_skus:['SKU'],stock:{warehouse:8,display:0,ldu:0}},
+ {id:'absent',sku:'OLD',stock:{warehouse:3,display:2,ldu:1}},
+ {id:'zero',sku:'ZERO',stock:{warehouse:0,display:0,ldu:0}},
+ ];
+ const result=analyze1CRows([header,['SKU','','','Смартфон Xiaomi','','',2,0,0,2]],existing);
+ assert.equal(result.items[0].status,'update');assert.equal(result.items[0].warehouse,2);
+ assert.deepEqual(result.zeroedProducts.map(p=>p.id),['absent']);
+});
+
+test('two differently named rows cannot overwrite the same product or reuse a source SKU silently',()=>{
+ const rows=[header,['SKU','','','Первое название','','',2,0,0,2],['sku','','','Другое название','','',3,0,0,3]];
+ const result=analyze1CRows(rows,[{id:'same',sku:'SKU',source_skus:['SKU']}]);
+ assert.ok(result.errors.some(e=>e.includes('одной карточкой')));
+ assert.ok(result.errors.some(e=>e.includes('повторяется')));
+});
