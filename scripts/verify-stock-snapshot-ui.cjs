@@ -29,6 +29,14 @@ try{for(const width of [320,390,1440]){
  await page.locator('[data-nav=catalog]').click();await page.selectOption('#availability','available');await page.waitForFunction(()=>document.querySelectorAll('#catalog .product-card').length===2);
  assert.match(await page.locator('#catalog').innerText(),/Могу продать/);assert.doesNotMatch(await page.locator('#catalog').innerText(),/Xiaomi B|Xiaomi Demo/);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
- await page.locator('.product-card').filter({hasText:'Xiaomi A'}).click();await page.locator('#productStock .sale-stock').waitFor();assert.match(await page.locator('#productStock').innerText(),/Могу продать/);assert.doesNotMatch(await page.locator('#productStock').innerText(),/ОВ|Всего|LDU/);assert.match(await page.locator('#productStock strong').innerText(),/^2/);assert.equal(await page.locator('#productStock .sale-stock').evaluate(e=>getComputedStyle(e).display),'grid');assert.match(await page.locator('#productStock .sale-stock').evaluate(e=>getComputedStyle(e).backgroundImage),/gradient/);
- assert.deepEqual(errors,[]);console.log('PASS',width,'px: warehouse-only sale badge/filter/product; real Excel preview, full-snapshot warning, repeated import and refreshed cards');await page.close();
+ await page.locator('.product-card').filter({hasText:'Xiaomi A'}).click();await page.locator('#productStock .stock-breakdown').waitFor();
+ assert.match(await page.locator('#productStock').innerText(),/Могу продать/);assert.match(await page.locator('#productStock').innerText(),/ОВ — открытая выкладка/);
+ assert.equal(await page.locator('[data-stock-value=sellable]').innerText(),'2');assert.equal(await page.locator('[data-stock-value=warehouse]').innerText(),'2');assert.equal(await page.locator('[data-stock-value=display]').innerText(),'1');
+ assert.equal(await page.locator('#productStock .stock-breakdown').evaluate(e=>getComputedStyle(e).gridTemplateColumns.split(' ').length),3);
+ assert.match(await page.locator('#productStock .stock-counter--sellable').evaluate(e=>getComputedStyle(e).backgroundImage),/gradient/);
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+ await page.evaluate(()=>{const row=stockQA.rows.find(p=>p.sku==='SKU-A');row.webbase_stock={warehouse:3,display:1,ldu:0};sessionStorage.setItem('stockQARows',JSON.stringify(stockQA.rows))});
+ await page.reload();await page.locator('#productStock .stock-breakdown').waitFor();assert.equal(await page.locator('[data-stock-value=sellable]').innerText(),'3');assert.equal(await page.locator('[data-stock-value=warehouse]').innerText(),'3');assert.equal(await page.locator('[data-stock-value=display]').innerText(),'1');
+ await page.screenshot({path:`/workspace/scratch/product-stock-detail-${width}.png`,fullPage:true});
+ assert.deepEqual(errors,[]);console.log('PASS',width,'px: warehouse-only catalog sale badge/filter; compact product warehouse/display breakdown; real Excel preview, full-snapshot warning, repeated import and refreshed cards');await page.close();
 }}finally{await browser.close()}})().catch(e=>{console.error(e);process.exitCode=1});

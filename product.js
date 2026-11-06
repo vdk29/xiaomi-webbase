@@ -1,4 +1,3 @@
-import { saleStockMarkup } from './js/catalog.js?v=20261106-19';
 import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from "./js/utils.js?v=20261024-8";
 import { requireApprovedUser } from "./js/auth.js?v=20261024-11";
 import { compatibilityDetailsMarkup } from "./js/compatibility.js?v=20261106-19";
@@ -103,7 +102,20 @@ async function renderProduct() {
     optionalField("Цвет", product.color),
     optionalField("Память", product.memory),
   ].join("");
-  $("productStock").innerHTML = saleStockMarkup(product.stock);
+  const { warehouse, display } = product.stock;
+  $("productStock").innerHTML = `
+    <dl class="stock-breakdown">
+      <div class="stock-counter stock-counter--sellable ${warehouse > 0 ? 'is-available' : ''}">
+        <dt>Могу продать</dt><dd><strong data-stock-value="sellable">${warehouse}</strong><span>шт.</span></dd>
+      </div>
+      <div class="stock-counter">
+        <dt>Склад</dt><dd><strong data-stock-value="warehouse">${warehouse}</strong><span>шт.</span></dd>
+      </div>
+      <div class="stock-counter stock-counter--display">
+        <dt>ОВ</dt><dd><strong data-stock-value="display">${display}</strong><span>шт.</span></dd>
+      </div>
+    </dl>
+    <p class="stock-explanation">ОВ — открытая выкладка. Эти товары не включены в «Могу продать».</p>`;
   $("stockUpdated").textContent = product.stock.updated_at ? `Обновлено ${formatDate(product.stock.updated_at)}` : "";
   $("descriptionSection").hidden = !product.description;
   $("productDescription").textContent = product.description || "";

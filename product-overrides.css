@@ -109,3 +109,19 @@
 .compatibility-models li { background: #f4f5f7; border-radius: 8px; padding: 7px 10px; font-size: 14px; }
 .compatibility-condition { border-left: 3px solid #ff6900; padding-left: 16px; margin: 20px 0; }
 .compatibility-sources a { display: block; margin: 8px 0; }
+
+/* Compact quantities: the main warehouse is sellable; display stock is separate. */
+.stock-panel{padding:18px}
+.stock-panel .section-title{gap:10px;flex-wrap:wrap}
+.stock-panel .section-title h2{font-size:18px}
+.stock-panel #stockUpdated{font-size:11px}
+.stock-breakdown{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0}
+.stock-counter{min-width:0;border:1px solid #e0e4e7;border-radius:12px;padding:10px 12px;background:#f6f7f8;color:#4b5661}
+.stock-counter dt{display:flex;align-items:center;min-height:32px;font-size:12px;font-weight:650;line-height:1.4}
+.stock-counter dd{display:flex;align-items:baseline;gap:4px;margin:4px 0 0}
+.stock-counter strong{font-size:25px;line-height:1.2;font-weight:750}
+.stock-counter dd>span{font-size:11px}
+.stock-counter--sellable.is-available{border-color:#77c995;background:linear-gradient(120deg,#e9faed,#dff7e9);color:#136837;box-shadow:0 0 10px #36b8661a}
+.stock-counter--display{background:#fff5e9;border-color:#f0d8b7;color:#86551c}
+.stock-explanation{margin:10px 0 0;font-size:12px;line-height:1.65;color:#66707b}
+@media(max-width:560px){.stock-panel{padding:14px}.stock-breakdown{gap:7px}.stock-counter{padding:9px}.stock-counter dt{font-size:11px;min-height:32px}.stock-counter strong{font-size:23px}.stock-explanation{font-size:11px}}
