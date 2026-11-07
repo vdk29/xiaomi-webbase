@@ -1,5 +1,5 @@
 import {networkKey,networkProductFields,networkWarehouseKey,isDemoName} from './network-identity.js?v=20261107-25';
-import {classifyProduct} from './importer.js?v=20261107-27';
+import {classifyProduct} from './importer.js?v=20261107-28';
 const isNameHeader=value=>/^номенклатура(?:$|[,. ])/i.test(clean(value))&&!/артикул/i.test(clean(value));
 const clean=value=>String(value??'').replace(/\s+/g,' ').trim();
 function quantity(value,row,column){if(value===undefined||value===null||value==='')return 0;const n=typeof value==='number'?value:Number(String(value).replace(/[\s\u00a0]/g,'').replace(',','.'));if(!Number.isSafeInteger(n)||Math.abs(n)>10000000)throw Error(`Строка ${row}, колонка ${column}: некорректное количество`);return n;}
