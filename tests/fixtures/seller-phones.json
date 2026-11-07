@@ -1,0 +1,779 @@
+[
+  {
+    "name": "Смартфон POCO F9 Pro 12/256ГБ белый",
+    "brand": "POCO",
+    "model": "F9 Pro",
+    "memory": "12/256 ГБ",
+    "category": "Смартфоны",
+    "color": "белый",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/poco-f9-pro-12-256gb-belyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "6330"
+    }
+  },
+  {
+    "name": "Смартфон POCO F9 Pro 12/256ГБ зелёный",
+    "brand": "POCO",
+    "model": "F9 Pro",
+    "memory": "12/256 ГБ",
+    "category": "Смартфоны",
+    "color": "зелёный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/poco-f9-pro-12-256gb-zelenyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "6330"
+    }
+  },
+  {
+    "name": "Смартфон POCO F9 Pro 12/256ГБ черный",
+    "brand": "POCO",
+    "model": "F9 Pro",
+    "memory": "12/256 ГБ",
+    "category": "Смартфоны",
+    "color": "черный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/poco-f9-pro-12-256gb-chernyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "6330"
+    }
+  },
+  {
+    "name": "Смартфон POCO F9 Pro 12/512ГБ белый",
+    "brand": "POCO",
+    "model": "F9 Pro",
+    "memory": "12/512 ГБ",
+    "category": "Смартфоны",
+    "color": "белый",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/poco-f9-pro-12-512gb-belyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "6330"
+    }
+  },
+  {
+    "name": "Смартфон POCO F9 Pro 12/512ГБ зелёный",
+    "brand": "POCO",
+    "model": "F9 Pro",
+    "memory": "12/512 ГБ",
+    "category": "Смартфоны",
+    "color": "зелёный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/poco-f9-pro-12-512gb-zelenyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "6330"
+    }
+  },
+  {
+    "name": "Смартфон POCO F9 Pro 12/512ГБ черный",
+    "brand": "POCO",
+    "model": "F9 Pro",
+    "memory": "12/512 ГБ",
+    "category": "Смартфоны",
+    "color": "черный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/poco-f9-pro-12-512gb-black/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "6330"
+    }
+  },
+  {
+    "name": "Смартфон REDMI 17 4/128GB зелёный",
+    "brand": "REDMI",
+    "model": "17",
+    "memory": "4/128 ГБ",
+    "category": "Смартфоны",
+    "color": "зелёный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-17-4-128gb-zelenyy/",
+      "Аккумулятор": "Литий-ионный",
+      "Емкость аккумулятора, мА*ч": "7500"
+    }
+  },
+  {
+    "name": "Смартфон REDMI 17 4/128GB синий",
+    "brand": "REDMI",
+    "model": "17",
+    "memory": "4/128 ГБ",
+    "category": "Смартфоны",
+    "color": "синий",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-17-4-128gb-siniy/",
+      "Аккумулятор": "Литий-ионный",
+      "Емкость аккумулятора, мА*ч": "7500"
+    }
+  },
+  {
+    "name": "Смартфон REDMI 17 4/128GB фиолетовый",
+    "brand": "REDMI",
+    "model": "17",
+    "memory": "4/128 ГБ",
+    "category": "Смартфоны",
+    "color": "фиолетовый",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-17-4-128gb-fioletovyy/",
+      "Аккумулятор": "Литий-ионный",
+      "Емкость аккумулятора, мА*ч": "7500"
+    }
+  },
+  {
+    "name": "Смартфон REDMI 17 4/256GB зелёный",
+    "brand": "REDMI",
+    "model": "17",
+    "memory": "4/256 ГБ",
+    "category": "Смартфоны",
+    "color": "зелёный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-17-4-256gb-zelenyy/",
+      "Аккумулятор": "Литий-ионный",
+      "Емкость аккумулятора, мА*ч": "7500"
+    }
+  },
+  {
+    "name": "Смартфон REDMI 17 4/256GB фиолетовый",
+    "brand": "REDMI",
+    "model": "17",
+    "memory": "4/256 ГБ",
+    "category": "Смартфоны",
+    "color": "фиолетовый",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-17-4-256gb-fioletovyy/",
+      "Аккумулятор": "Литий-ионный",
+      "Емкость аккумулятора, мА*ч": "7500"
+    }
+  },
+  {
+    "name": "Смартфон REDMI 17 4/256GB черный",
+    "brand": "REDMI",
+    "model": "17",
+    "memory": "4/256 ГБ",
+    "category": "Смартфоны",
+    "color": "черный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-17-4-256gb-chernyy/",
+      "Аккумулятор": "Литий-ионный",
+      "Емкость аккумулятора, мА*ч": "7500"
+    }
+  },
+  {
+    "name": "Смартфон REDMI 17 4GB+128GB Dark Black",
+    "brand": "REDMI",
+    "model": "REDMI 17",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/mx/product/redmi-17/specs/"
+    }
+  },
+  {
+    "name": "Смартфон REDMI 17 4GB+256GB Blue",
+    "brand": "REDMI",
+    "model": "17",
+    "memory": "4/256 ГБ",
+    "category": "Смартфоны",
+    "color": "синий",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-17-4-256gb-siniy/",
+      "Аккумулятор": "Литий-ионный",
+      "Емкость аккумулятора, мА*ч": "7500"
+    }
+  },
+  {
+    "name": "Смартфон REDMI 17 8/256GB зелёный",
+    "brand": "REDMI",
+    "model": "17",
+    "memory": "8/256 ГБ",
+    "category": "Смартфоны",
+    "color": "зелёный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-17-8-256gb-zelenyy/",
+      "Аккумулятор": "Литий-ионный",
+      "Емкость аккумулятора, мА*ч": "7500"
+    }
+  },
+  {
+    "name": "Смартфон REDMI 17 8/256GB синий",
+    "brand": "REDMI",
+    "model": "17",
+    "memory": "8/256 ГБ",
+    "category": "Смартфоны",
+    "color": "синий",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-17-8-256gb-siniy/",
+      "Аккумулятор": "Литий-ионный",
+      "Емкость аккумулятора, мА*ч": "7500"
+    }
+  },
+  {
+    "name": "Смартфон REDMI 17 8GB+256GB Dark Black",
+    "brand": "REDMI",
+    "model": "17",
+    "memory": "8/256 ГБ",
+    "category": "Смартфоны",
+    "color": "черный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-17-8-256gb-chernyy/",
+      "Аккумулятор": "Литий-ионный",
+      "Емкость аккумулятора, мА*ч": "7500"
+    }
+  },
+  {
+    "name": "Смартфон REDMI 17 8GB+256GB Purple",
+    "brand": "REDMI",
+    "model": "REDMI 17",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/mx/product/redmi-17/specs/"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 4/128GB бирюзовый",
+    "brand": "REDMI",
+    "model": "Note 17",
+    "memory": "4/128 ГБ",
+    "category": "Смартфоны",
+    "color": "бирюзовый",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-4-128gb-biryuzovyy/",
+      "Аккумулятор": "Литий-ионный",
+      "Емкость аккумулятора, мА*ч": "7700"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 4GB+128GB Black",
+    "brand": "REDMI",
+    "model": "REDMI Note 17",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/global/product/redmi-note-17/",
+      "Аккумулятор": "7700 мА·ч, зарядка 45 Вт, реверсивная 22,5 Вт"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 4GB+128GB Celestial Purple",
+    "brand": "REDMI",
+    "model": "REDMI Note 17",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/global/product/redmi-note-17/",
+      "Аккумулятор": "7700 мА·ч, зарядка 45 Вт, реверсивная 22,5 Вт"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 6GB+256GB Black",
+    "brand": "REDMI",
+    "model": "Note 17",
+    "memory": "6/256 ГБ",
+    "category": "Смартфоны",
+    "color": "черный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-6-256gb-chernyy/",
+      "Аккумулятор": "Литий-ионный",
+      "Емкость аккумулятора, мА*ч": "7700"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 6GB+256GB Celestial Purple",
+    "brand": "REDMI",
+    "model": "REDMI Note 17",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/global/product/redmi-note-17/",
+      "Аккумулятор": "7700 мА·ч, зарядка 45 Вт, реверсивная 22,5 Вт"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 6GB+256GB Sky Teal",
+    "brand": "REDMI",
+    "model": "REDMI Note 17",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/global/product/redmi-note-17/",
+      "Аккумулятор": "7700 мА·ч, зарядка 45 Вт, реверсивная 22,5 Вт"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 8GB+256GB Black",
+    "brand": "REDMI",
+    "model": "REDMI Note 17",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/global/product/redmi-note-17/",
+      "Аккумулятор": "7700 мА·ч, зарядка 45 Вт, реверсивная 22,5 Вт"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 8GB+256GB Sky Teal",
+    "brand": "REDMI",
+    "model": "Note 17",
+    "memory": "8/256 ГБ",
+    "category": "Смартфоны",
+    "color": "бирюзовый",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-8-256gb-biryuzovyy/",
+      "Аккумулятор": "Литий-ионный",
+      "Емкость аккумулятора, мА*ч": "7700"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro 5G 6/128GB голубой",
+    "brand": "REDMI",
+    "model": "Note 17 Pro 5G",
+    "memory": "6/128 ГБ",
+    "category": "Смартфоны",
+    "color": "голубой",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-pro-5g-6-128gb-goluboy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "8340"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro 5G 6GB+128GB Black",
+    "brand": "REDMI",
+    "model": "Note 17 Pro 5G",
+    "memory": "6/128 ГБ",
+    "category": "Смартфоны",
+    "color": "черный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-pro-5g-6-128gb-chernyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "8340"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro 5G 6GB+128GB Purple",
+    "brand": "REDMI",
+    "model": "Note 17 Pro 5G",
+    "memory": "6/128 ГБ",
+    "category": "Смартфоны",
+    "color": "фиолетовый",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-pro-5g-6-128gb-fioletovyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "8340"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro 5G 6GB+128GB Satin Orange",
+    "brand": "REDMI",
+    "model": "Note 17 Pro 5G",
+    "memory": "6/128 ГБ",
+    "category": "Смартфоны",
+    "color": "оранжевый",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-pro-5g-6-128gb-oranzhevyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "8340"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro 5G 8/256GB голубой",
+    "brand": "REDMI",
+    "model": "Note 17 Pro 5G",
+    "memory": "8/256 ГБ",
+    "category": "Смартфоны",
+    "color": "голубой",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-pro-5g-8-256gb-goluboy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "8340"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro 5G 8/512GB черный",
+    "brand": "REDMI",
+    "model": "Note 17 Pro 5G",
+    "memory": "8/512 ГБ",
+    "category": "Смартфоны",
+    "color": "черный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-pro-5g-8-512gb-chernyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "8340"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro 5G 8GB+256GB Black",
+    "brand": "REDMI",
+    "model": "Note 17 Pro 5G",
+    "memory": "8/256 ГБ",
+    "category": "Смартфоны",
+    "color": "черный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-pro-5g-8-256gb-chernyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "8340"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro 5G 8GB+256GB Purple",
+    "brand": "REDMI",
+    "model": "Note 17 Pro 5G",
+    "memory": "8/256 ГБ",
+    "category": "Смартфоны",
+    "color": "фиолетовый",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-pro-5g-8-256gb-fioletovyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "8340"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro 5G 8GB+256GB Satin Orange",
+    "brand": "REDMI",
+    "model": "REDMI Note 17 Pro 5G",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/global/product/redmi-note-17-pro-5g/specs/",
+      "Аккумулятор": "8340 мА·ч, зарядка 67 Вт, реверсивная 22,5 Вт"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro 5G 8GB+512GB Purple",
+    "brand": "REDMI",
+    "model": "REDMI Note 17 Pro 5G",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/global/product/redmi-note-17-pro-5g/specs/",
+      "Аккумулятор": "8340 мА·ч, зарядка 67 Вт, реверсивная 22,5 Вт"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro 5G 8GB+512GB Satin Orange",
+    "brand": "REDMI",
+    "model": "REDMI Note 17 Pro 5G",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/global/product/redmi-note-17-pro-5g/specs/",
+      "Аккумулятор": "8340 мА·ч, зарядка 67 Вт, реверсивная 22,5 Вт"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro 5G 8GB+512GB Sky Blue",
+    "brand": "REDMI",
+    "model": "REDMI Note 17 Pro 5G",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/global/product/redmi-note-17-pro-5g/specs/",
+      "Аккумулятор": "8340 мА·ч, зарядка 67 Вт, реверсивная 22,5 Вт"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro Max 5G 8/256GB белый",
+    "brand": "REDMI",
+    "model": "Note 17 Pro Max 5G",
+    "memory": "8/256 ГБ",
+    "category": "Смартфоны",
+    "color": "белый",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-pro-max-5g-8-256gb-belyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "10000"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro Max 5G 8/256GB зелёный",
+    "brand": "REDMI",
+    "model": "Note 17 Pro Max 5G",
+    "memory": "8/256 ГБ",
+    "category": "Смартфоны",
+    "color": "зелёный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-pro-max-5g-8-256gb-zelenyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "10000"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro Max 5G 8/256GB фиолетовый",
+    "brand": "REDMI",
+    "model": "Note 17 Pro Max 5G",
+    "memory": "8/256 ГБ",
+    "category": "Смартфоны",
+    "color": "фиолетовый",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-pro-max-5g-8-256gb-fioletovyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "10000"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro Max 5G 8/512GB белый",
+    "brand": "REDMI",
+    "model": "Note 17 Pro Max 5G",
+    "memory": "8/512 ГБ",
+    "category": "Смартфоны",
+    "color": "белый",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-pro-max-5g-8-512gb-belyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "10000"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro Max 5G 8/512GB зелёный",
+    "brand": "REDMI",
+    "model": "Note 17 Pro Max 5G",
+    "memory": "8/512 ГБ",
+    "category": "Смартфоны",
+    "color": "зелёный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-pro-max-5g-8-512gb-zelenyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "10000"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro Max 5G 8/512GB фиолетовый",
+    "brand": "REDMI",
+    "model": "Note 17 Pro Max 5G",
+    "memory": "8/512 ГБ",
+    "category": "Смартфоны",
+    "color": "фиолетовый",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-pro-max-5g-8-512gb-fioletovyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "10000"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro Max 5G 8GB+256GB Black",
+    "brand": "REDMI",
+    "model": "Note 17 Pro Max 5G",
+    "memory": "8/256 ГБ",
+    "category": "Смартфоны",
+    "color": "черный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/redmi-note-17-pro-max-5g-8-256gb-chernyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "10000"
+    }
+  },
+  {
+    "name": "Смартфон REDMI Note 17 Pro Max 5G 8GB+512GB Black",
+    "brand": "REDMI",
+    "model": "REDMI Note 17 Pro Max 5G",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/uk/product/redmi-note-17-pro-max-5g/specs/",
+      "Аккумулятор": "9210 мА·ч (глобальная версия), зарядка 100 Вт, реверсивная 27 Вт"
+    }
+  },
+  {
+    "name": "Смартфон Xiaomi 17 Ultra 16/1024GB белый",
+    "brand": "Xiaomi",
+    "model": "17 Ultra",
+    "memory": "16/1024 ГБ",
+    "category": "Смартфоны",
+    "color": "белый",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/xiaomi-17-ultra-16-1024gb-belyy/",
+      "Емкость аккумулятора, мА*ч": "6000"
+    }
+  },
+  {
+    "name": "Смартфон Xiaomi 17 Ultra 16/1024GB черный",
+    "brand": "Xiaomi",
+    "model": "17 Ultra",
+    "memory": "16/1024 ГБ",
+    "category": "Смартфоны",
+    "color": "черный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/xiaomi-17-ultra-16-1024gb-chernyy/",
+      "Емкость аккумулятора, мА*ч": "6000"
+    }
+  },
+  {
+    "name": "Смартфон Xiaomi 17 Ultra 16/512GB зелёный",
+    "brand": "Xiaomi",
+    "model": "17 Ultra",
+    "memory": "16/512 ГБ",
+    "category": "Смартфоны",
+    "color": "зелёный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/xiaomi-17-ultra-16-512gb-zelenyy/",
+      "Емкость аккумулятора, мА*ч": "6000"
+    }
+  },
+  {
+    "name": "Смартфон Xiaomi 17 Ultra 16GB+1024GB Green",
+    "brand": "Xiaomi",
+    "model": "Xiaomi 17 Ultra",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/global/product/xiaomi-17-ultra/",
+      "Аккумулятор": "6000 мА·ч, проводная зарядка 90 Вт, беспроводная 50 Вт"
+    }
+  },
+  {
+    "name": "Смартфон Xiaomi 17 Ultra 16GB+512GB Black",
+    "brand": "Xiaomi",
+    "model": "Xiaomi 17 Ultra",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/global/product/xiaomi-17-ultra/",
+      "Аккумулятор": "6000 мА·ч, проводная зарядка 90 Вт, беспроводная 50 Вт"
+    }
+  },
+  {
+    "name": "Смартфон Xiaomi 17 Ultra 16GB+512GB White",
+    "brand": "Xiaomi",
+    "model": "Xiaomi 17 Ultra",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/global/product/xiaomi-17-ultra/",
+      "Аккумулятор": "6000 мА·ч, проводная зарядка 90 Вт, беспроводная 50 Вт"
+    }
+  },
+  {
+    "name": "Смартфон Xiaomi 17T 12GB+256GB Black",
+    "brand": "Xiaomi",
+    "model": "Xiaomi 17T",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/global/product/xiaomi-17t/specs/",
+      "Аккумулятор": "6500 мА·ч, зарядка 67 Вт, реверсивная 22,5 Вт"
+    }
+  },
+  {
+    "name": "Смартфон Xiaomi 17T 12GB+256GB Blue",
+    "brand": "Xiaomi",
+    "model": "Xiaomi 17T",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/global/product/xiaomi-17t/specs/",
+      "Аккумулятор": "6500 мА·ч, зарядка 67 Вт, реверсивная 22,5 Вт"
+    }
+  },
+  {
+    "name": "Смартфон Xiaomi 17T 12GB+256GB Violet",
+    "brand": "Xiaomi",
+    "model": "Xiaomi 17T",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/global/product/xiaomi-17t/specs/",
+      "Аккумулятор": "6500 мА·ч, зарядка 67 Вт, реверсивная 22,5 Вт"
+    }
+  },
+  {
+    "name": "Смартфон Xiaomi 17T 12GB+512GB Black",
+    "brand": "Xiaomi",
+    "model": "17T",
+    "memory": "12/512 ГБ",
+    "category": "Смартфоны",
+    "color": "черный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/xiaomi-17t-12-512gb-chernyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "6500"
+    }
+  },
+  {
+    "name": "Смартфон Xiaomi 17T 12GB+512GB Blue",
+    "brand": null,
+    "model": null,
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {}
+  },
+  {
+    "name": "Смартфон Xiaomi 17T 12GB+512GB Violet",
+    "brand": "Xiaomi",
+    "model": "17T",
+    "memory": "12/512 ГБ",
+    "category": "Смартфоны",
+    "color": "фиолетовый",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/xiaomi-17t-12-512gb-fioletovyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "6500"
+    }
+  },
+  {
+    "name": "Смартфон Xiaomi 17T Pro 12/1024ГБ черный",
+    "brand": "Xiaomi",
+    "model": "17T Pro",
+    "memory": "12/1024 ГБ",
+    "category": "Смартфоны",
+    "color": "черный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/xiaomi-17t-pro-12-1024gb-chernyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "7000"
+    }
+  },
+  {
+    "name": "Смартфон Xiaomi 17T Pro 12/512ГБ черный",
+    "brand": "Xiaomi",
+    "model": "17T Pro",
+    "memory": "12/512 ГБ",
+    "category": "Смартфоны",
+    "color": "черный",
+    "specs": {
+      "_source_url": "https://mi-shop.com/catalog/smartphones/xiaomi-17t-pro-12-512gb-chernyy/",
+      "Аккумулятор": "Кремний-углеродный",
+      "Емкость аккумулятора, мА*ч": "7000"
+    }
+  },
+  {
+    "name": "Смартфон Xiaomi 17T Pro 12GB+256GB Black",
+    "brand": "Xiaomi",
+    "model": "Xiaomi 17T Pro",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/global/product/xiaomi-17t-pro/specs/",
+      "Аккумулятор": "7000 мА·ч, проводная зарядка 100 Вт, беспроводная 50 Вт"
+    }
+  },
+  {
+    "name": "Смартфон Xiaomi 17T Pro 12GB+256GB Deep Blue",
+    "brand": "Xiaomi",
+    "model": "Xiaomi 17T Pro",
+    "memory": null,
+    "category": "Смартфоны",
+    "color": null,
+    "specs": {
+      "_source_url": "https://www.mi.com/global/product/xiaomi-17t-pro/specs/",
+      "Аккумулятор": "7000 мА·ч, проводная зарядка 100 Вт, беспроводная 50 Вт"
+    }
+  }
+]

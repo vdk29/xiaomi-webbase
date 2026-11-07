@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="webbase.css?v=20261106-20">
   <link rel="stylesheet" href="product.css?v=20261023-4">
   <link rel="stylesheet" href="product-overrides.css?v=20261106-21">
+  <link rel="stylesheet" href="seller-help.css?v=20261107-23">
 </head>
 <body>
   <header class="topbar">
@@ -46,7 +47,7 @@
       </div>
       <div class="product-sections">
         <section id="compatibilitySection" class="panel" hidden><h2>Совместимость</h2><div id="productCompatibility"></div></section>
-        <section id="descriptionSection" class="panel" hidden><h2>Описание</h2><p id="productDescription" class="rich-text"></p></section>
+        <section id="descriptionSection" class="panel" hidden><h2 id="descriptionTitle">Описание</h2><p id="productDescription" class="rich-text"></p><div id="productSellerHelp" hidden></div></section>
         <section id="specsSection" class="panel" hidden>
           <div class="section-title"><h2>Характеристики</h2><a id="specsSource" class="source-link" target="_blank" rel="noopener noreferrer" hidden>Официальный источник ↗</a></div>
           <p id="specsVerified" class="specs-verified muted"></p>
@@ -117,6 +118,6 @@
   <script src="vendor/supabase-2.95.0.min.js"></script>
   <script src="supabase-config.js?v=20261023-4"></script>
   <script src="supabase-client.js?v=20261025-14"></script>
-  <script type="module" src="product.js?v=20261106-21"></script>
+  <script type="module" src="product.js?v=20261107-23"></script>
 </body>
 </html>
