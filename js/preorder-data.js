@@ -70,6 +70,17 @@ export const PREORDER_MODELS = [
         "label": "Прозрачный красный · Special Edition",
         "hex": "#b32631",
         "image": "assets/preorder/20261106/xiaomi-18-pro-transparent.webp"
+      },
+      {
+        "id": "red",
+        "label": "Красный · Red",
+        "hex": "#a62d48",
+        "image": "assets/preorder/20261107/xiaomi-18-pro-red.webp",
+        "retailOnly": true,
+        "variants": [
+          "12/256 ГБ",
+          "12/512 ГБ"
+        ]
       }
     ],
     "tele": "3,2×",
@@ -170,6 +181,17 @@ export const PREORDER_MODELS = [
         "label": "Прозрачный красный · Special Edition",
         "hex": "#b32631",
         "image": "assets/preorder/20261106/xiaomi-18-pro-max-transparent.webp"
+      },
+      {
+        "id": "red",
+        "label": "Красный · Red",
+        "hex": "#a62d48",
+        "image": "assets/preorder/20261107/xiaomi-18-pro-max-red.webp",
+        "retailOnly": true,
+        "variants": [
+          "12/256 ГБ",
+          "12/512 ГБ"
+        ]
       }
     ],
     "tele": "3,2×",

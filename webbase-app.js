@@ -119,17 +119,17 @@ async function loadCatalog() {
 let preorderLoad = null;
 let preorderController = null;
 function showPreorder() {
-  if (preorderLoad) return preorderLoad;
+  if (preorderLoad) { preorderController?.resume?.(); return preorderLoad; }
   const css = new Promise((resolve, reject) => {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'preorder.css?v=20261106-18';
+    link.href = 'preorder.css?v=20261107-22';
     link.onload = resolve;
     link.onerror = () => { link.remove(); reject(new Error('Не удалось загрузить оформление')); };
     document.head.append(link);
   });
-  preorderLoad = Promise.all([css, import('./js/preorder.js?v=20261106-18')])
-    .then(async ([, module]) => { preorderController = await module.mountPreorder($('preorderContent')); })
+  preorderLoad = Promise.all([css, import('./js/preorder.js?v=20261107-22')])
+    .then(async ([, module]) => { preorderController = await module.mountPreorder($('preorderContent')); if(state.section !== 'preorder' || !state.user) preorderController?.pause(); })
     .catch(() => {
       preorderLoad = null;
       $('preorderContent').replaceChildren();
