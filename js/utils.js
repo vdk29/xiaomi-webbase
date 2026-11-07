@@ -65,5 +65,5 @@ export const errorMessage = (error, fallback = "Не удалось выполн
 
 export const placeholderSvg = (label = "mi") => {
   const safeLabel = String(label).slice(0, 20).replace(/[&<>"']/g, "");
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480"><rect width="640" height="480" fill="#f7f7f8"/><rect x="270" y="190" width="100" height="100" rx="24" fill="#ff6900"/><text x="320" y="255" text-anchor="middle" font-family="Arial" font-size="42" font-weight="700" fill="white">mi</text><text x="320" y="335" text-anchor="middle" font-family="Arial" font-size="20" fill="#8b8f97">${safeLabel}</text></svg>`)}`;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480"><rect width="640" height="480" fill="#f7f7f8"/><rect x="263" y="130" width="114" height="155" rx="16" fill="none" stroke="#b6bdc6" stroke-width="8"/><path d="M300 150h40M310 266h20" stroke="#b6bdc6" stroke-width="6" stroke-linecap="round"/><text x="320" y="335" text-anchor="middle" font-family="Arial" font-size="20" fill="#8b8f97">${safeLabel}</text></svg>`)}`;
 };

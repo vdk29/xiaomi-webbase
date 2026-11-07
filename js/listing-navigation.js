@@ -19,7 +19,7 @@ export function productReturnUrl(productHref) {
     const target = new URL(raw, product);
     if (target.origin !== index.origin || ![index.pathname, new URL('.', index).pathname].includes(target.pathname)) return fallback;
     const clean = new URLSearchParams();
-    if (target.searchParams.get('section') === 'compatibility') clean.set('section', 'compatibility');
+    if (['compatibility','network'].includes(target.searchParams.get('section'))) clean.set('section', target.searchParams.get('section'));
     for (const key of Object.keys(FILTERS)) {
       const value = target.searchParams.get(key);
       if (value) clean.set(key, value.slice(0, 500));
@@ -33,7 +33,7 @@ export function syncListingLocation(section, { resetScroll = true } = {}) {
   const url = new URL(location.href);
   url.searchParams.delete('conditional');
   if (section !== 'preorder' && url.hash.startsWith('#po-')) url.hash = '';
-  if (['compatibility', 'preorder'].includes(section)) url.searchParams.set('section', section);
+  if (['compatibility', 'preorder', 'network', 'network-admin'].includes(section)) url.searchParams.set('section', section);
   else url.searchParams.delete('section');
   for (const [key, id] of Object.entries(FILTERS)) {
     const field = document.getElementById(id);

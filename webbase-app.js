@@ -1,12 +1,12 @@
 import { catalogDiagnostic, downloadCatalogDiagnostic } from './js/catalog-diagnostics.js?v=20261025-15';
 import { $, errorMessage, setBusy } from "./js/utils.js?v=20261024-8";
 import { getAccessContext, safeNextUrl, signIn } from "./js/auth.js?v=20261024-11";
-import { listProducts } from "./js/products.js?v=20261025-15";
-import { initializeCatalog, populateCategories, renderCatalog } from "./js/catalog.js?v=20261106-19";
+import { listProducts } from "./js/products.js?v=20261107-25";
+import { initializeCatalog, populateCategories, renderCatalog } from "./js/catalog.js?v=20261107-25";
 import { initializeCompatibility, renderCompatibility } from "./js/compatibility.js?v=20261106-19";
 import { initializeEmployees, refreshEmployees } from "./js/employees.js?v=20261023-4";
-import { initializeImporter } from "./js/importer.js?v=20261106-19";
-import { initializeListingNavigation, syncListingLocation, restoreListingScroll } from './js/listing-navigation.js?v=20261106-18';
+import { initializeImporter } from "./js/importer.js?v=20261107-25";
+import { initializeListingNavigation, syncListingLocation, restoreListingScroll } from './js/listing-navigation.js?v=20261107-25';
 
 const db = window.WebBaseDB;
 const state = {
@@ -20,7 +20,7 @@ const state = {
   partialCatalog: false,
   stopImageObserver: null,
   stopCompatibilityObserver: null,
-  section: ['compatibility', 'preorder'].includes(new URLSearchParams(location.search).get('section')) ? new URLSearchParams(location.search).get('section') : 'catalog',
+  section: ['compatibility', 'preorder', 'network', 'network-admin'].includes(new URLSearchParams(location.search).get('section')) ? new URLSearchParams(location.search).get('section') : 'catalog',
 };
 
 function notify(message, isError = false) {
@@ -143,8 +143,21 @@ function showPreorder() {
   return preorderLoad;
 }
 
+let networkModule;
+let networkAdminModule;
+let networkStyle;
+function ensureNetworkStyle(){if(!networkStyle){networkStyle=document.createElement('link');networkStyle.rel='stylesheet';networkStyle.href='network-stock.css?v=20261107-25';document.head.append(networkStyle);}}
+async function showNetwork(name){
+ const host=$(name==='network'?'networkContent':'networkAdminContent');ensureNetworkStyle();
+ try{if(name==='network'){networkModule=await import('./js/network-stock.js?v=20261107-25');await networkModule.mountNetworkStock(host,db);}else{networkAdminModule=await import('./js/network-admin.js?v=20261107-25');await networkAdminModule.mountNetworkAdmin(host,db,{onCatalogUpdated:()=>{state.catalogComplete=false;}});}}catch(error){host.textContent=errorMessage(error);}
+}
+function resetNetwork(){networkModule?.clearNetworkCache();document.querySelectorAll('.network-dialog').forEach(dialog=>dialog.remove());for(const id of ['networkContent','networkAdminContent']){const root=$(id);if(!root)continue;root.networkDestroy?.();delete root.networkRefresh;delete root.networkDestroy;root.replaceChildren();delete root.dataset.mounted;}}
+
 function selectSection(name, { restore = false, render = true } = {}) {
+  if ((name==='network'&&!$('networkContent'))||(name==='network-admin'&&!$('networkAdminContent'))) name='catalog';
+  if (name==='network-admin' && !state.admin) name='catalog';
   state.section = name;
+  if (name==='network' || name==='network-admin') showNetwork(name);
   $("catalogStatus").hidden = !["catalog", "compatibility"].includes(name);
   if (name === "preorder") showPreorder();
   else preorderController?.pause();
@@ -168,6 +181,7 @@ function renderAccount() {
   $("accountName").textContent = label;
   $("accountRole").textContent = state.admin ? "Администратор" : "Сотрудник";
   $("staffSectionNav").hidden = !state.admin;
+  if($("networkAdminNav")) $("networkAdminNav").hidden = !state.admin;
   $("importSectionNav").hidden = !state.admin;
 }
 
@@ -192,6 +206,7 @@ async function checkSession() {
   $("authPanel").hidden = approved;
   $("appShell").hidden = !approved;
   if (!context.user) {
+    resetNetwork();
     state.rows = [];
     state.catalogComplete = false;
     state.partialCatalog = false;
@@ -207,6 +222,7 @@ async function checkSession() {
     return;
   }
   if (previousUser && previousUser !== context.user.id) {
+    resetNetwork();
     state.rows = [];
     state.catalogComplete = false;
     state.partialCatalog = false;
@@ -268,6 +284,7 @@ async function boot() {
     if (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') return;
     sessionVersion++;
     if (event === 'SIGNED_OUT') {
+      resetNetwork();
       preorderController?.pause();
       state.user = null;
       state.rows = [];

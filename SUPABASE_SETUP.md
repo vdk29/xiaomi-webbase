@@ -52,3 +52,11 @@ relationships. Authenticated staff have read access; anonymous users have none.
 No product, image or stock values are changed. Run `tests/catalog-priority.sql`
 (the stock fixture rolls back). Catalog details and writes continue using the
 existing tables/RPCs. See `docs/NETWORK_RECOVERY.md` for paging and image budgets.
+
+## Network inventory expansion (2026-11-07)
+
+Applied additive `20261107*_network_*` migrations add the separate network store/warehouse directory, transactional snapshots and item membership, staging, exact catalog links, enrichment jobs and source audit. All new tables use RLS and invoker read/import RPCs. No network importer writes `webbase_stock`. Unknown warehouse aliases require administrator review.
+
+`webbase-network-enrich` is deployed with its own administrator/Vault-token authentication (`verify_jwt=false` delegates authentication to the function body). Supabase's built-in service-role environment variable stays server-side. `pg_cron` invokes it every 20 seconds only with eligible queue work; the worker uses leases and bounded image batches. `pg_net` is registered in the extensions schema, its HTTP state was preserved, and the net schema is not granted to browser roles. The product bucket remains private. No new project, user database or public report bucket was created.
+
+The live private report was imported and verified; baseline local stock, original product records and original photo records retained identical hashes. See [NETWORK_STOCK.md](NETWORK_STOCK.md) for first-import counts, deployment files, jobs, source rules, test commands and known data gaps. Re-run Security and Performance Advisors after changes; the pre-existing Auth leaked-password-protection advisory is outside this expansion.

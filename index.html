@@ -11,7 +11,7 @@
   <link rel="shortcut icon" href="favicon.ico?v=20261024">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=20261024">
   <title>Xiaomi WebBase</title>
-  <link rel="stylesheet" href="webbase.css?v=20261106-20">
+  <link rel="stylesheet" href="webbase.css?v=20261107-25">
   <link rel="stylesheet" href="catalog-overrides.css?v=20261024-10">
 </head>
 <body>
@@ -60,6 +60,8 @@
       <button class="nav-button active" data-nav="catalog" type="button">Каталог</button>
       <button class="nav-button" data-nav="preorder" type="button">Предзаказ</button>
       <button class="nav-button" data-nav="compatibility" type="button">Совместимость</button>
+      <button class="nav-button" data-nav="network" type="button">Остатки по сети</button>
+      <button id="networkAdminNav" class="nav-button" data-nav="network-admin" type="button" hidden>Импорт сети</button>
       <button id="staffSectionNav" class="nav-button" data-nav="staff" type="button" hidden>Сотрудники</button>
       <button id="importSectionNav" class="nav-button" data-nav="import" type="button" hidden>Импорт 1С</button>
     </nav>
@@ -87,6 +89,8 @@
         <div id="catalog" class="catalog" aria-live="polite"></div>
       </section>
 
+      <section data-section="network" hidden><div id="networkContent"></div></section>
+      <section data-section="network-admin" hidden><div id="networkAdminContent"></div></section>
       <section data-section="preorder" hidden aria-label="Презентация новых смартфонов"><div id="preorderContent"><p class="loading" role="status">Открываю презентацию…</p></div></section>
 
       <section data-section="compatibility" hidden>
@@ -149,6 +153,6 @@
   <script src="vendor/supabase-2.95.0.min.js"></script>
   <script src="supabase-config.js?v=20261023-4"></script>
   <script src="supabase-client.js?v=20261025-14"></script>
-  <script type="module" src="webbase-app.js?v=20261107-24"></script>
+  <script type="module" src="webbase-app.js?v=20261107-25"></script>
 </body>
 </html>

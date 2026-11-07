@@ -1,3 +1,4 @@
+import {networkKey} from './network-identity.js?v=20261107-25';
 import { loadExcelLibrary } from './excel-loader.js?v=20261024-11';
 import { $, escapeHtml, normalizeText, parseQuantity, setBusy, splitSkus } from "./utils.js?v=20261023-4";
 
@@ -128,6 +129,9 @@ export function analyze1CRows(rows, existingProducts = []) {
     sourceSkus.forEach((sku) => (bySku.get(normalizeText(sku)) || []).forEach((product) => matches.set(product.id, product)));
     const externalMatch = existingProducts.find((product) => normalizeText(product.external_id) === item.source_key);
     if (externalMatch) matches.set(externalMatch.id, externalMatch);
+    if (!matches.size) for (const product of existingProducts) {
+      if (product.network_origin && product.active!==false && !product.is_demo && !product.sku && networkKey(product.name)===networkKey(item.name)) matches.set(product.id,product);
+    }
     const status = matches.size > 1 ? "ambiguous" : matches.size === 1 ? "update" : "new";
     return {
       ...item,

@@ -9,9 +9,10 @@
   <link rel="shortcut icon" href="favicon.ico?v=20261024">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=20261024">
   <title>Товар — Xiaomi WebBase</title>
-  <link rel="stylesheet" href="webbase.css?v=20261106-20">
+  <link rel="stylesheet" href="webbase.css?v=20261107-25">
   <link rel="stylesheet" href="product.css?v=20261023-4">
   <link rel="stylesheet" href="product-overrides.css?v=20261106-21">
+  <link rel="stylesheet" href="network-stock.css?v=20261107-25">
   <link rel="stylesheet" href="seller-help.css?v=20261107-24">
 </head>
 <body>
@@ -32,12 +33,13 @@
         <div class="product-summary">
           <p id="productCategory" class="eyebrow"></p>
           <h1 id="productName"></h1>
-          <p id="productSubtitle" class="product-subtitle"></p>
+          <p id="productSubtitle" class="product-subtitle"></p><p id="networkReviewNotice" class="network-review-badge" hidden>Фото или характеристики требуют проверки.</p>
           <div id="productFields" class="details-list"></div>
           <div class="panel stock-panel">
             <div class="section-title"><h2>Остатки</h2><span id="stockUpdated" class="muted"></span></div>
             <div id="productStock" class="product-stock"></div>
           </div>
+          <button id="networkAvailability" class="button ghost" type="button">Наличие в других магазинах</button>
           <div id="adminActions" class="admin-actions" hidden>
             <button id="editProduct" class="button primary" type="button">Редактировать</button>
             <button id="addPhoto" class="button ghost" type="button">Добавить фотографию</button>
@@ -118,6 +120,6 @@
   <script src="vendor/supabase-2.95.0.min.js"></script>
   <script src="supabase-config.js?v=20261023-4"></script>
   <script src="supabase-client.js?v=20261025-14"></script>
-  <script type="module" src="product.js?v=20261107-24"></script>
+  <script type="module" src="product.js?v=20261107-25"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-import { placeholderSvg } from "./utils.js?v=20261023-4";
+import { placeholderSvg } from "./utils.js?v=20261107-25";
 
 import { readWithRetry } from './network.js?v=20261024-8';
 

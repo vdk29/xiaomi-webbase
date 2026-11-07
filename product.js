@@ -1,12 +1,12 @@
 import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from "./js/utils.js?v=20261024-8";
 import { requireApprovedUser } from "./js/auth.js?v=20261024-11";
 import { compatibilityDetailsMarkup } from "./js/compatibility.js?v=20261106-19";
-import { productReturnUrl } from './js/listing-navigation.js?v=20261106-16';
+import { productReturnUrl } from './js/listing-navigation.js?v=20261107-25';
 import { isSmartphone, sellerHelpMarkup, mountSellerHelp } from './js/seller-help.js?v=20261107-24';
-import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261025-15";
+import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261107-25";
 import {
   deleteProductImage, prepareImage, reorderImages, setPrimaryImage, setSignedImage, uploadProductImage,
-} from "./js/images.js?v=20261025-14";
+} from "./js/images.js?v=20261107-25";
 
 const db = window.WebBaseDB;
 const state = { context: null, product: null, selectedImageId: null, preparedImage: null, dirty: false };
@@ -93,6 +93,7 @@ async function renderProduct() {
   const product = state.product;
   document.title = `${product.name} — Xiaomi WebBase`;
   $("productName").textContent = product.name;
+  if($("networkReviewNotice")) $("networkReviewNotice").hidden = !product.network_origin || (product.images.length > 0 && Boolean(trustedHttpUrl(product.specs?._source_url)));
   $("productCategory").textContent = product.category || "Без категории";
   $("productSubtitle").textContent = [product.brand, product.model, product.color, product.memory].filter(Boolean).join(" · ");
   $("productFields").innerHTML = [
@@ -233,6 +234,8 @@ async function boot() {
   if (!state.context) return;
   $("accountName").textContent = state.context.profile.display_name || state.context.profile.username || state.context.user.email;
   $("accountRole").textContent = state.context.admin ? "Администратор" : "Сотрудник";
+  let openNetwork;
+  $("networkAvailability")?.addEventListener("click", async () => {try{if(!openNetwork){const module=await import('./js/network-stock.js?v=20261107-25');openNetwork=module.createNetworkDialog(db);}await openNetwork({...state.product,imageSrc:$("mainImage").src});}catch(error){notify(errorMessage(error),true);}});
   $("signOut").onclick = async () => { await db.signOut(); location.replace("index.html"); };
   await reload();
 

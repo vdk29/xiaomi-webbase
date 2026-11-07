@@ -1,5 +1,6 @@
+import {networkKey} from './network-identity.js?v=20261107-25';
 import { $, debounce, escapeHtml, normalizeText, placeholderSvg, splitSkus } from "./utils.js?v=20261023-4";
-import { observeCatalogImages } from "./images.js?v=20261025-14";
+import { observeCatalogImages } from "./images.js?v=20261107-25";
 
 export const CATEGORY_ORDER = ["Смартфоны", "Планшеты", "Смарт-часы", "Наушники", "Фитнес-браслеты", "Телевизоры", "Пылесосы", "Бытовая техника для дома", "Умный дом", "Компьютерная техника", "Видеонаблюдение", "Аудио", "Аксессуары для пылесосов"];
 
@@ -26,7 +27,7 @@ export function orderedCategories(rows) {
 
 export function initializeCatalog(db, state) {
   const controls = ["search", "category", "availability"];
-  const renderDebounced = debounce(() => renderCatalog(db, state), 90);
+  const renderDebounced = debounce(() => { state.catalogLimit=48; renderCatalog(db, state); }, 90);
   controls.forEach((id) => {
     const element = $(id);
     if (!element) return;
@@ -53,7 +54,9 @@ export function matchesProductSearch(row, query) {
   if (!search) return true;
   const skus = [...splitSkus(row.sku), ...(row.source_skus || [])];
   if (matchesSkuSuffix(row, search)) return true;
-  return normalizeText([row.name, row.sku, ...skus, row.model, row.memory, row.color, row.brand].join(" ")).includes(search);
+  const text=[row.name,row.sku,...skus,row.model,row.memory,row.color,row.brand].join(" ");
+  if(normalizeText(text).includes(search))return true;
+  const canonical=networkKey(text);return networkKey(search).split(/\s+/).every(token=>canonical.includes(token));
 }
 
 function filterRows(rows) {
@@ -79,7 +82,9 @@ export function renderCatalog(db, state) {
     container.innerHTML = `<div class="empty-state"><span class="empty-icon">mi</span><h3>Товары не найдены</h3><p>Измените запрос или фильтры.</p></div>`;
     return;
   }
-  container.innerHTML = rows.map(row => renderProductCard(row)).join("");
+  const limit=state.catalogLimit||48;
+  container.innerHTML = rows.slice(0,limit).map(row => renderProductCard(row)).join("")+(rows.length>limit?'<button class="button ghost catalog-more" type="button">Показать ещё</button>':'');
+  const more=container.querySelector('.catalog-more');if(more)more.onclick=()=>{state.catalogLimit=limit+48;renderCatalog(db,state)};
   state.stopImageObserver = observeCatalogImages(db, container);
 }
 
@@ -96,6 +101,8 @@ export function renderProductCard(row, extra = "", hrefSuffix = "") {
         <h3>${escapeHtml(row.name)}</h3>
         <p class="product-meta">${escapeHtml(detail || `Артикул: ${row.sku || "—"}`)}</p>
         ${detail ? `<p class="product-sku">Артикул: ${escapeHtml(row.sku || "—")}</p>` : ""}
+        ${row.network_origin?'<span class="network-origin">Есть в каталоге сети</span>':''}
+        ${row.network_origin&&(!path||!row.spec_source)?'<small class="network-review-badge">Фото или характеристики требуют проверки</small>':''}
         ${saleStockMarkup(row.stock)}
         ${extra}
       </div>

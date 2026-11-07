@@ -1,17 +1,17 @@
-import { primeSignedUrls } from "./images.js?v=20261025-14";
+import { primeSignedUrls } from "./images.js?v=20261107-25";
 import { parseQuantity } from "./utils.js?v=20261023-4";
 import { readWithRetry, abortableRead, isTransientReadError } from './network.js?v=20261024-8';
 
 export const CATALOG_SELECT = `
-  id,external_id,sku,name,source_name,source_skus,category,brand,model,memory,color,active,
-  compatibility:specs->_compatibility,
+  id,external_id,sku,name,source_name,source_skus,category,brand,model,memory,color,active,image_path,network_origin,is_demo,
+  compatibility:specs->_compatibility,spec_source:specs->_source_url,
   webbase_stock(warehouse,display,ldu,updated_at),
   webbase_product_images(id,storage_path,sort_order,is_primary)
 `;
 
 export const PRODUCT_SELECT = `
   id,external_id,sku,name,source_name,source_skus,category,brand,model,memory,color,
-  description,specs,active,created_at,updated_at,last_imported_at,
+  description,specs,active,image_path,network_origin,is_demo,created_at,updated_at,last_imported_at,
   webbase_stock(warehouse,display,ldu,updated_at),
   webbase_product_images(id,storage_path,sort_order,is_primary,mime_type,byte_size,width,height,created_at,original_name,source_url)
 `;
@@ -24,6 +24,7 @@ export function normalizeProduct(row) {
     if (a.is_primary !== b.is_primary) return a.is_primary ? -1 : 1;
     return a.sort_order - b.sort_order;
   });
+  if (!images.length && row.image_path && row.network_origin) images.push({id:'network-'+row.id,storage_path:row.image_path,is_primary:true,sort_order:0,inherited:true,source_url:row.specs?._network_image_source});
   return {
     ...row,
     specs: row.specs || (row.compatibility ? { _compatibility: row.compatibility } : {}),
@@ -73,6 +74,7 @@ export async function listProducts(db, { onProgress, backgroundImages = false, o
       .from("webbase_catalog")
       .select(CATALOG_SELECT)
       .eq("active", true)
+      .eq("is_demo", false)
       .order('catalog_in_stock', { ascending: false })
       .order('category', { ascending: false, nullsFirst: false })
       .order("name")

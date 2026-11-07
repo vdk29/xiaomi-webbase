@@ -17,3 +17,7 @@
 .product-card .sale-stock>strong{grid-row:1}
 .product-card .sale-stock__status{grid-column:1/-1;white-space:nowrap}
 @media(max-width:560px){.product-card .sale-stock{min-height:72px}}
+
+.catalog-more{grid-column:1/-1;justify-self:center}.network-origin{display:inline-block;color:#9d4708;background:#fff5e8;border-radius:8px;padding:5px 8px;font-size:11px}
+
+.network-review-badge{display:block;font-size:11px;color:#955313;line-height:1.5;margin:7px 0}
