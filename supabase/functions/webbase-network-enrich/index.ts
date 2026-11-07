@@ -44,7 +44,7 @@ async function enrich(db:any,job:any){
    if(!Object.keys(specs).some(k=>!k.startsWith('_'))){
     for(const [key,value]of Object.entries(result.specs||{}))if(!/памят|цвет|__proto__|constructor|prototype/i.test(key))specs[key]=value;
     for(const property of result.product.additionalProperty||[])if(typeof property.name==='string'&&!/памят|цвет|__proto__|constructor|prototype/i.test(property.name)&&['string','number'].includes(typeof property.value))specs[property.name.slice(0,120)]=String(property.value).slice(0,1000);
-    if(Object.keys(specs).length){specs._source_url=result.url;specs._verified_at=donor.specs._verified_at||donor.specs._description_verified_at||null;specs._network_reused_at=new Date().toISOString().slice(0,10);sources.push({kind:'specs',url:result.url});}
+    if(Object.keys(specs).length){specs._source_url=result.url;specs._verified_at=new Date().toISOString().slice(0,10);sources.push({kind:'specs',url:result.url});}
    }
    if(!image){const candidates=[result.product.image].flat().map((x:any)=>typeof x==='string'?x:x?.url).filter(Boolean).map((url:string)=>new URL(url,result.url).href).filter(safe);if(candidates.length){
     const response=await fetchSafe(candidates[0]);if(Number(response.headers.get('content-length'))>8000000)throw Error('Слишком тяжёлое изображение');const original=new Uint8Array(await response.arrayBuffer());if(original.length>8000000)throw Error('Слишком тяжёлое изображение');
