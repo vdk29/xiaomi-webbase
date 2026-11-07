@@ -24,6 +24,7 @@ export function productReturnUrl(productHref) {
       const value = target.searchParams.get(key);
       if (value) clean.set(key, value.slice(0, 500));
     }
+    if (target.searchParams.get('section') === 'network' && ['smart_orange','mobility','mixtech'].includes(target.searchParams.get('network_company'))) clean.set('network_company', target.searchParams.get('network_company'));
     if (target.searchParams.has('scroll')) clean.set('scroll', String(listingScroll(target.searchParams.get('scroll'))));
     return `index.html${clean.size ? `?${clean}` : ''}`;
   } catch { return fallback; }
