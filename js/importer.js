@@ -1,5 +1,4 @@
 import {networkKey} from './network-identity.js?v=20261107-25';
-import { loadExcelLibrary } from './excel-loader.js?v=20261024-11';
 import { $, escapeHtml, normalizeText, parseQuantity, setBusy, splitSkus } from "./utils.js?v=20261023-4";
 
 export function classifyProduct(name) {
@@ -170,14 +169,20 @@ export function initializeImporter(db, state, { notify, reloadProducts }) {
     try {
       if (state.catalogComplete === false) throw new Error('Дождитесь полной загрузки каталога перед импортом.');
       $("importPreview").textContent = 'Читаю Excel…';
-      await loadExcelLibrary();
-      const bytes = await file.arrayBuffer();
-      if (state.catalogComplete === false) throw new Error('Дождитесь полной загрузки каталога перед импортом.');
-      const workbook = XLSX.read(bytes, { type: "array" });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "", raw: true });
+      const module=await import('./unified-import.js?v=20261107-27');
+      const parsed=await module.parseUnifiedFile(file);
       if (version !== fileReadVersion) return;
-      state.importPreview = { ...analyze1CRows(rows, state.rows), filename: file.name, showAll: false };
+      if(parsed.type==='network') {
+        const {data:warehouses,error}=await db.client.from('webbase_network_warehouses')
+          .select('key,kind,company,reviewed,excluded,webbase_network_stores(is_local)');
+        if(error)throw error;
+        const local=module.localNetworkPreview(parsed.report,warehouses);
+        if(version!==fileReadVersion)return;
+        state.importPreview={type:'network',report:parsed.report,local};
+      } else {
+        if(state.catalogComplete===false)throw Error('Дождитесь полной загрузки каталога перед импортом.');
+        state.importPreview={...analyze1CRows(parsed.rows,state.rows),filename:file.name,showAll:false};
+      }
       renderImportPreview(state.importPreview);
     } catch (error) {
       if (version !== fileReadVersion) return;
@@ -197,6 +202,20 @@ export function initializeImporter(db, state, { notify, reloadProducts }) {
     if (!button || !state.importPreview || applying) return;
     if (state.catalogComplete === false) return notify('Каталог загружен не полностью. Обновите его перед импортом.', true);
     const preview = state.importPreview;
+    if(preview.type==='network') {
+      if(!confirm('Обновить остатки всей сети и Европолиса из общего отчёта? Локальные остатки заменятся складом и ОВ Европолиса, без брака. Фото и ручные поля сохранятся.'))return;
+      applying=true;$("excel").disabled=true;setBusy(button,true,'Обновляю сеть и Европолис…');
+      try {
+        const module=await import('./unified-import.js?v=20261107-27');
+        const result=await module.applyUnifiedReport(db,preview.report,text=>button.textContent=text);
+        const network=await import('./network-stock.js?v=20261107-26');network.clearNetworkCache();
+        state.importPreview=null;$("excel").value='';$("importPreview").replaceChildren();
+        await reloadProducts();
+        notify(result.repeated?'Этот отчёт уже применён к сети и Европолису. Дубликаты не созданы.':`Обновлены сеть и Европолис. Могу продать: ${result.local.warehouse}, на ОВ: ${result.local.display}. Брак в локальные остатки не включён.`);
+      } catch(error) {notify(error.message,true);}
+      finally {applying=false;$("excel").disabled=!state.catalogComplete;setBusy(button,false);}
+      return;
+    }
     if (!preview.items.length || preview.errors.length || preview.ambiguous.length) return notify('Исправьте ошибки отчёта перед импортом.', true);
     if (!confirm(`Синхронизировать остатки с полным отчётом (${preview.items.length} товаров)? Товары, которых нет в файле, получат нулевой остаток. Фото и ручные поля сохранятся.`)) return;
     applying = true;
@@ -224,6 +243,16 @@ export function initializeImporter(db, state, { notify, reloadProducts }) {
 }
 
 function renderImportPreview(preview) {
+  if(preview.type==='network') {
+    const {report,local}=preview;
+    $("importPreview").innerHTML=`<h3>Общий отчёт: сеть и Европолис</h3><p class="muted">Отчёт от ${escapeHtml(report.report_date)} · ${report.items.length} позиций · ${report.columns.length} учётных складов.</p>
+      <div class="import-summary"><span><strong>${local.warehouse}</strong> могу продать</span><span><strong>${local.display}</strong> на ОВ</span><span><strong>${local.warehouse+local.display}</strong> всего в Европолисе</span></div>
+      <p class="muted">Европолис: ${local.columns.map(escapeHtml).join('; ')}. LDU на витрине: ${local.ldu}. Брак в локальные остатки не включается.</p>
+      <p>Остатки всей сети обновятся с прежним разделением на склад, ОВ и брак.</p>
+      <p class="message warning"><strong>Полная синхронизация.</strong> Локальные остатки из отчёта заменят прежние, а не прибавятся к ним. Товары Европолиса, отсутствующие в этом файле, получат ноль. Фотографии, описания и ручные поля сохранятся.</p>
+      <button class="button primary" data-import>Обновить сеть и Европолис</button>`;
+    return;
+  }
   const updates = preview.items.filter((item) => item.status === "update").length;
   const created = preview.items.filter((item) => item.status === "new").length;
   const blocked = preview.errors.length > 0 || preview.ambiguous.length > 0 || preview.items.length === 0;

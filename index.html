@@ -124,7 +124,7 @@
         <div class="page-heading"><div><p class="eyebrow">Администрирование</p><h1>Импорт из 1С</h1><p>Сначала показываем изменения, затем применяем их одной транзакцией.</p></div></div>
         <div class="panel import-panel">
           <h2>Выгрузка остатков</h2>
-          <p class="muted">Артикул — A, номенклатура — D. Колонки склада, ОВ, брака / ПФ и итога определяются по заголовкам; их порядок может меняться. Полный отчёт заменяет остатки: товары, отсутствующие в файле, получат ноль. Ручные данные и фотографии сохраняются.</p>
+          <p class="muted">Выберите общий отчёт всех магазинов: он обновит всю сеть и отдельно склад и ОВ Европолиса, без брака в локальных остатках. Прежний отчёт только нашего магазина тоже поддерживается. Полный отчёт заменяет остатки, а не прибавляет их. Фотографии и ручные данные сохраняются.</p>
           <label class="file-picker">Выбрать Excel-файл<input id="excel" type="file" accept=".xlsx,.xls,.csv"></label>
           <div id="importPreview"></div>
         </div>
@@ -153,6 +153,6 @@
   <script src="vendor/supabase-2.95.0.min.js"></script>
   <script src="supabase-config.js?v=20261023-4"></script>
   <script src="supabase-client.js?v=20261025-14"></script>
-  <script type="module" src="webbase-app.js?v=20261107-26"></script>
+  <script type="module" src="webbase-app.js?v=20261107-27"></script>
 </body>
 </html>
