@@ -24,7 +24,7 @@ export function parseNetworkRows(rows,{levels=[],filename='report.xlsx'}={}) {
  for(let i=start;i<final.i;i++){
   const row=rows[i];let name=rowName(row);if(!name)continue;
   const next=rows.findIndex((r,j)=>j>i&&rowName(r));
-  if(/^итого(?:\s|$)/i.test(name)||(skuColumn>=0&&!clean(row[skuColumn]))||(next>=0&&Number(levels[next]||0)>Number(levels[i]||0))){skipped.push({row:i+1,name,reason:'group_or_subtotal'});continue;}
+  if(/^итого(?:\s|$)/i.test(name)||(skuColumn>=0&&!clean(row[skuColumn]))||(skuColumn<0&&next>=0&&Number(levels[next]||0)>Number(levels[i]||0))){skipped.push({row:i+1,name,reason:'group_or_subtotal'});continue;}
   const sku=skuColumn>=0?clean(row[skuColumn]):'';const sourceName=name;if(isDemoName(sku)&&!isDemoName(name))name='(LDU) '+name;const sourceSkus=sku?[sku]:[];
   const key=networkKey(name);if(seen.has(key))throw Error(`Повторная товарная строка ${i+1}: ${name}`);seen.add(key);
   const values=columns.map((col,j)=>{const n=quantity(row[col.column],i+1,col.column+1);columnSums[j]+=n;if(n<0)negative++;return n;});

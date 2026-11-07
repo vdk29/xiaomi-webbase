@@ -48,3 +48,8 @@ test('SKU-only LDU markers stay separate from sellable variants and duplicate or
  const result=parseUnifiedWorkbook(XLSX,workbook(rows));assert.equal(result.report.items[1].is_demo,true);assert.equal(result.report.items[1].source_raw_name,'Смартфон QA 8/128 Black');assert.notEqual(result.report.items[0].key,result.report.items[1].key);
  rows[4][0]='ORDINARY';rows[4][3]='Смартфон QA 8/256 Black';assert.throws(()=>parseUnifiedWorkbook(XLSX,workbook(rows)),/Артикул.*повторяется/);
 });
+
+test('SKU product before a deeper model group is not discarded when group names are merged into A instead of D',()=>{
+ const rows=[['Период: 07.11.2026 - 07.11.2026'],['Артикул','','','Номенклатура','','','Склад ТЦ Европолис','Склад ТЦ Европолис ОВ','Брак','Склад Другой','Итого'],['','','','','','','Количество','Количество','Количество','Количество','Количество'],['Категория'],['SKU-A','','','Смартфон QA A','','',2,0,0,0,2],['Новая глубокая группа'],['SKU-B','','','Смартфон QA B','','',3,0,0,0,3],['Итого','','','','','',5,0,0,0,5]];
+ const report=parseNetworkRows(rows,{levels:[0,0,0,0,1,0,2,0]});assert.equal(report.items.length,2);assert.equal(report.total,5);assert.equal(report.items[0].source_skus[0],'SKU-A');
+});
