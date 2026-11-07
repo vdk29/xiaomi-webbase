@@ -7,6 +7,10 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
  const page=await browser.newPage({viewport:{width,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));let requests=[];page.on('request',r=>requests.push(r.url()));
  await page.route('**/supabase-client.js*',route=>route.fulfill({contentType:'text/javascript',body:`window.preorderQA={reads:0};window.WebBaseDB={config:{url:'https://test.invalid',bucket:'test'},getSession:async()=>({user:{id:'test'}}),client:{auth:{onAuthStateChange:()=>{}},from:table=>{const q={select:()=>q,eq:()=>q,order:()=>q,range:async()=>{preorderQA.reads++;return {data:[]}},maybeSingle:async()=>({data:{active:true,role:'staff'}})};return q},rpc:async()=>({data:[]})}};`}));
  await page.goto(base+'index.html?section=preorder');await page.locator('.po-shell').waitFor();
+ assert.equal(await page.locator('.po-hero').count(),0);
+ assert.equal(await page.locator('.po-shell > section').first().getAttribute('id'),'po-rear');
+ assert.doesNotMatch(await page.locator('.po-shell').innerText(),/Ещё одна грань|ПРЕДЗАКАЗ · КОЛЛЕКЦИЯ/);
+ assert.equal(await page.locator('#po-rear h1').count(),1);
  assert.equal(await page.evaluate(()=>preorderQA.reads),0,'Preorder must not fetch catalog');
  assert.equal(await page.locator('#catalogStatus').isVisible(),false);
  assert.equal(await page.locator('#po-film').getAttribute('src'),null);

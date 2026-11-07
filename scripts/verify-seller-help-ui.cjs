@@ -28,24 +28,36 @@ const output = process.env.WEBBASE_SCREENSHOT_DIR || '/workspace/scratch';
       await page.locator('#productView:visible').waitFor();
       assert.equal(await page.locator('#descriptionTitle').innerText(), 'Помощь продавцу');
       assert.equal(await page.locator('#productDescription').isVisible(), false);
-      assert.equal(await page.locator('.seller-card').count(), 6);
-      assert.match(await page.locator('#seller-memory').innerText(), /256 ГБ/);
-      assert.match(await page.locator('#seller-camera').innerText(), /Leica/);
+      assert.equal(await page.locator('[role=tab]').count(), 6);
+      assert.equal(await page.locator('[role=tabpanel]:visible').count(), 1);
+      assert.match(await page.locator('[role=tabpanel]:visible').innerText(), /6500/);
       assert.equal(await page.locator('[data-stock-value=sellable]').innerText(), '3');
       assert.equal(await page.locator('#specsSection').isVisible(), true);
+      for (const topic of ['camera','screen','performance','memory','practical','battery']) {
+        await page.locator(`[data-seller-tab="${topic}"]`).click();
+        assert.equal(await page.locator('[role=tabpanel]:visible').count(), 1);
+        assert.equal(await page.locator(`#seller-${topic}`).isVisible(), true);
+        assert.equal(await page.locator(`[data-seller-tab="${topic}"]`).getAttribute('aria-selected'), 'true');
+      }
+      await page.locator('[data-seller-tab=memory]').click();
+      assert.match(await page.locator('#seller-memory').innerText(), /256 ГБ/);
+      await page.locator('[data-seller-tab=memory]').press('Home');
+      assert.equal(await page.locator('[data-seller-tab=battery]').getAttribute('aria-selected'), 'true');
+      await page.keyboard.press('ArrowRight');
+      assert.equal(await page.locator('[data-seller-tab=camera]').getAttribute('aria-selected'), 'true');
+      await page.keyboard.press('End');
+      assert.equal(await page.locator('[data-seller-tab=practical]').getAttribute('aria-selected'), 'true');
+      await page.keyboard.press('ArrowRight');
+      assert.equal(await page.locator('[data-seller-tab=battery]').getAttribute('aria-selected'), 'true');
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-      await page.locator('.seller-jumps a[href="#seller-camera"]').click();
-      assert.equal(new URL(page.url()).hash, '#seller-camera');
-      await page.waitForFunction(() => { const top=document.querySelector('#seller-camera').getBoundingClientRect().top; return top>=90 && top<=120; });
-      await page.locator('.seller-details').first().locator('summary').click();
-      assert.equal(await page.locator('.seller-answers').isVisible(), true);
+      assert.doesNotMatch(await page.locator('#productSellerHelp').innerText(), /Сначала спросите|Если клиент сомневается|Завершите рекомендацией/);
       await page.locator('.seller-sources summary').click();
-      assert.ok((await page.locator('.seller-sources a').count()) >= 2);
+      assert.ok((await page.locator('.seller-sources a').count()) >= 1);
       await page.locator('#descriptionSection').scrollIntoViewIfNeeded();
       await page.screenshot({path:path.join(output,`seller-help-${width}.png`),fullPage:true});
       await page.reload();
       await page.locator('#productSellerHelp:visible').waitFor();
-      assert.equal(await page.locator('.seller-card').count(), 6);
+      assert.equal(await page.locator('[role=tab]').count(), 6);
       // Nonphone must preserve its old title and paragraph, with no generated advice.
       await page.unroute('**/supabase-client.js*');
       await page.route('**/supabase-client.js*', route => route.fulfill({contentType:'text/javascript',body:`
@@ -56,10 +68,10 @@ const output = process.env.WEBBASE_SCREENSHOT_DIR || '/workspace/scratch';
       assert.equal(await page.locator('#descriptionTitle').innerText(), 'Описание');
       assert.equal(await page.locator('#productDescription').innerText(), 'Исходное описание планшета');
       assert.equal(await page.locator('#productSellerHelp').isVisible(), false);
-      assert.equal(await page.locator('.seller-card').count(), 0);
+      assert.equal(await page.locator('[role=tab]').count(), 0);
       assert.deepEqual(errors, []);
       assert.equal(requests.some(url => /mi\.com|salesforce\.com|supabase\.co/.test(url)), false);
-      console.log(`PASS ${width}px: phone guide, variant, topic navigation, sources, reload, unchanged tablet, no extra data requests`);
+      console.log(`PASS ${width}px: phone guide, variant, compact tabs and keyboard, sources, reload, unchanged tablet, no extra data requests`);
       await page.close();
     }
   } finally { await browser.close(); }

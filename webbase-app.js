@@ -123,12 +123,12 @@ function showPreorder() {
   const css = new Promise((resolve, reject) => {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'preorder.css?v=20261107-22';
+    link.href = 'preorder.css?v=20261107-24';
     link.onload = resolve;
     link.onerror = () => { link.remove(); reject(new Error('Не удалось загрузить оформление')); };
     document.head.append(link);
   });
-  preorderLoad = Promise.all([css, import('./js/preorder.js?v=20261107-22')])
+  preorderLoad = Promise.all([css, import('./js/preorder.js?v=20261107-24')])
     .then(async ([, module]) => { preorderController = await module.mountPreorder($('preorderContent')); if(state.section !== 'preorder' || !state.user) preorderController?.pause(); })
     .catch(() => {
       preorderLoad = null;

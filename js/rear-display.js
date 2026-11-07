@@ -14,7 +14,7 @@ export const REAR_DISPLAY_SCENARIOS = [
 export function rearDisplayMarkup() {
   return `<div class="rd-layout" data-rear-demo>
     <figure class="rd-photo-stage"><div class="rd-phone">
-      <img class="rd-phone-photo" src="${PHONE}" alt="Официальное изображение заднего экрана Xiaomi 18 Pro Max крупным планом" width="2560" height="1136" loading="lazy" decoding="async">
+      <img class="rd-phone-photo" src="${PHONE}" alt="Официальное изображение заднего экрана Xiaomi 18 Pro Max крупным планом" width="2560" height="1136" loading="eager" fetchpriority="high" decoding="async">
       <div class="rd-display"><div id="po-demo-screen" class="rd-display-inner" role="img" aria-label="Пример часов на заднем экране"></div></div>
     </div><figcaption><strong>Xiaomi 18 Pro Max</strong><span>2,9″ AMOLED · крупным планом</span></figcaption></figure>
     <div class="rd-controls"><p class="rd-instruction">Нажми на сценарий — изображение на телефоне изменится</p>

@@ -1,15 +1,18 @@
 .product-sections.has-seller-help{grid-template-columns:minmax(0,1fr)}
 .has-seller-help>.panel{min-width:0}
 .has-seller-help .section-title{flex-wrap:wrap}
-.seller-help{--seller-orange:#c74600;line-height:1.65;color:#273443;overflow-wrap:anywhere}
-.seller-help h3{margin:0;font-size:18px;line-height:1.4;color:#192837}
-.seller-help p{margin:10px 0 0}
-.seller-intro{border:1px solid #ffd7b5;border-radius:18px;padding:24px;background:linear-gradient(120deg,#fff2e5,#fff9f4 75%)}
-.seller-kicker{display:block;color:#a93d00;text-transform:uppercase;letter-spacing:.08em;font-size:11px;font-weight:750;margin-bottom:8px}
-.seller-intro h3{font-size:25px}.seller-intro blockquote{margin:16px 0;padding:12px 16px;border-left:3px solid #ff6900;background:#ffffffb3;border-radius:0 10px 10px 0;font-weight:600}
-.seller-variant{display:inline-block;border:1px solid #f3c399;background:#fff;color:#8c3a00;font-size:13px;border-radius:20px;padding:4px 12px}
-.seller-questions{padding:22px 2px 4px}.seller-questions ol{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;list-style-position:inside;padding:0;margin:12px 0}.seller-questions li{padding:13px;background:#f2f5f8;border-radius:12px;font-weight:600;font-size:14px}.seller-questions p{font-size:13px;color:#556471}
-.seller-jumps{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}.seller-jumps a{color:#923800;text-decoration:none;border:1px solid #eec7a6;background:#fff9f3;padding:7px 12px;border-radius:20px;font-size:13px;font-weight:650}.seller-jumps a:hover{background:#ffe5ce}
-.seller-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.seller-card{border:1px solid #e0e6ed;border-radius:16px;padding:20px;scroll-margin-top:100px;min-width:0;background:#fff}.seller-card-title{display:flex;align-items:center;gap:10px}.seller-card-title>span{display:flex;align-items:center;justify-content:center;border-radius:12px;background:#fff0e2;color:#b94700;width:36px;height:36px;font-size:25px;flex-shrink:0}.seller-fact{font-weight:750;color:#9b3b00;font-size:15px}.seller-line{font-size:14px}.seller-line>strong{display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#607180;margin-bottom:3px}.seller-say{padding:12px;background:#f0f8f4;border-radius:10px;color:#194d35}.seller-say>strong{color:#2e6a4d}.seller-demo{color:#536170}
-.seller-details{margin-top:14px;border:1px solid #e0e6ed;border-radius:12px;padding:0 16px}.seller-details summary{cursor:pointer;padding:15px 0;font-size:15px;font-weight:700;color:#273443;min-height:48px}.seller-details>div{padding-bottom:16px}.seller-check{background:#fffcf5}.seller-check summary{color:#785323}.seller-close{margin-top:18px;background:#eff4fc;border-radius:16px;padding:20px}.seller-close p{font-size:14px}.seller-close p:last-child{color:#566879;font-size:12px}.seller-sources{color:#627181;font-size:12px}.seller-sources a{display:block;color:#8b3c06;margin:10px 0;text-decoration:underline}.seller-sources p{margin-bottom:14px}.seller-help a:focus-visible,.seller-help summary:focus-visible{outline:3px solid #b34700;outline-offset:4px}
-@media(max-width:700px){.seller-grid{grid-template-columns:1fr}.seller-questions ol{grid-template-columns:1fr}.seller-intro{padding:17px}.seller-intro h3{font-size:22px}.seller-card{padding:17px}.seller-help h3{font-size:17px}.seller-jumps{gap:6px}.seller-jumps a{font-size:12px;padding:7px 10px}.seller-close{padding:17px}.seller-details{padding:0 13px}}
+.seller-help{color:#273443;line-height:1.6;overflow-wrap:anywhere}
+.seller-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.seller-tabs button{border:1px solid #e7d9cd;border-radius:12px;padding:10px 14px;min-height:44px;background:#fff8f1;color:#853a0b;font:inherit;font-size:14px;font-weight:650;cursor:pointer}
+.seller-tabs button[aria-selected=true]{color:#fff;background:#b94700;border-color:#b94700;box-shadow:0 3px 10px #b9470020}
+.seller-tabs button:hover{border-color:#b94700}
+.seller-tip{border:1px solid #e3e9e4;border-radius:14px;padding:16px;background:#f4faf6}
+.seller-fact{color:#8c3a00;font-size:14px;font-weight:700;margin:0 0 10px}
+.seller-say{font-size:16px;line-height:1.65;margin:0;color:#184e35}
+.seller-say span{display:block;color:#3a6b50;font-size:11px;font-weight:750;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.seller-sources{font-size:12px;color:#65717a;margin-top:12px}
+.seller-sources summary{cursor:pointer;min-height:32px;padding:5px 0}
+.seller-sources a{display:block;color:#8c3a00;margin:8px 0}
+.seller-empty{font-size:13px;margin:0 0 12px;color:#65717a}
+.seller-help :is(button,[role=tabpanel],summary,a):focus-visible{outline:3px solid #b94700;outline-offset:3px}
+@media(max-width:560px){.seller-tabs{gap:6px}.seller-tabs button{font-size:12px;padding:8px 10px}.seller-tip{padding:13px}.seller-say{font-size:15px}}

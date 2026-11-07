@@ -2,7 +2,7 @@ import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from
 import { requireApprovedUser } from "./js/auth.js?v=20261024-11";
 import { compatibilityDetailsMarkup } from "./js/compatibility.js?v=20261106-19";
 import { productReturnUrl } from './js/listing-navigation.js?v=20261106-16';
-import { isSmartphone, sellerHelpMarkup } from './js/seller-help.js?v=20261107-23';
+import { isSmartphone, sellerHelpMarkup, mountSellerHelp } from './js/seller-help.js?v=20261107-24';
 import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261025-15";
 import {
   deleteProductImage, prepareImage, reorderImages, setPrimaryImage, setSignedImage, uploadProductImage,
@@ -126,6 +126,7 @@ async function renderProduct() {
   $("productDescription").textContent = product.description || "";
   $("productSellerHelp").hidden = !phone;
   $("productSellerHelp").innerHTML = phone ? sellerHelpMarkup(product) : '';
+  mountSellerHelp($("productSellerHelp"));
   const compatibility = compatibilityDetailsMarkup(product);
   $("compatibilitySection").hidden = !compatibility;
   $("productCompatibility").innerHTML = compatibility;

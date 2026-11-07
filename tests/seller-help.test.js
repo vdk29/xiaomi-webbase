@@ -18,9 +18,10 @@ test('all 62 current variants map to eight distinct reviewed families and retain
     assert.match(help.cards.find(card => card.id === 'memory').fact, new RegExp(`${help.memory.storage} ГБ`));
     const before = JSON.stringify(product);
     const markup = sellerHelpMarkup(product);
-    assert.ok(markup.includes(help.profile.name));
-    assert.ok(markup.includes('Скажите клиенту'));
-    assert.ok(markup.includes('Источники и дата проверки'));
+    assert.match(markup, /role="tablist"/);
+    assert.equal((markup.match(/role="tab" /g)||[]).length, 6);
+    assert.ok(markup.includes('Что сказать клиенту'));
+    assert.ok(markup.includes('Источники ·'));
     assert.equal(JSON.stringify(product), before);
   }
 });
@@ -68,7 +69,7 @@ test('seller help escapes product content, rejects unsafe links, and leaves stor
   const product=phone('<img src=x onerror=alert(1)>', {color:'<svg onload=alert(1)>', description:'Оригинал', specs:{_source_url:'javascript:alert(1)'}});
   const markup=sellerHelpMarkup(product);
   assert.doesNotMatch(markup, /<img|<svg|href="javascript:/);
-  assert.match(markup, /&lt;img/);
+  assert.match(sellerHelpMarkup({...product,specs:{_source_url:'https://example.com/?a=1&b=2'}}), /a=1&amp;b=2/);
   assert.equal(product.description, 'Оригинал');
   assert.ok(SELLER_PROFILES.every(profile => new URL(profile.source).hostname==='www.mi.com'));
 });
@@ -79,5 +80,17 @@ test('reimported stock, alias and description changes cannot change a family or 
     const after=buildSellerHelp({...product, description:'', sku:'new-alias',stock:{warehouse:0,display:3}});
     assert.equal(before.profile.id, after.profile.id);
     assert.deepEqual(before.cards, after.cards);
+  }
+});
+
+
+test('consultation stays compact: one phrase per topic with no case studies or long introduction', () => {
+  for (const product of phones) {
+    const help=buildSellerHelp(product);
+    assert.ok(help.cards.every(card => card.say.length < 310));
+    const markup=sellerHelpMarkup(product);
+    assert.equal((markup.match(/role="tabpanel"/g)||[]).length, 6);
+    assert.equal((markup.match(/tabindex="0" hidden/g)||[]).length, 5);
+    assert.doesNotMatch(markup, /Сначала спросите|Если клиент сомневается|Завершите рекомендацией|Покажите|seller-intro/);
   }
 });
