@@ -4,7 +4,7 @@ async function rpc(db,name,args){const{data,error}=await db.client.rpc(name,args
 async function read(query){const{data,error}=await query;if(error)throw error;return data;}
 async function parseFile(file){
  const buffer=await file.arrayBuffer();const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',buffer))).map(v=>v.toString(16).padStart(2,'0')).join('');
- const worker=new Worker(new URL('./network-import-worker.js?v=20261107-28',import.meta.url));
+ const worker=new Worker(new URL('./network-import-worker.js?v=20261108-1',import.meta.url));
  const parsed=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>{worker.terminate();reject(Error('Не удалось разобрать отчёт за отведённое время'))},60000);worker.onmessage=e=>{clearTimeout(timer);worker.terminate();e.data.error?reject(Error(e.data.error)):resolve(e.data.result)};worker.onerror=e=>{clearTimeout(timer);worker.terminate();reject(Error(e.message||'Ошибка обработчика Excel'))};worker.postMessage({buffer,filename:file.name},[buffer]);});
  return {...parsed,file_hash:hash};
 }

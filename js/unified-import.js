@@ -1,4 +1,4 @@
-import {parseNetworkWorkbook} from './network-parser.js?v=20261107-28';
+import {parseNetworkWorkbook} from './network-parser.js?v=20261108-1';
 import {networkKey} from './network-identity.js?v=20261107-25';
 
 export function parseUnifiedWorkbook(XLSX,workbook,options={}) {
@@ -19,7 +19,7 @@ export async function parseUnifiedFile(file) {
  if(file.size>15*1024*1024)throw Error('Размер файла должен быть не больше 15 МБ');
  const buffer=await file.arrayBuffer();
  const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',buffer))).map(v=>v.toString(16).padStart(2,'0')).join('');
- const worker=new Worker(new URL('./unified-import-worker.js?v=20261107-28',import.meta.url));
+ const worker=new Worker(new URL('./unified-import-worker.js?v=20261108-1',import.meta.url));
  const result=await new Promise((resolve,reject)=>{
   const timer=setTimeout(()=>{worker.terminate();reject(Error('Не удалось проверить Excel за отведённое время'))},60000);
   worker.onmessage=({data})=>{clearTimeout(timer);worker.terminate();data.error?reject(Error(data.error)):resolve(data.result)};

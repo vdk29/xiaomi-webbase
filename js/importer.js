@@ -169,7 +169,7 @@ export function initializeImporter(db, state, { notify, reloadProducts }) {
     try {
       if (state.catalogComplete === false) throw new Error('Дождитесь полной загрузки каталога перед импортом.');
       $("importPreview").textContent = 'Читаю Excel…';
-      const module=await import('./unified-import.js?v=20261107-28');
+      const module=await import('./unified-import.js?v=20261108-1');
       const parsed=await module.parseUnifiedFile(file);
       if (version !== fileReadVersion) return;
       if(parsed.type==='network') {
@@ -206,7 +206,7 @@ export function initializeImporter(db, state, { notify, reloadProducts }) {
       if(!confirm('Обновить остатки всей сети и Европолиса из общего отчёта? Локальные остатки заменятся складом и ОВ Европолиса, без брака. Фото и ручные поля сохранятся.'))return;
       applying=true;$("excel").disabled=true;setBusy(button,true,'Обновляю сеть и Европолис…');
       try {
-        const module=await import('./unified-import.js?v=20261107-28');
+        const module=await import('./unified-import.js?v=20261108-1');
         const result=await module.applyUnifiedReport(db,preview.report,text=>button.textContent=text);
         const network=await import('./network-stock.js?v=20261107-26');network.clearNetworkCache();
         state.importPreview=null;$("excel").value='';$("importPreview").replaceChildren();
