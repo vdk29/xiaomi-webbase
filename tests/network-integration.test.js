@@ -12,3 +12,11 @@ test('network product return preserves only a valid legal entity', async () => {
  }
  assert.equal(productReturnUrl('https://example.com/product.html?returnTo='+encodeURIComponent('index.html?section=network&network_company=invalid')),'index.html?section=network');
 });
+
+
+test('network return retains its category without applying it as the local catalogue category',async()=>{
+ const {productReturnUrl}=await import('../js/listing-navigation.js');
+ const target='index.html?section=network&network_company=smart_orange&network_category='+encodeURIComponent('Смартфоны');
+ const result=new URL(productReturnUrl('https://example.com/product.html?returnTo='+encodeURIComponent(target)),'https://example.com/');
+ assert.equal(result.searchParams.get('network_category'),'Смартфоны');assert.equal(result.searchParams.has('category'),false);
+});

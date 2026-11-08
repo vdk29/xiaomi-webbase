@@ -1,5 +1,5 @@
 import {networkKey,networkProductFields,networkWarehouseKey,isDemoName} from './network-identity.js?v=20261107-25';
-import {classifyProduct} from './importer.js?v=20261108-1';
+import {classifyProduct} from './importer.js?v=20261108-2';
 const isNameHeader=value=>/^номенклатура(?:$|[,. ])/i.test(clean(value))&&!/артикул/i.test(clean(value));
 // 1C can leave an article blank on a real leaf. The explicit unit distinguishes
 // it from category/model headings; all row, warehouse and grand totals still apply.

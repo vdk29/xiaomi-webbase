@@ -1,7 +1,7 @@
 import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from "./js/utils.js?v=20261024-8";
 import { requireApprovedUser } from "./js/auth.js?v=20261024-11";
 import { compatibilityDetailsMarkup } from "./js/compatibility.js?v=20261106-19";
-import { productReturnUrl } from './js/listing-navigation.js?v=20261107-26';
+import { productReturnUrl } from './js/listing-navigation.js?v=20261108-2';
 import { isSmartphone, sellerHelpMarkup, mountSellerHelp } from './js/seller-help.js?v=20261107-24';
 import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261107-25";
 import {
@@ -237,7 +237,7 @@ async function boot() {
   $("accountName").textContent = state.context.profile.display_name || state.context.profile.username || state.context.user.email;
   $("accountRole").textContent = state.context.admin ? "Администратор" : "Сотрудник";
   let openNetwork;
-  $("networkAvailability")?.addEventListener("click", async () => {try{if(!openNetwork){const module=await import('./js/network-stock.js?v=20261107-26');openNetwork=module.createNetworkDialog(db);}await openNetwork({...state.product,imageSrc:$("mainImage").src});}catch(error){notify(errorMessage(error),true);}});
+  $("networkAvailability")?.addEventListener("click", async () => {try{if(!openNetwork){const module=await import('./js/network-stock.js?v=20261108-2');openNetwork=module.createNetworkDialog(db);}await openNetwork({...state.product,imageSrc:$("mainImage").src});}catch(error){notify(errorMessage(error),true);}});
   $("signOut").onclick = async () => { await db.signOut(); location.replace("index.html"); };
   await reload();
 

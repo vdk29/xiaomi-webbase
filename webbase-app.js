@@ -5,8 +5,8 @@ import { listProducts } from "./js/products.js?v=20261107-25";
 import { initializeCatalog, populateCategories, renderCatalog } from "./js/catalog.js?v=20261107-25";
 import { initializeCompatibility, renderCompatibility } from "./js/compatibility.js?v=20261106-19";
 import { initializeEmployees, refreshEmployees } from "./js/employees.js?v=20261023-4";
-import { initializeImporter } from "./js/importer.js?v=20261108-1";
-import { initializeListingNavigation, syncListingLocation, restoreListingScroll } from './js/listing-navigation.js?v=20261107-26';
+import { initializeImporter } from "./js/importer.js?v=20261108-2";
+import { initializeListingNavigation, syncListingLocation, restoreListingScroll } from './js/listing-navigation.js?v=20261108-2';
 
 const db = window.WebBaseDB;
 const state = {
@@ -149,7 +149,7 @@ let networkStyle;
 function ensureNetworkStyle(){if(!networkStyle){networkStyle=document.createElement('link');networkStyle.rel='stylesheet';networkStyle.href='network-stock.css?v=20261107-26';document.head.append(networkStyle);}}
 async function showNetwork(name){
  const host=$(name==='network'?'networkContent':'networkAdminContent');ensureNetworkStyle();
- try{if(name==='network'){networkModule=await import('./js/network-stock.js?v=20261107-26');await networkModule.mountNetworkStock(host,db);}else{networkAdminModule=await import('./js/network-admin.js?v=20261108-1');await networkAdminModule.mountNetworkAdmin(host,db,{onCatalogUpdated:()=>{state.catalogComplete=false;}});}}catch(error){host.textContent=errorMessage(error);}
+ try{if(name==='network'){networkModule=await import('./js/network-stock.js?v=20261108-2');await networkModule.mountNetworkStock(host,db);}else{networkAdminModule=await import('./js/network-admin.js?v=20261108-2');await networkAdminModule.mountNetworkAdmin(host,db,{openImport:()=>selectSection('import')});}}catch(error){host.textContent=errorMessage(error);}
 }
 function resetNetwork(){networkModule?.clearNetworkCache();document.querySelectorAll('.network-dialog').forEach(dialog=>dialog.remove());for(const id of ['networkContent','networkAdminContent']){const root=$(id);if(!root)continue;root.networkDestroy?.();delete root.networkRefresh;delete root.networkDestroy;root.replaceChildren();delete root.dataset.mounted;}}
 
@@ -173,7 +173,7 @@ function selectSection(name, { restore = false, render = true } = {}) {
   if (render && name === 'compatibility') renderCompatibility(db, state);
   if (render && name === 'catalog') renderCatalog(db, state);
   syncListingLocation(name, { resetScroll: !restore });
-  if (!restore && ["catalog", "compatibility"].includes(name) && !state.catalogComplete) reloadProducts().catch(() => {});
+  if (!restore && ["catalog", "compatibility", "import"].includes(name) && !state.catalogComplete) reloadProducts().catch(() => {});
 }
 
 function renderAccount() {

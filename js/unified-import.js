@@ -1,4 +1,4 @@
-import {parseNetworkWorkbook} from './network-parser.js?v=20261108-1';
+import {parseNetworkWorkbook} from './network-parser.js?v=20261108-2';
 import {networkKey} from './network-identity.js?v=20261107-25';
 
 export function parseUnifiedWorkbook(XLSX,workbook,options={}) {
@@ -19,7 +19,7 @@ export async function parseUnifiedFile(file) {
  if(file.size>15*1024*1024)throw Error('Размер файла должен быть не больше 15 МБ');
  const buffer=await file.arrayBuffer();
  const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',buffer))).map(v=>v.toString(16).padStart(2,'0')).join('');
- const worker=new Worker(new URL('./unified-import-worker.js?v=20261108-1',import.meta.url));
+ const worker=new Worker(new URL('./unified-import-worker.js?v=20261108-2',import.meta.url));
  const result=await new Promise((resolve,reject)=>{
   const timer=setTimeout(()=>{worker.terminate();reject(Error('Не удалось проверить Excel за отведённое время'))},60000);
   worker.onmessage=({data})=>{clearTimeout(timer);worker.terminate();data.error?reject(Error(data.error)):resolve(data.result)};
@@ -32,7 +32,7 @@ export async function parseUnifiedFile(file) {
 export function localNetworkPreview(report,warehouses) {
  const selected=report.columns.map((col,index)=>({index,...warehouses.find(w=>w.key===col.key)}))
   .filter(w=>w.webbase_network_stores?.is_local&&w.company==='smart_orange'&&w.reviewed&&!w.excluded&&['warehouse','display'].includes(w.kind));
- if(!selected.some(w=>w.kind==='warehouse')||!selected.some(w=>w.kind==='display'))throw Error('Не найдены склад и ОВ Европолиса Smart Orange. Общая загрузка не изменит остатки — проверьте соответствия в «Импорт сети».');
+ if(!selected.some(w=>w.kind==='warehouse')||!selected.some(w=>w.kind==='display'))throw Error('Не найдены склад и ОВ Европолиса Smart Orange. Общая загрузка не изменит остатки — проверьте соответствия в «Управление сетью».');
  const groups=new Map();
  for(const item of report.items) {
   if(/\(\s*(пф|pf)\s*\)/i.test(item.raw_name+' '+(item.source_skus||[]).join(' ')))continue;

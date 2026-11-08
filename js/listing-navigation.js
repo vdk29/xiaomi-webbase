@@ -25,6 +25,7 @@ export function productReturnUrl(productHref) {
       if (value) clean.set(key, value.slice(0, 500));
     }
     if (target.searchParams.get('section') === 'network' && ['smart_orange','mobility','mixtech'].includes(target.searchParams.get('network_company'))) clean.set('network_company', target.searchParams.get('network_company'));
+    if (target.searchParams.get('section') === 'network' && target.searchParams.get('network_category')) clean.set('network_category', target.searchParams.get('network_category').slice(0,160));
     if (target.searchParams.has('scroll')) clean.set('scroll', String(listingScroll(target.searchParams.get('scroll'))));
     return `index.html${clean.size ? `?${clean}` : ''}`;
   } catch { return fallback; }
