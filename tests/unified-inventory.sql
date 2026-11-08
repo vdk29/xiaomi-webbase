@@ -6,6 +6,7 @@ create temporary table unified_qa_result(label text,value text);
 do $$
 declare existing uuid;missing uuid;imp uuid;bad uuid;new_id uuid;meta jsonb;result jsonb;stock jsonb;before_count int;
 begin
+ if exists(select 1 from pg_proc where oid in('public.webbase_unified_commit(uuid)'::regprocedure,'public.webbase_network_commit(uuid)'::regprocedure) and not coalesce(proconfig,'{}') @> array['statement_timeout=120s']) then raise exception 'Large import REST timeout exemption missing';end if;
  insert into public.webbase_products(sku,source_skus,name,description,specs) values('UNIFIED-123',array['UNIFIED-123'],'Ручное название смартфона','Не затирать','{"Ручной факт":"сохранить"}') returning id into existing;
  insert into public.webbase_products(sku,name) values('UNIFIED-MISSING','QA absent from report') returning id into missing;
  insert into public.webbase_stock(product_id,warehouse,display,ldu) values(existing,99,99,0),(missing,17,2,0);
