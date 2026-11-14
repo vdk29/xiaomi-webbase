@@ -1,5 +1,5 @@
 import {escapeHtml as esc} from './utils.js?v=20261023-4';
-import {REAR_MEDIA} from './rear-display-data.js?v=20261114-1';
+import {REAR_MEDIA} from './rear-display-data.js?v=20261114-2';
 function demoPreview(id){
  const shapes={
  notifications:'<circle cx="160" cy="65" r="25" fill="#ffffff24"/><text x="160" y="73" text-anchor="middle" font-size="22" fill="white">А</text><rect x="119" y="108" width="82" height="5" rx="2" fill="#ffffffaa"/><circle cx="125" cy="150" r="19" fill="#df6b6b"/><path d="m119 144 12 12m0-12-12 12" stroke="white" stroke-width="2"/><circle cx="195" cy="150" r="19" fill="#74ba99"/><path d="m188 150 5 5 10-10" fill="none" stroke="white" stroke-width="2"/>',
@@ -35,6 +35,6 @@ export function mountRearMedia(root,selectScenario){
  }
  function click(event){const button=event.target.closest('[data-rd-media]');if(button)open(button.dataset.rdMedia);}
  function dialogClick(event){if(event.target===dialog||event.target.closest('[data-rd-media-close]'))close();if(event.target.closest('[data-rd-media-fallback]')){const id=opened?.scenario||'personal';close();selectScenario(id);}}
- root.addEventListener('click',click);dialog.addEventListener('click',dialogClick);dialog.addEventListener('close',clear);window.addEventListener('message',message);
+ root.addEventListener('click',click);dialog.addEventListener('click',dialogClick);dialog.addEventListener('cancel',event=>{event.preventDefault();close();});dialog.addEventListener('close',()=>{if(!dialog.open)clear();});window.addEventListener('message',message);
  return {close,destroy(){close();root.removeEventListener('click',click);window.removeEventListener('message',message);dialog.remove();}};
 }

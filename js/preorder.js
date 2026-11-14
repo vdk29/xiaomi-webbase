@@ -1,6 +1,6 @@
 import { preorderPrice, formatPreorderPrice } from './preorder-prices.js?v=20261107-22';
-import { rearDisplayMarkup, mountRearDisplay } from './rear-display.js?v=20261114-1';
-import { PREORDER_MODELS, PREORDER_VERIFIED_AT } from './preorder-data.js?v=20261114-1';
+import { rearDisplayMarkup, mountRearDisplay } from './rear-display.js?v=20261114-2';
+import { PREORDER_MODELS, PREORDER_VERIFIED_AT } from './preorder-data.js?v=20261114-2';
 import { escapeHtml as esc } from './utils.js?v=20261023-4';
 const A = 'assets/preorder/20261106/';
 const photo = (src, alt, cls = '', eager = false) => `<img src="${esc(src)}" alt="${esc(alt)}" class="${cls}" width="900" height="900" loading="${eager ? 'eager' : 'lazy'}" decoding="async">`;

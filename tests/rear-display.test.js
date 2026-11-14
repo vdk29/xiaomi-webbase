@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync,existsSync}from'node:fs';
 import {initialRearState,rearAction,rearTick}from'../js/rear-display-state.js';
 import {REAR_DISPLAY_SCENARIOS,REAR_MEDIA,aiTemplate}from'../js/rear-display-data.js';
-test('eight independent scenarios cycle in order and invalid state options do not enter the simulator',()=>{let s=initialRearState();assert.equal(s.auto,false);for(let i=0;i<8;i++)s=rearAction(s,'next');assert.equal(s.scenario,'personal');assert.equal(rearAction(s,'scenario','untrusted').scenario,'personal');assert.equal(REAR_DISPLAY_SCENARIOS.length,8);assert.equal(rearAction(s,'camera','random').camera,'photo');});
+test('nine independent scenarios cycle in order and invalid state options do not enter the simulator',()=>{let s=initialRearState();assert.equal(s.auto,false);for(let i=0;i<9;i++)s=rearAction(s,'next');assert.equal(s.scenario,'personal');assert.equal(rearAction(s,'scenario','untrusted').scenario,'personal');assert.equal(REAR_DISPLAY_SCENARIOS.length,9);assert.equal(rearAction(s,'camera','random').camera,'photo');});
 test('call buttons and camera modes actually change states, recording and capture remain simulated',()=>{let s=rearAction(initialRearState(),'answer');s=rearTick(s,12);assert.equal(s.call,'active');assert.equal(s.callSeconds,12);assert.equal(rearAction(s,'hangup').call,'ended');assert.equal(rearAction(s,'decline').call,'declined');s=rearAction(s,'camera','video');s=rearAction(s,'capture');assert.equal(rearTick(s,3).recordSeconds,3);s=rearAction(s,'camera','portrait');assert.equal(s.recording,false);assert.equal(rearAction(s,'capture').shot,true);});
 test('silent player advances only while playing and switching tracks resets its progress',()=>{let s=initialRearState();assert.equal(rearTick(s,5).progress,0);s=rearAction(s,'play');s=rearTick(s,8);assert.equal(s.progress,8);s=rearAction(s,'track','-1');assert.equal(s.track,2);assert.equal(s.progress,0);s=rearTick(s,300);assert.equal(s.playing,false);});
 test('timer clamps at zero and suspend stops every ongoing task rather than restarting on hidden pages',()=>{let s=rearAction(initialRearState(),'timer');s={...s,playing:true,recording:true,breathing:true,auto:true};s=rearTick(s,75);assert.equal(s.remaining,0);assert.equal(s.timerRunning,false);s=rearAction(s,'preset','300');assert.equal(s.remaining,300);s=rearAction(s,'suspend');assert.ok(['playing','recording','breathing','auto','timerRunning'].every(k=>s[k]===false));assert.equal(rearTick(s,60).remaining,300);});
@@ -9,4 +9,14 @@ test('AI prompt selection is deterministic, bounded and explicitly a local templ
 test('media sources are explicit: local teaser stays local; third-party reviews are embeds, never copied videos',()=>{
  for(const m of REAR_MEDIA){if(m.kind==='local'){assert.ok(existsSync(new URL('../'+m.src,import.meta.url)));assert.ok(existsSync(new URL('../'+m.poster,import.meta.url)));}else if(m.kind==='youtube'){assert.match(m.videoId,/^[\w-]{11}$/);assert.ok(m.start>0);assert.equal(m.src,undefined);assert.ok(existsSync(new URL('../'+m.poster,import.meta.url)));}else assert.equal(m.kind,'demo');}
  const code=readFileSync(new URL('../js/rear-display-media.js',import.meta.url),'utf8');assert.match(code,/autoplay=0/);assert.match(code,/youtube-nocookie/);assert.match(code,/fallback/);assert.match(code,/removeAttribute\('src'\)/);
+});
+
+import {wrapAngle,viewAngle,privacyOpacity,fitModel} from '../js/rear-display-3d.js';
+test('3D angles wrap across full revolutions, fit narrow viewports and shade only oblique protected views',()=>{
+ assert.equal(wrapAngle(725),5);assert.equal(wrapAngle(-725),-5);assert.equal(wrapAngle(Infinity),0);
+ assert.equal(viewAngle({yaw:180,pitch:0}),0);assert.ok(viewAngle({yaw:235,pitch:0})>54);
+ assert.equal(privacyOpacity(0,true),0);assert.equal(privacyOpacity(70,false),0);assert.ok(privacyOpacity(70,true)>.9);
+ assert.equal(fitModel({yaw:0,pitch:0,roll:0},260,538,300),1);
+ for(const yaw of [-180,-90,0,45,180])for(const pitch of [-180,-90,0,90,180])for(const roll of [-180,-90,0,90,180]){const scale=fitModel({yaw,pitch,roll},260,538,270);assert.ok(scale>0&&scale<=1);}
+ assert.ok(fitModel({yaw:0,pitch:0,roll:90},260,538,270)<.5);
 });
