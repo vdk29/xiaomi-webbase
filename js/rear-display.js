@@ -1,17 +1,17 @@
-import {rearGeometryStyle,rearGlassMask,rearTextureMask} from './rear-display-geometry.js?v=20261114-4';
-import {artMarkup,REAR_WALLPAPERS,officialGalleryMarkup} from './rear-display-art.js?v=20261114-4';
-import {modelFacesMarkup,orbitPadMarkup,orbitControlsMarkup,privacyControlsMarkup,mountPhone3D} from './rear-display-3d.js?v=20261114-4';
+import {aiScreenMarkup,aiPanelMarkup,syncAiClocks} from './rear-display-ai.js?v=20261114-5';
+import {rearGeometryStyle,rearGlassMask,rearTextureMask} from './rear-display-geometry.js?v=20261114-5';
+import {artMarkup,REAR_WALLPAPERS,officialGalleryMarkup} from './rear-display-art.js?v=20261114-5';
+import {modelFacesMarkup,orbitPadMarkup,orbitControlsMarkup,privacyControlsMarkup,mountPhone3D} from './rear-display-3d.js?v=20261114-5';
 import {escapeHtml as esc} from './utils.js?v=20261023-4';
-import {REAR_DISPLAY_SCENARIOS,REAR_SOURCES,REAR_TRACKS,REAR_ROUTE,REAR_VERIFIED_AT} from './rear-display-data.js?v=20261114-4';
-import {initialRearState,rearAction,rearTick,rearSeconds} from './rear-display-state.js?v=20261114-4';
-import {rearMediaMarkup,mountRearMedia} from './rear-display-media.js?v=20261114-4';
-export {REAR_DISPLAY_SCENARIOS} from './rear-display-data.js?v=20261114-4';
+import {REAR_DISPLAY_SCENARIOS,REAR_SOURCES,REAR_TRACKS,REAR_ROUTE,REAR_VERIFIED_AT} from './rear-display-data.js?v=20261114-5';
+import {initialRearState,rearAction,rearTick,rearSeconds} from './rear-display-state.js?v=20261114-5';
+import {rearMediaMarkup,mountRearMedia} from './rear-display-media.js?v=20261114-5';
+export {REAR_DISPLAY_SCENARIOS} from './rear-display-data.js?v=20261114-5';
 const FULL='assets/preorder/20261106/xiaomi-18-pro-max-black.webp';
 const A='assets/preorder/20261114/';
 const button=(action,label,value='',pressed=null)=>`<button type="button" data-rd-action="${action}" data-value="${esc(value)}" ${pressed===null?'':`aria-pressed="${pressed}"`}>${label}</button>`;
 const choices=(action,values,selected)=>`<div class="rd-choices" role="group">${values.map(([value,label])=>button(action,esc(label),value,selected===value)).join('')}</div>`;
 const clock=()=>'<small data-rd-date></small><strong class="rd-time" data-rd-time>09:41</strong>';
-const words=[['wonder','удивление'],['breathe','дышать'],['journey','путешествие']];
 function personalScreen(s){
  const selected=REAR_WALLPAPERS.find(w=>w.id===s.wallpaper)||REAR_WALLPAPERS[0];
  return `<div class="rd-wallpaper-scene rd-wallpaper-${s.wallpaper}">${artMarkup(selected.art,'rd-living-art')}<span class="rd-wallpaper-shade"></span><div class="rd-clock-overlay">${clock()}</div>${['pet','ai','character'].includes(s.wallpaper)?'<span class="rd-spark rd-spark-one"></span><span class="rd-spark rd-spark-two"></span>':''}</div>`;
@@ -32,14 +32,7 @@ function cardsScreen(s){
  return `<div class="rd-content rd-flight"><small>Trip.com · пример</small><strong>SU 1234</strong><span>Москва → Париж</span><b>${['Регистрация','Идёт посадка','Вылетел'][s.flight]}</b>${button('flight','Обновить статус')}</div>`;
 }
 function timerScreen(s){return `<div class="rd-content rd-focus ${s.timerRunning?'rd-timer-running':''}" style="--timer-progress:${s.remaining/1500*100}%"><small>ВРЕМЯ ДЛЯ СЕБЯ</small><strong class="rd-time" data-rd-countdown>${rearSeconds(s.remaining)}</strong><span>${s.timerRunning?'Идёт отсчёт':s.remaining?'Готов к старту':'Готово ✓'}</span>${button('timer',s.timerRunning?'Пауза':'Старт')}</div>`;}
-function aiScreen(s){
- if(s.ai==='water')return `<div class="rd-content rd-ai-water"><small>ВОДНЫЙ БАЛАНС</small><div class="rd-glass" style="--fill:${Math.max(8,s.water/8*100)}%" aria-hidden="true"></div><strong>${s.water} / 8</strong>${button('water',s.water===8?'Начать заново':'+ стакан')}</div>`;
- if(s.ai==='breath')return `<div class="rd-content rd-breathe ${s.breathing?'rd-breathing':''}"><span class="rd-breath-ring" aria-hidden="true"></span><strong data-rd-breath>${s.breathing?'Вдох':'Минута тишины'}</strong>${button('breath',s.breathing?'Пауза':'Дышать')}</div>`;
- if(s.ai==='words')return `<div class="rd-content rd-words"><small>СЛОВО ДНЯ</small><strong>${words[s.word][s.wordBack?1:0]}</strong>${button('flip',s.wordBack?'Оригинал':'Перевод')}${button('word','Другое слово')}</div>`;
- if(s.ai==='game')return `<div class="rd-content rd-game"><small>СОБЕРИ ЗВЁЗДЫ · ${s.hits}</small><button type="button" data-rd-action="hit" class="rd-star rd-star-${s.hits%3}" aria-label="Поймать звезду">✦</button><span>Нажми на звезду</span></div>`;
- if(s.ai==='focus')return timerScreen(s);
- return `<div class="rd-content rd-note"><small>ТВОЯ ИДЕЯ</small><strong>${esc(s.prompt||'Своя полезная карточка')}</strong><span>Авторский шаблон</span></div>`;
-}
+function aiScreen(s){return aiScreenMarkup(s,'phone');}
 function controls(s){
  if(s.scenario==='privacy')return privacyControlsMarkup();
  if(s.scenario==='personal')return `<h4>Оформление</h4><div class="rd-wallpaper-picker" role="group" aria-label="Оформление дисплея">${REAR_WALLPAPERS.map(w=>`<button type="button" data-rd-action="wallpaper" data-value="${w.id}" aria-pressed="${w.id===s.wallpaper}">${artMarkup(w.art)}<span>${w.label}</span></button>`).join('')}</div><h4>Цвет чехла</h4>${choices('theme',[['black','Чёрный'],['white','Белый'],['blue','Синий'],['red','Красный']],s.theme)}`;
@@ -49,7 +42,7 @@ function controls(s){
  if(s.scenario==='navigation')return `<div class="rd-action-row">${button('route',s.route===3?'Пройти ещё раз':'Следующий поворот')}</div><p class="rd-feedback">${REAR_ROUTE[s.route].instruction}. Карта схематичная, без GPS.</p>`;
  if(s.scenario==='cards')return `${choices('card',[['weather','Погода'],['shopping','Покупки'],['note','Заметка'],['flight','Рейс']],s.card)}${s.card==='note'?`<label class="rd-input-label">Твоя заметка<input data-rd-note maxlength="60" value="${esc(s.note)}"></label>`:s.card==='shopping'?`<div class="rd-action-row">${['Кофе','Хлеб','Молоко'].map((t,i)=>button('check',`${s.shopping[i]?'✓ ':''}${t}`,String(i),s.shopping[i])).join('')}</div>`:`<div class="rd-action-row">${button(s.card==='weather'?'weather':'flight',s.card==='weather'?'Показать другую погоду':'Следующий статус')}</div>`}`;
  if(s.scenario==='timer')return `${choices('preset',[['60','1 мин'],['300','5 мин'],['1500','25 мин']],String(s.remaining))}<div class="rd-action-row">${button('timer',s.timerRunning?'Пауза таймера':'Запустить таймер')}${button('reset','Сбросить')}</div>`;
- return `${choices('ai',[['water','Вода'],['breath','Дыхание'],['words','Слова'],['game','Игра']],s.ai)}<div class="rd-action-row">${s.ai==='water'?button('water','+ стакан'):s.ai==='breath'?button('breath',s.breathing?'Пауза':'Начать дыхание'):s.ai==='words'?button('flip','Перевод')+button('word','Другое слово'):s.ai==='game'?button('hit','Поймать звезду'):''}</div><form class="rd-ai-form"><label class="rd-input-label">Какая карточка тебе нужна?<input name="prompt" maxlength="80" value="${esc(s.prompt)}" placeholder="Напомни пить воду" required></label><button type="submit">Показать пример</button></form><p class="rd-feedback" role="status">${s.generated?'Готовый шаблон подобран по словам запроса.':'Попробуй: «пить воду», «дыхание», «учить слова», «игра».'} Без подключения к AI-сервису.</p>`;
+ return aiPanelMarkup(s);
 }
 export function rearDisplayMarkup(){return `<div data-rear-demo class="rd-studio" data-motion="on" style='${rearGeometryStyle()}'>
  <div class="rd-scene-tabs" role="group" aria-label="Возможности заднего экрана">${REAR_DISPLAY_SCENARIOS.map((s,i)=>`<button type="button" data-rd-scenario="${s.id}" aria-pressed="${i===0}"><span aria-hidden="true">${s.icon}</span>${s.label}</button>`).join('')}</div>
@@ -65,16 +58,16 @@ export function mountRearDisplay(root){
  const current=()=>REAR_DISPLAY_SCENARIOS.find(x=>x.id===state.scenario);
  function updateClock(){const now=new Date();root.querySelectorAll('[data-rd-time]').forEach(e=>e.textContent=new Intl.DateTimeFormat('ru-RU',{hour:'2-digit',minute:'2-digit'}).format(now));root.querySelectorAll('[data-rd-date]').forEach(e=>e.textContent=new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'short'}).format(now));}
  function tick(){if(!active||document.hidden)return;const seconds=Math.floor((Date.now()-lastTick)/1000);if(seconds<1)return;lastTick+=seconds*1000;const old=state;state=rearTick(state,seconds);updateClock();
-  root.querySelectorAll('[data-rd-countdown]').forEach(e=>e.textContent=rearSeconds(state.remaining));root.querySelectorAll('[data-rd-elapsed]').forEach(e=>e.textContent=rearSeconds(state.progress));root.querySelectorAll('[data-rd-record]').forEach(e=>e.textContent=rearSeconds(state.recordSeconds));root.querySelectorAll('[data-rd-call]').forEach(e=>e.textContent=rearSeconds(state.callSeconds));root.querySelectorAll('[data-rd-progress]').forEach(e=>e.value=state.progress);root.querySelectorAll('[data-rd-breath]').forEach(e=>e.textContent=state.breathing?(state.breathSeconds%8<4?'Вдох':'Выдох'):'Минута тишины');
+  root.querySelectorAll('[data-rd-countdown]').forEach(e=>e.textContent=rearSeconds(state.remaining));root.querySelectorAll('[data-rd-elapsed]').forEach(e=>e.textContent=rearSeconds(state.progress));root.querySelectorAll('[data-rd-record]').forEach(e=>e.textContent=rearSeconds(state.recordSeconds));root.querySelectorAll('[data-rd-call]').forEach(e=>e.textContent=rearSeconds(state.callSeconds));root.querySelectorAll('[data-rd-progress]').forEach(e=>e.value=state.progress);syncAiClocks(root,state);
   if(state.auto){tourElapsed+=seconds;if(tourElapsed>=8){tourElapsed=0;state={...rearAction(rearAction(state,'suspend'),'next'),auto:true};if(state.scenario==='privacy')orbit.privacy();else orbit.back();render();}}
   if(old.timerRunning&&!state.timerRunning||old.playing&&!state.playing)render();
  }
  function startTicker(){clearInterval(interval);interval=null;if(active&&!document.hidden)interval=setInterval(tick,1000);}
- function render(){if(destroyed)return;const scenario=current();root.dataset.scenario=state.scenario;root.dataset.motion=state.motion?'on':'off';root.dataset.active=String(active);root.dataset.theme=state.theme;
+ function render(animate=true){if(destroyed)return;const scenario=current();root.dataset.scenario=state.scenario;root.dataset.motion=state.motion?'on':'off';root.dataset.active=String(active);root.dataset.theme=state.theme;
   root.querySelectorAll('[data-rd-scenario]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.rdScenario===state.scenario)));
   const bodies={personal:personalScreen,camera:cameraScreen,notifications:notificationScreen,music:musicScreen,navigation:navigationScreen,cards:cardsScreen,timer:timerScreen,ai:aiScreen};
   screen.getAnimations?.().forEach(a=>a.cancel());if(state.scenario!=='privacy')screen.innerHTML=bodies[state.scenario](state);screen.dataset.scenario=state.scenario;screen.setAttribute('aria-label',scenario.label+' — интерактивный пример');
-  if(active&&state.motion&&!motion.matches)screen.animate?.([{opacity:.3,filter:'blur(1px)'},{opacity:1,filter:'blur(0)'}],{duration:260,easing:'ease-out'});
+  if(animate&&active&&state.motion&&!motion.matches)screen.animate?.([{opacity:.3,filter:'blur(1px)'},{opacity:1,filter:'blur(0)'}],{duration:260,easing:'ease-out'});
   copy.innerHTML=`<span class="rd-feature-status">${esc(scenario.status)}</span><h3>${esc(scenario.title)}</h3><p>${esc(scenario.text)}</p><p class="rd-region-note">${esc(scenario.note)}</p><a class="rd-evidence" href="${REAR_SOURCES[scenario.source].url}" target="_blank" rel="noopener noreferrer">${esc(REAR_SOURCES[scenario.source].label)} ↗︎</a>`;
   root.querySelector('.rd-feature-controls').innerHTML=controls(state);root.querySelector('[data-rd-index]').textContent=String(REAR_DISPLAY_SCENARIOS.indexOf(scenario)+1).padStart(2,'0')+' / '+String(REAR_DISPLAY_SCENARIOS.length).padStart(2,'0');
   const auto=root.querySelector('[data-rd-action=auto]');auto.setAttribute('aria-pressed',String(state.auto));auto.textContent=state.auto?'Остановить показ':'Автопоказ';const anim=root.querySelector('[data-rd-action=motion]');anim.setAttribute('aria-pressed',String(state.motion));anim.textContent=state.motion?'Пауза анимации':'Запустить анимацию';
@@ -82,9 +75,9 @@ export function mountRearDisplay(root){
  }
  function selectScenario(id,scroll=false){tick();state=rearAction(rearAction(state,'suspend'),'scenario',id);tourElapsed=0;if(id==='privacy')orbit.privacy();else if(root.dataset.scenario==='privacy')orbit.back();render();if(scroll)root.querySelector('.rd-workspace').scrollIntoView({behavior:motion.matches?'instant':'smooth',block:'start'});}
  function click(event){const b=event.target.closest('button');if(!b||!root.contains(b))return;
-  if(b.dataset.rdScenario){selectScenario(b.dataset.rdScenario);return;}const action=b.dataset.rdAction;if(!action)return;
+  if(b.dataset.rdScenario){selectScenario(b.dataset.rdScenario);return;}const action=b.dataset.rdAction;if(!action)return;if(action==='suggest'){const input=root.querySelector('.rd-ai-form input');input.value=b.dataset.value;input.focus({preventScroll:true});return;}
   tick();if(action!=='auto')state={...state,auto:false};if(action==='zoom')zoom=!zoom;else state=rearAction(action==='next'?rearAction(state,'suspend'):state,action,b.dataset.value);if(action==='auto'||action==='next')tourElapsed=0;if(action==='next'){if(state.scenario==='privacy')orbit.privacy();else orbit.back();}
-  const owner=b.closest('.rd-feature-controls')?'.rd-feature-controls':'.rd-display';const inControls=b.closest(owner);render();if(inControls){const replacement=[...root.querySelector(owner).querySelectorAll('[data-rd-action]')].find(el=>el.dataset.rdAction===action&&el.dataset.value===b.dataset.value);replacement?.focus({preventScroll:true});}
+  const owner=b.closest('.rd-feature-controls')?'.rd-feature-controls':'.rd-display';const inControls=b.closest(owner);render(state.scenario!=='ai'||action==='ai');if(inControls){const replacement=[...root.querySelector(owner).querySelectorAll('[data-rd-action]')].find(el=>el.dataset.rdAction===action&&el.dataset.value===b.dataset.value);replacement?.focus({preventScroll:true});}
  }
  function input(event){if(event.target.matches('[data-rd-note]')){state=rearAction(state,'note',event.target.value);root.querySelectorAll('[data-note-body]').forEach(e=>e.textContent=state.note);}}
  function submit(event){if(!event.target.matches('.rd-ai-form'))return;event.preventDefault();state={...rearAction(state,'generate',new FormData(event.target).get('prompt')),auto:false};render();}
