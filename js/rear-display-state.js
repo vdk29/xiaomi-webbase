@@ -1,11 +1,11 @@
-import {REAR_DISPLAY_SCENARIOS,REAR_TRACKS,REAR_ROUTE,aiTemplate} from './rear-display-data.js?v=20261114-3';
+import {REAR_DISPLAY_SCENARIOS,REAR_TRACKS,REAR_ROUTE,aiTemplate} from './rear-display-data.js?v=20261114-4';
 export function initialRearState(){return {scenario:'personal',wallpaper:'clock',theme:'blue',motion:true,auto:false,camera:'photo',recording:false,recordSeconds:0,shot:false,notification:'call',call:'incoming',callSeconds:0,messageRead:false,alarmSnoozed:false,reminderDone:false,track:0,playing:false,progress:0,player:'Spotify',route:0,card:'weather',rain:false,shopping:[false,false,false],note:'Купить кофе по дороге домой',flight:0,remaining:60,timerRunning:false,ai:'water',water:0,word:0,wordBack:false,breathing:false,breathSeconds:0,hits:0,generated:false,prompt:''};}
 export function rearAction(state,action,value){
  const s={...state};
  switch(action){
   case 'scenario':if(REAR_DISPLAY_SCENARIOS.some(x=>x.id===value)){s.scenario=value;s.shot=false;}break;
   case 'next':s.scenario=REAR_DISPLAY_SCENARIOS[(REAR_DISPLAY_SCENARIOS.findIndex(x=>x.id===s.scenario)+1)%REAR_DISPLAY_SCENARIOS.length].id;break;
-  case 'wallpaper':if(['clock','orbit','pet','photo','ai','case'].includes(value))s.wallpaper=value;break;
+  case 'wallpaper':if(['clock','orbit','pet','photo','ai','case','character','seaside'].includes(value))s.wallpaper=value;break;
   case 'theme':if(['black','white','blue','red'].includes(value))s.theme=value;break;
   case 'motion':s.motion=!s.motion;break;
   case 'auto':s.auto=!s.auto;break;

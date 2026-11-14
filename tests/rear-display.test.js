@@ -22,3 +22,14 @@ test('3D angles wrap across full revolutions, fit narrow viewports and shade onl
 });
 
 test('desktop rotations use nearest equivalent angle and model thickness follows real Pro Max dimensions',()=>{assert.equal(nearestAngle(170,-170),190);assert.equal(nearestAngle(350,0),360);assert.equal(nearestAngle(15,180),180);assert.equal(PHONE_DIMENSIONS.width,77.6);assert.equal(PHONE_DIMENSIONS.height,163.39);assert.equal(PHONE_DIMENSIONS.depth,8.39);assert.ok(320*PHONE_DIMENSIONS.depth/PHONE_DIMENSIONS.width>34);});
+
+import {REAR_GEOMETRY,rearGeometryStyle,rearGlassMask,rearTextureMask} from '../js/rear-display-geometry.js';
+import {REAR_ART,REAR_WALLPAPERS} from '../js/rear-display-art.js';
+test('housing, glass and lens apertures share manufacturer-photo coordinates and preserve the actual display aspect',()=>{
+ const {photo:p,housing:h,glass:g,lenses}=REAR_GEOMETRY;assert.equal(p.width,163);assert.equal(p.height,337);assert.ok(g.x>h.x&&g.y>h.y&&g.x+g.width<h.x+h.width&&g.y+g.height<h.y+h.height);assert.ok(Math.abs(g.width/g.height-976/596)<.002);
+ for(const l of lenses){assert.ok(l.x-l.radius>g.x);assert.ok(l.y-l.radius>g.y);assert.ok(l.x+l.radius<g.x+g.width);assert.ok(l.y+l.radius<g.y+g.height);}
+ assert.match(rearGeometryStyle(),/--glass-left:/);const mask=decodeURIComponent(rearGlassMask());assert.match(mask,/cx="20.5"/);assert.match(mask,/cy="19.5"/);assert.match(mask,/cy="58.5"/);assert.match(decodeURIComponent(rearTextureMask()),/id="texture"/);
+});
+test('all eight Xiaomi wallpaper choices resolve to sourced local imagery and work with the state reducer',()=>{
+ assert.equal(REAR_WALLPAPERS.length,8);for(const w of REAR_WALLPAPERS){assert.ok(REAR_ART[w.art]);assert.ok(existsSync(new URL('../'+REAR_ART[w.art].src,import.meta.url)));assert.equal(rearAction(initialRearState(),'wallpaper',w.id).wallpaper,w.id);}
+});
