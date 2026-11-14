@@ -36,7 +36,8 @@
     "path": "assets/preorder/20261106/xiaomi-18-pro-pink.webp",
     "height": 335,
     "byte_size": 5104,
-    "sha256": "b57f5da3c9cb2597a7d35921a5e86b0e8baee9720a74ed540a9bd683021c88bb"
+    "sha256": "b57f5da3c9cb2597a7d35921a5e86b0e8baee9720a74ed540a9bd683021c88bb",
+    "selectable": false
   },
   {
     "model": "xiaomi-18-pro",
@@ -62,7 +63,8 @@
     "path": "assets/preorder/20261106/xiaomi-18-pro-transparent.webp",
     "height": 342,
     "byte_size": 12730,
-    "sha256": "939a02a74484fcb14f1be550428ebe0093bf85e5ad7102d451b0fac8e2807478"
+    "sha256": "939a02a74484fcb14f1be550428ebe0093bf85e5ad7102d451b0fac8e2807478",
+    "selectable": false
   },
   {
     "model": "xiaomi-18-pro-max",
@@ -101,7 +103,8 @@
     "path": "assets/preorder/20261106/xiaomi-18-pro-max-pink.webp",
     "height": 337,
     "byte_size": 4968,
-    "sha256": "bf55749c6b5f7169372150d156c69ceb214c88ee5bf712668b76d032a8cdfdfe"
+    "sha256": "bf55749c6b5f7169372150d156c69ceb214c88ee5bf712668b76d032a8cdfdfe",
+    "selectable": false
   },
   {
     "model": "xiaomi-18-pro-max",
@@ -127,7 +130,8 @@
     "path": "assets/preorder/20261106/xiaomi-18-pro-max-transparent.webp",
     "height": 340,
     "byte_size": 14300,
-    "sha256": "019e2aa65a3e3778e848741b3a558edba6e1a666c8e462917cef5e9f90eb080c"
+    "sha256": "019e2aa65a3e3778e848741b3a558edba6e1a666c8e462917cef5e9f90eb080c",
+    "selectable": false
   },
   {
     "model": "xiaomi-18-fold",
@@ -509,5 +513,89 @@
     "byte_size": 87426,
     "sha256": "2cfdf3ffd3ae272ad11f6a1f8edd433e9e47e83e13a8bb5b0d8755b75e70d5db",
     "note": "Complete manufacturer image, format optimized; the page displays a CSS close-up of the phone."
+  },
+  {
+    "model": "xiaomi-18-pro-max",
+    "name": "portrait",
+    "kind": "demo_photo",
+    "path": "assets/preorder/20261114/portrait.webp",
+    "width": 1000,
+    "height": 421,
+    "byte_size": 16620,
+    "sha256": "a5e712f8020c91a1bf34131460f1aaacd919ac80bcf77ee3660a595524dbd037",
+    "source_url": "https://www.mi.com/prod/xiaomi-18-pro",
+    "image_url": "https://cdn.cnbj1.fds.api.mi-img.com/product-images/new-product-images/xiaomi-18-pro_56408/images/3235.png",
+    "note": "Manufacturer photo, caption strip excluded for fitting an authored viewfinder",
+    "verified_at": "2026-11-14"
+  },
+  {
+    "model": "xiaomi-18-pro-max",
+    "name": "group-selfie",
+    "kind": "demo_photo",
+    "path": "assets/preorder/20261114/group-selfie.webp",
+    "width": 169,
+    "height": 125,
+    "byte_size": 7130,
+    "sha256": "c0a16f6c5adb11b8da6d0291712b43067f2fa53f2269571653d7872b15690a09",
+    "source_url": "https://www.mi.com/global/launch/xiaomi-launch-november-2026/",
+    "image_url": "https://i02.appmifile.com/28_operator_global/10/11/2026/36e0542d10b56edc745843290339aed1.jpg",
+    "note": "Crop of group selfie from the official Global rear-display illustration",
+    "verified_at": "2026-11-14"
+  },
+  {
+    "model": "xiaomi-18-pro-max",
+    "name": "camera-poster",
+    "kind": "demo_poster",
+    "path": "assets/preorder/20261114/camera-poster.webp",
+    "width": 1000,
+    "height": 343,
+    "byte_size": 27080,
+    "sha256": "78a247a99fd0e48557cfb0959fab7c517b3604193767271a483b8f01f5d1820e",
+    "source_url": "https://www.mi.com/global/launch/xiaomi-launch-november-2026/",
+    "image_url": "https://i02.appmifile.com/28_operator_global/10/11/2026/36e0542d10b56edc745843290339aed1.jpg",
+    "note": "Optimized manufacturer image for the presentation",
+    "verified_at": "2026-11-14"
+  },
+  {
+    "model": "xiaomi-18-pro-max",
+    "name": "screen-poster",
+    "kind": "demo_poster",
+    "path": "assets/preorder/20261114/screen-poster.webp",
+    "width": 1000,
+    "height": 343,
+    "byte_size": 26636,
+    "sha256": "902530bc9f8e364fc50d2b816b4f005cba34188dec706589121fae7bd61beef7",
+    "source_url": "https://www.mi.com/global/launch/xiaomi-launch-november-2026/",
+    "image_url": "https://i02.appmifile.com/386_operator_global/10/11/2026/dd03019c77c02eba9d61f92adad1bc8e.jpg",
+    "note": "Optimized manufacturer image for the presentation",
+    "verified_at": "2026-11-14"
+  },
+  {
+    "model": "xiaomi-18-pro-max",
+    "name": "pet-wallpaper",
+    "kind": "demo_photo",
+    "path": "assets/preorder/20261114/pet-wallpaper.webp",
+    "width": 102,
+    "height": 135,
+    "byte_size": 1904,
+    "sha256": "54b514b5f724aae826d94b7f6722f97330e5108a7b296b2a7340db27fb003bab",
+    "source_url": "https://www.mi.com/global/launch/xiaomi-launch-november-2026/",
+    "image_url": "https://i02.appmifile.com/386_operator_global/10/11/2026/dd03019c77c02eba9d61f92adad1bc8e.jpg",
+    "note": "Pet wallpaper excerpt from official Global illustration; not a photographed live device",
+    "verified_at": "2026-11-14"
+  },
+  {
+    "model": "xiaomi-18-pro-max",
+    "name": "teaser-poster",
+    "kind": "demo_poster",
+    "path": "assets/preorder/20261114/teaser-poster.webp",
+    "width": 960,
+    "height": 420,
+    "byte_size": 14606,
+    "sha256": "5b3a14f7c8fb9ab38ebd81b93a3c73b631572491f92f6c68416e8dca42430422",
+    "source_url": "https://www.mi.com/prod/xiaomi-18-pro",
+    "image_url": "https://cdn.cnbj1.fds.api.mi-img.com/product-images/new-product-images/xiaomi-18-pro_56408/images/web_cover.mp4",
+    "note": "Frame at 2 seconds from the existing official project teaser",
+    "verified_at": "2026-11-14"
   }
 ]

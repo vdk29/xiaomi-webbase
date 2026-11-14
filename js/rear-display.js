@@ -1,74 +1,99 @@
-import { escapeHtml as esc } from './utils.js?v=20261023-4';
-const MEDIA = 'assets/preorder/20261107/';
-const PHONE = 'assets/preorder/20261107/pro-max-rear-detail.webp';
-export const REAR_DISPLAY_SCENARIOS = [
-  {id:'clock', label:'Время и дата', title:'Достаточно одного взгляда.', text:'Часы и полезная информация доступны на заднем экране, когда телефон лежит основным дисплеем вниз. Погода в этом примере условная.'},
-  {id:'gif', label:'GIF / анимация', title:'Небольшой экран с характером.', text:'Xiaomi показывает динамические обои и анимированных персонажей. Здесь воспроизводится настоящая GIF-анимация. Штатный импорт произвольного GIF именно на 18 Pro Max в изученных официальных материалах не подтверждён.'},
-  {id:'wallpaper', label:'Фотообои', title:'Твоё оформление с другой стороны.', text:'Фон, изображения и персонализация меняют оформление заднего экрана. Xiaomi также показывает AI-изображения и обои, подобранные под чехол. Здесь — пример фотообоев.'},
-  {id:'music', label:'Музыка', title:'Управление без переворота.', text:'Поддерживаемый музыкальный плеер может показываться на заднем экране. В демо — условный трек без звука; совместимость зависит от приложения и прошивки.'},
-  {id:'cards', label:'Уведомления', title:'Важное остаётся на виду.', text:'На заднем экране можно видеть поддерживаемые уведомления и входящие звонки. Для уведомлений могут понадобиться разрешения отображения на заблокированном экране.'},
-  {id:'timer', label:'Таймер', title:'Обратный отсчёт под рукой.', text:'Отслеживай таймер на небольшом экране. Здесь можно запустить и приостановить демонстрационный отсчёт на 25 минут.'},
-  {id:'selfie', label:'Предпросмотр камеры', title:'Селфи на основные камеры.', text:'Задний экран служит видоискателем: можно проверить композицию для селфи или показать кадр человеку, которого снимаешь. В демо использован пример фотографии Xiaomi.'},
-  {id:'ai', label:'AI-карточки', title:'Свои маленькие сценарии.', text:'Xiaomi заявляет готовые карточки и создание карточек с помощью AI: например, фокус-таймер или напоминание пить воду. Языки, доступность сервисов и функций зависят от прошивки и аккаунта.'},
-];
-export function rearDisplayMarkup() {
-  return `<div class="rd-layout" data-rear-demo>
-    <figure class="rd-photo-stage"><div class="rd-phone">
-      <img class="rd-phone-photo" src="${PHONE}" alt="Официальное изображение заднего экрана Xiaomi 18 Pro Max крупным планом" width="2560" height="1136" loading="eager" fetchpriority="high" decoding="async">
-      <div class="rd-display"><div id="po-demo-screen" class="rd-display-inner" role="img" aria-label="Пример часов на заднем экране"></div></div>
-    </div><figcaption><strong>Xiaomi 18 Pro Max</strong><span>2,9″ AMOLED · крупным планом</span></figcaption></figure>
-    <div class="rd-controls"><p class="rd-instruction">Нажми на сценарий — изображение на телефоне изменится</p>
-      <div class="rd-tabs" role="group" aria-label="Возможности заднего экрана">${REAR_DISPLAY_SCENARIOS.map(s=>`<button type="button" data-po-demo="${s.id}" aria-pressed="${s.id==='clock'}">${esc(s.label)}</button>`).join('')}</div>
-      <div id="rd-copy" class="rd-copy" aria-live="polite"></div>
-      <p class="rd-caption">Корпус — официальное изображение Xiaomi. Содержимое экрана — интерактивное демо, не запись интерфейса HyperOS.</p>
-      <details class="rd-guide"><summary>Как настроить на телефоне и источники</summary><p>Открой настройки заднего экрана: выбери оформление и доступные карточки приложений. Для уведомлений проверь разрешения на заблокированном экране. Названия пунктов и функции зависят от версии системы.</p><a href="https://www.mi.com/prod/xiaomi-18-pro-max" target="_blank" rel="noopener noreferrer">Xiaomi: экран, персонализация и карточки ↗</a><a href="https://new.c.mi.com/global/post/2366059" target="_blank" rel="noopener noreferrer">Xiaomi Community: сценарии и AI-карточки ↗</a><a href="https://www.frandroid.com/marques/xiaomi/3273007_xiaomi-18-pro-nos-5-fonctions-preferees-sur-lecran-arriere" target="_blank" rel="noopener noreferrer">Практическая настройка и функции серии: Frandroid ↗</a></details>
-    </div></div>`;
+import {escapeHtml as esc} from './utils.js?v=20261023-4';
+import {REAR_DISPLAY_SCENARIOS,REAR_SOURCES,REAR_TRACKS,REAR_ROUTE,REAR_VERIFIED_AT} from './rear-display-data.js?v=20261114-1';
+import {initialRearState,rearAction,rearTick,rearSeconds} from './rear-display-state.js?v=20261114-1';
+import {rearMediaMarkup,mountRearMedia} from './rear-display-media.js?v=20261114-1';
+export {REAR_DISPLAY_SCENARIOS} from './rear-display-data.js?v=20261114-1';
+const FULL='assets/preorder/20261106/xiaomi-18-pro-max-black.webp';
+const DETAIL='assets/preorder/20261107/pro-max-rear-detail.webp';
+const A='assets/preorder/20261114/';
+const button=(action,label,value='',pressed=null)=>`<button type="button" data-rd-action="${action}" data-value="${esc(value)}" ${pressed===null?'':`aria-pressed="${pressed}"`}>${label}</button>`;
+const choices=(action,values,selected)=>`<div class="rd-choices" role="group">${values.map(([value,label])=>button(action,esc(label),value,selected===value)).join('')}</div>`;
+const pet=()=>'<svg class="rd-pet" viewBox="0 0 120 110" aria-label="Авторский анимированный персонаж — кот"><path d="M25 42 17 8 48 27Q61 21 77 27L106 9 98 49Q110 94 60 100 9 95 25 42Z" fill="#f5c188"/><path d="m25 20 7 24 11-12m40 1 12 12 3-24" fill="#d78679"/><g class="rd-pet-eyes"><ellipse cx="43" cy="57" rx="5" ry="7"/><ellipse cx="79" cy="57" rx="5" ry="7"/></g><path d="m56 70 5 4 5-4m-5 4v6m-14 0q7 7 14 0 7 7 14 0" stroke="#67412e" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M17 70 39 74m47 0 21-4" stroke="#67412e" stroke-width="2"/></svg>';
+const orbit=()=>'<svg class="rd-orbit" viewBox="0 0 180 130" aria-hidden="true"><circle cx="90" cy="65" r="34" fill="#f5874e"/><ellipse cx="90" cy="65" rx="75" ry="23" fill="none" stroke="#91a6f3" stroke-width="6" transform="rotate(-25 90 65)"/><circle cx="149" cy="34" r="8" fill="#eaf0ff"/></svg>';
+const clock=()=>'<small data-rd-date></small><strong class="rd-time" data-rd-time>09:41</strong><span>Твой день. Твой темп.</span>';
+const words=[['wonder','удивление'],['breathe','дышать'],['journey','путешествие']];
+function personalScreen(s){
+ if(s.wallpaper==='pet')return `<div class="rd-content rd-pet-wallpaper">${pet()}<small>Привет, человек</small></div>`;
+ if(s.wallpaper==='orbit')return `<div class="rd-content rd-orbit-wallpaper">${orbit()}<strong data-rd-time>09:41</strong></div>`;
+ if(s.wallpaper==='photo')return `<div class="rd-photo-wallpaper"><img src="${A}pet-wallpaper.webp" alt="Изображение питомца из официальной иллюстрации Xiaomi"><span data-rd-time>09:41</span></div>`;
+ if(s.wallpaper==='ai')return `<div class="rd-content rd-ai-wallpaper"><span class="rd-mountains" aria-hidden="true"></span><small>ПРИМЕР AI-ОБОЕВ</small><strong data-rd-time>09:41</strong></div>`;
+ return `<div class="rd-content rd-clock ${s.wallpaper==='case'?'rd-case-wallpaper':''}">${clock()}</div>`;
 }
-export function mountRearDisplay(root) {
-  let scenario='clock', interval=null, active=true;
-  let gifPlaying=!matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let remaining=25*60, deadline=null;
-  const screen=root.querySelector('#po-demo-screen');
-  const copy=root.querySelector('#rd-copy');
-  const secondsText=seconds=>`${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`;
-  function tick() {
-    if (!active || document.hidden) return;
-    if(scenario==='clock'){
-      const d=new Date();
-      root.querySelectorAll('[data-rd-time]').forEach(el=>el.textContent=new Intl.DateTimeFormat('ru-RU',{hour:'2-digit',minute:'2-digit'}).format(d));
-      root.querySelectorAll('[data-rd-date]').forEach(el=>el.textContent=new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'short'}).format(d));
-    }
-    if(deadline){remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));if(!remaining){deadline=null;render();return;}}
-    root.querySelectorAll('[data-rd-countdown]').forEach(el=>el.textContent=secondsText(remaining));
-  }
-  function manageTick(){clearInterval(interval);interval=null;if(active&&(scenario==='clock'||deadline))interval=setInterval(tick,1000);}
-  function render() {
-    const mode=REAR_DISPLAY_SCENARIOS.find(s=>s.id===scenario);
-    root.querySelectorAll('[data-po-demo]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.poDemo===scenario)));
-    const contents={
-      clock:'<div class="rd-clock rd-content"><small data-rd-date></small><b data-rd-time>09:41</b><span>☀ 22° <i>пример погоды</i></span></div>',
-      gif:`<div class="rd-gif"><img src="${MEDIA}${active&&gifPlaying?'earth.gif':'earth-still.webp'}" alt="Вращающаяся Земля — пример GIF" width="400" height="400"></div>`,
-      wallpaper:'<div class="rd-wallpaper"><img src="assets/preorder/20261106/camera-night.webp" alt="Пример фотообоев" width="1280" height="610"><span>ТВОЙ МОМЕНТ</span></div>',
-      music:'<div class="rd-content rd-music"><small>ДЕМО-ТРЕК</small><b>Твой ритм</b><div class="rd-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><span aria-hidden="true">‹‹ &nbsp; ▷ &nbsp; ››</span></div>',
-      cards:'<div class="rd-content rd-notification"><small>ПРИМЕР УВЕДОМЛЕНИЯ</small><b>Новое сообщение</b><span>Встречаемся через 10 минут</span></div>',
-      timer:`<div class="rd-content rd-timer"><small>ФОКУС-ТАЙМЕР</small><b data-rd-countdown>${secondsText(remaining)}</b><span>${deadline?'Идёт отсчёт':'Можно начинать'}</span></div>`,
-      selfie:'<div class="rd-selfie"><img src="assets/preorder/20261106/camera-portrait.webp" alt="Пример кадра основных камер Xiaomi" width="1280" height="610"><span class="rd-viewfinder" aria-hidden="true"></span><i aria-hidden="true"></i></div>',
-      ai:'<div class="rd-content rd-ai"><small>ПРИМЕР AI-КАРТОЧКИ</small><span class="rd-water" aria-hidden="true">♧</span><b>Стакан воды</b><span>Небольшая полезная привычка</span></div>',
-    };
-    screen.innerHTML=contents[scenario];screen.dataset.scenario=scenario;screen.setAttribute('aria-label',`${mode.label}: демонстрационный экран Xiaomi 18 Pro Max`);
-    copy.innerHTML=`<h3>${esc(mode.title)}</h3><p>${esc(mode.text)}</p>${scenario==='gif'?`<button type="button" class="rd-action" data-rd-gif>${gifPlaying?'Пауза GIF':'Запустить GIF'}</button><p class="rd-credit">GIF: <a href="https://commons.wikimedia.org/wiki/File:Rotating_earth_(large).gif" target="_blank" rel="noopener noreferrer">Marvel / Wikimedia Commons</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0</a>. Постер — первый кадр.</p>`:''}${scenario==='timer'?`<div class="rd-timer-actions"><button type="button" class="rd-action" data-rd-timer>${deadline?'Пауза таймера':'Запустить таймер'}</button><button type="button" class="rd-action" data-rd-reset>Сбросить</button></div>`:''}`;
-    tick();manageTick();
-  }
-  root.addEventListener('click',event=>{
-    const b=event.target.closest('button');if(!b)return;
-    if(b.dataset.poDemo){scenario=b.dataset.poDemo;render();}
-    if(b.hasAttribute('data-rd-gif')){gifPlaying=!gifPlaying;render();}
-    if(b.hasAttribute('data-rd-timer')){if(deadline){remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));deadline=null}else{if(!remaining)remaining=25*60;deadline=Date.now()+remaining*1000}render();}
-    if(b.hasAttribute('data-rd-reset')){remaining=25*60;deadline=null;render();}
-  });
-  render();
-  return {
-    pause(){active=false;if(deadline){remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));deadline=null;}clearInterval(interval);interval=null;if(scenario==='gif')screen.querySelector('img').src=MEDIA+'earth-still.webp';root.classList.add('rd-paused');},
-    resume(){if(active)return;active=true;root.classList.remove('rd-paused');render();},
-  };
+function cameraScreen(s){return `<div class="rd-camera-view ${s.camera==='portrait'?'rd-portrait':''} ${s.shot?'rd-shot':''}"><img src="${A}${s.camera==='group'?'group-selfie.webp':'portrait.webp'}" alt="${s.camera==='group'?'Групповой снимок из официального материала Xiaomi':'Фотопример Xiaomi для макета видоискателя'}"><span class="rd-camera-frame" aria-hidden="true"></span><span class="rd-camera-mode">${{photo:'ФОТО',portrait:'ПОРТРЕТ',video:'ВИДЕО',group:'ГРУППА · 0,6×'}[s.camera]}</span>${s.recording?'<span class="rd-recording">● <span data-rd-record>00:00</span></span>':''}<button type="button" class="rd-shutter" data-rd-action="capture" aria-label="${s.camera==='video'?(s.recording?'Остановить демо записи':'Начать демо записи'):'Сделать демонстрационный снимок'}">${s.camera==='video'?(s.recording?'■':'●'):'◎'}</button>${s.shot?'<span class="rd-shot-status">Кадр готов ✓</span>':''}</div>`;}
+function notificationScreen(s){
+ if(s.notification==='call')return `<div class="rd-content rd-call"><span class="rd-avatar">А</span><strong>Анна</strong><small>${{incoming:'Входящий звонок',active:'На связи',declined:'Звонок отклонён',ended:'Звонок завершён'}[s.call]}</small>${s.call==='active'?'<span data-rd-call>00:00</span>':''}<div class="rd-call-actions">${s.call==='incoming'?button('decline','<span aria-hidden="true">×</span><span class="po-sr-only">Отклонить звонок</span>')+button('answer','<span aria-hidden="true">✓</span><span class="po-sr-only">Ответить на звонок</span>'):s.call==='active'?button('hangup','Завершить'):button('notification','Ещё звонок','call')}</div></div>`;
+ const content=s.notification==='message'?['Сообщение',s.messageRead?'Встреча в 18:30. Буду ждать у кафе.':'Анна: увидимся вечером?',button('read',s.messageRead?'Прочитано ✓':'Открыть')]:s.notification==='alarm'?['Будильник',s.alarmSnoozed?'Отложен на 5 минут':'07:30 · доброе утро',button('snooze',s.alarmSnoozed?'Отложено ✓':'Ещё 5 минут')]:['Напоминание',s.reminderDone?'Выполнено ✓':'Забрать заказ в 19:00',button('reminder',s.reminderDone?'Вернуть':'Готово')];
+ return `<div class="rd-content rd-alert"><small>${content[0]}</small><strong>${content[1]}</strong>${content[2]}</div>`;
+}
+function musicScreen(s){const track=REAR_TRACKS[s.track];return `<div class="rd-content rd-music" style="--track-color:${track.color}"><small>${esc(s.player)}</small><div class="rd-album" aria-hidden="true"><span></span></div><strong>${esc(track.title)}</strong><div class="rd-player-buttons">${button('track','‹<span class="po-sr-only">Предыдущий трек</span>','-1')}${button('play',`${s.playing?'Ⅱ':'▷'}<span class="po-sr-only">${s.playing?'Пауза музыки':'Воспроизвести музыку'}</span>`)}${button('track','›<span class="po-sr-only">Следующий трек</span>','1')}</div><progress data-rd-progress max="${track.duration}" value="${s.progress}" aria-label="Ход демонстрационного трека"></progress><span class="rd-mini"><span data-rd-elapsed>${rearSeconds(s.progress)}</span> · без звука</span></div>`;}
+function navigationScreen(s){const step=REAR_ROUTE[s.route];return `<div class="rd-content rd-navigation"><svg class="rd-map" viewBox="0 0 200 140" aria-hidden="true"><path d="M0 35h200M0 105h200M45 0v140M155 0v140" stroke="#34443f" stroke-width="15"/><path d="M70 130V70h60V20" fill="none" stroke="#73c7a3" stroke-width="7" stroke-linejoin="round"/><circle cx="${[70,100,130,130][s.route]}" cy="${[115,70,45,20][s.route]}" r="8" fill="#fff"/></svg><strong class="rd-direction">${step.arrow}</strong><strong>${step.distance}</strong><small>${step.instruction}</small>${button('route',s.route===3?'Сначала':'Дальше')}</div>`;}
+function cardsScreen(s){
+ if(s.card==='weather')return `<div class="rd-content rd-weather"><small>Москва · пример</small><span class="rd-weather-symbol">${s.rain?'☂':'☀'}</span><strong>${s.rain?'16°':'22°'}</strong><span>${s.rain?'Небольшой дождь':'Солнечно'}</span>${button('weather','Сменить погоду')}</div>`;
+ if(s.card==='shopping')return `<div class="rd-content rd-shopping"><small>Купить по дороге</small>${['Кофе','Хлеб','Молоко'].map((text,i)=>`<button type="button" data-rd-action="check" data-value="${i}" aria-pressed="${s.shopping[i]}"><span>${s.shopping[i]?'✓':'○'}</span> ${text}</button>`).join('')}</div>`;
+ if(s.card==='note')return `<div class="rd-content rd-note"><small>ЗАКРЕПЛЕНО</small><strong data-note-body>${esc(s.note)}</strong><span>Всегда перед глазами</span></div>`;
+ return `<div class="rd-content rd-flight"><small>Trip.com · пример</small><strong>SU 1234</strong><span>Москва → Париж</span><b>${['Регистрация','Идёт посадка','Вылетел'][s.flight]}</b>${button('flight','Обновить статус')}</div>`;
+}
+function timerScreen(s){return `<div class="rd-content rd-focus"><small>ВРЕМЯ ДЛЯ СЕБЯ</small><strong class="rd-time" data-rd-countdown>${rearSeconds(s.remaining)}</strong><span>${s.timerRunning?'Идёт отсчёт':s.remaining?'Готов к старту':'Готово ✓'}</span>${button('timer',s.timerRunning?'Пауза':'Старт')}</div>`;}
+function aiScreen(s){
+ if(s.ai==='water')return `<div class="rd-content rd-ai-water"><small>ВОДНЫЙ БАЛАНС</small><div class="rd-glass" style="--fill:${Math.max(8,s.water/8*100)}%" aria-hidden="true"></div><strong>${s.water} / 8</strong>${button('water',s.water===8?'Начать заново':'+ стакан')}</div>`;
+ if(s.ai==='breath')return `<div class="rd-content rd-breathe ${s.breathing?'rd-breathing':''}"><span class="rd-breath-ring" aria-hidden="true"></span><strong data-rd-breath>${s.breathing?'Вдох':'Минута тишины'}</strong>${button('breath',s.breathing?'Пауза':'Дышать')}</div>`;
+ if(s.ai==='words')return `<div class="rd-content rd-words"><small>СЛОВО ДНЯ</small><strong>${words[s.word][s.wordBack?1:0]}</strong>${button('flip',s.wordBack?'Оригинал':'Перевод')}${button('word','Другое слово')}</div>`;
+ if(s.ai==='game')return `<div class="rd-content rd-game"><small>СОБЕРИ ЗВЁЗДЫ · ${s.hits}</small><button type="button" data-rd-action="hit" class="rd-star rd-star-${s.hits%3}" aria-label="Поймать звезду">✦</button><span>Нажми на звезду</span></div>`;
+ if(s.ai==='focus')return timerScreen(s);
+ return `<div class="rd-content rd-note"><small>ТВОЯ ИДЕЯ</small><strong>${esc(s.prompt||'Своя полезная карточка')}</strong><span>Авторский шаблон</span></div>`;
+}
+function controls(s){
+ if(s.scenario==='personal')return `<h4>Оформление</h4>${choices('wallpaper',[['clock','Часы'],['orbit','Орбита'],['pet','Персонаж'],['photo','Питомец'],['ai','AI-пейзаж'],['case','Под чехол']],s.wallpaper)}<h4>Цвет чехла</h4>${choices('theme',[['black','Чёрный'],['white','Белый'],['blue','Синий'],['red','Красный']],s.theme)}`;
+ if(s.scenario==='camera')return `${choices('camera',[['photo','Фото'],['portrait','Портрет'],['video','Видео'],['group','Группа']],s.camera)}<div class="rd-action-row">${button('capture',s.camera==='video'?(s.recording?'Остановить запись':'Запустить демо записи'):'Сделать демо-снимок')}</div><p class="rd-feedback" role="status">${s.shot?'Кадр готов. Это демонстрация, файл не сохраняется.':s.recording?'Идёт демонстрационный отсчёт. Камера не включена.':'Сравни кадрирование и попробуй спуск.'}</p>`;
+ if(s.scenario==='notifications')return `${choices('notification',[['call','Звонок'],['message','Сообщение'],['alarm','Будильник'],['reminder','Напоминание']],s.notification)}<div class="rd-action-row">${s.notification==='call'?(s.call==='incoming'?button('answer','Ответить')+button('decline','Отклонить'):s.call==='active'?button('hangup','Завершить'):button('notification','Повторить звонок','call')):s.notification==='message'?button('read',s.messageRead?'Прочитано ✓':'Прочитать сообщение'):s.notification==='alarm'?button('snooze',s.alarmSnoozed?'Отложено ✓':'Отложить на 5 минут'):button('reminder',s.reminderDone?'Отмечено ✓':'Выполнить')}</div>`;
+ if(s.scenario==='music')return `${choices('player',[['Spotify','Spotify'],['YouTube Music','YouTube Music']],s.player)}<div class="rd-action-row">${button('track','Предыдущий','-1')}${button('play',s.playing?'Пауза':'Воспроизвести')}${button('track','Следующий','1')}</div><p class="rd-feedback">${esc(REAR_TRACKS[s.track].title)} · ${s.playing?'воспроизведение':'пауза'} · без звука</p>`;
+ if(s.scenario==='navigation')return `<div class="rd-action-row">${button('route',s.route===3?'Пройти ещё раз':'Следующий поворот')}</div><p class="rd-feedback">${REAR_ROUTE[s.route].instruction}. Карта схематичная, без GPS.</p>`;
+ if(s.scenario==='cards')return `${choices('card',[['weather','Погода'],['shopping','Покупки'],['note','Заметка'],['flight','Рейс']],s.card)}${s.card==='note'?`<label class="rd-input-label">Твоя заметка<input data-rd-note maxlength="60" value="${esc(s.note)}"></label>`:s.card==='shopping'?`<div class="rd-action-row">${['Кофе','Хлеб','Молоко'].map((t,i)=>button('check',`${s.shopping[i]?'✓ ':''}${t}`,String(i),s.shopping[i])).join('')}</div>`:`<div class="rd-action-row">${button(s.card==='weather'?'weather':'flight',s.card==='weather'?'Показать другую погоду':'Следующий статус')}</div>`}`;
+ if(s.scenario==='timer')return `${choices('preset',[['60','1 мин'],['300','5 мин'],['1500','25 мин']],String(s.remaining))}<div class="rd-action-row">${button('timer',s.timerRunning?'Пауза таймера':'Запустить таймер')}${button('reset','Сбросить')}</div>`;
+ return `${choices('ai',[['water','Вода'],['breath','Дыхание'],['words','Слова'],['game','Игра']],s.ai)}<form class="rd-ai-form"><label class="rd-input-label">Какая карточка тебе нужна?<input name="prompt" maxlength="80" value="${esc(s.prompt)}" placeholder="Напомни пить воду" required></label><button type="submit">Показать пример</button></form><p class="rd-feedback" role="status">${s.generated?'Готовый шаблон подобран по словам запроса.':'Попробуй: «пить воду», «дыхание», «учить слова», «игра».'} Без подключения к AI-сервису.</p>`;
+}
+export function rearDisplayMarkup(){return `<div data-rear-demo class="rd-studio" data-motion="on">
+ <div class="rd-scene-tabs" role="group" aria-label="Возможности заднего экрана">${REAR_DISPLAY_SCENARIOS.map((s,i)=>`<button type="button" data-rd-scenario="${s.id}" aria-pressed="${i===0}"><span aria-hidden="true">${s.icon}</span>${s.label}</button>`).join('')}</div>
+ <div class="rd-workspace"><figure class="rd-photo-stage"><div class="rd-device-light" aria-hidden="true"></div><div class="rd-phone"><img class="rd-phone-photo" src="${FULL}" width="163" height="337" alt="Настоящее изображение задней панели Xiaomi 18 Pro Max" fetchpriority="high"><div class="rd-display"><div id="po-demo-screen" class="rd-display-inner" role="group" aria-label="Интерактивный пример заднего экрана"></div></div></div><figcaption><strong>Xiaomi 18 Pro Max</strong><span>Реальный корпус. Интерактивный пример интерфейса.</span></figcaption>${button('zoom','Увеличить экран')}</figure>
+ <div class="rd-control-panel"><p class="rd-scenario-index" data-rd-index>01 / 08</p><div class="rd-copy" id="rd-copy" aria-live="polite"></div><div class="rd-feature-controls"></div><div class="rd-tour-controls">${button('next','Следующая функция ↗︎')}${button('auto','Автопоказ','',false)}${button('motion','Анимация','',true)}</div><p class="rd-caption">Все действия происходят в веб-симуляторе. Это не запись HyperOS и не подключение к телефону.</p><details class="rd-guide"><summary>Доступность и источники</summary><p>Китайская и Global-прошивки могут отличаться. Анонс приложения не подтверждает его работу в конкретной поставке. Сверяйте регион и версию системы.</p>${Object.values(REAR_SOURCES).map(s=>`<a href="${s.url}" target="_blank" rel="noopener noreferrer">${esc(s.label)} ↗︎</a>`).join('')}<p>Проверено ${REAR_VERIFIED_AT}. AI-обои Global заявлены через OTA с декабря 2026.</p></details></div></div>
+ ${rearMediaMarkup()}</div>`;}
+export function mountRearDisplay(root){
+ const motion=matchMedia('(prefers-reduced-motion: reduce)');let state=initialRearState();state.motion=!motion.matches;
+ let active=true,allowed=true,interval=null,lastTick=Date.now(),tourElapsed=0,zoom=false,destroyed=false;
+ const screen=root.querySelector('#po-demo-screen');const copy=root.querySelector('#rd-copy');
+ const media=mountRearMedia(root,id=>selectScenario(id,true));
+ const current=()=>REAR_DISPLAY_SCENARIOS.find(x=>x.id===state.scenario);
+ function updateClock(){const now=new Date();root.querySelectorAll('[data-rd-time]').forEach(e=>e.textContent=new Intl.DateTimeFormat('ru-RU',{hour:'2-digit',minute:'2-digit'}).format(now));root.querySelectorAll('[data-rd-date]').forEach(e=>e.textContent=new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'short'}).format(now));}
+ function tick(){if(!active||document.hidden)return;const seconds=Math.floor((Date.now()-lastTick)/1000);if(seconds<1)return;lastTick+=seconds*1000;const old=state;state=rearTick(state,seconds);updateClock();
+  root.querySelectorAll('[data-rd-countdown]').forEach(e=>e.textContent=rearSeconds(state.remaining));root.querySelectorAll('[data-rd-elapsed]').forEach(e=>e.textContent=rearSeconds(state.progress));root.querySelectorAll('[data-rd-record]').forEach(e=>e.textContent=rearSeconds(state.recordSeconds));root.querySelectorAll('[data-rd-call]').forEach(e=>e.textContent=rearSeconds(state.callSeconds));root.querySelectorAll('[data-rd-progress]').forEach(e=>e.value=state.progress);root.querySelectorAll('[data-rd-breath]').forEach(e=>e.textContent=state.breathing?(state.breathSeconds%8<4?'Вдох':'Выдох'):'Минута тишины');
+  if(state.auto){tourElapsed+=seconds;if(tourElapsed>=8){tourElapsed=0;state={...rearAction(rearAction(state,'suspend'),'next'),auto:true};render();}}
+  if(old.timerRunning&&!state.timerRunning||old.playing&&!state.playing)render();
+ }
+ function startTicker(){clearInterval(interval);interval=null;if(active&&!document.hidden)interval=setInterval(tick,1000);}
+ function render(){if(destroyed)return;const scenario=current();root.dataset.scenario=state.scenario;root.dataset.motion=state.motion?'on':'off';root.dataset.active=String(active);root.dataset.theme=state.theme;
+  root.querySelectorAll('[data-rd-scenario]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.rdScenario===state.scenario)));
+  const bodies={personal:personalScreen,camera:cameraScreen,notifications:notificationScreen,music:musicScreen,navigation:navigationScreen,cards:cardsScreen,timer:timerScreen,ai:aiScreen};
+  screen.getAnimations?.().forEach(a=>a.cancel());screen.innerHTML=bodies[state.scenario](state);screen.dataset.scenario=state.scenario;screen.setAttribute('aria-label',scenario.label+' — интерактивный пример');
+  if(active&&state.motion&&!motion.matches)screen.animate?.([{opacity:.25,transform:'translateY(4px)'},{opacity:1,transform:'translateY(0)'}],{duration:220,easing:'ease-out'});
+  copy.innerHTML=`<span class="rd-feature-status">${esc(scenario.status)}</span><h3>${esc(scenario.title)}</h3><p>${esc(scenario.text)}</p><p class="rd-region-note">${esc(scenario.note)}</p><a class="rd-evidence" href="${REAR_SOURCES[scenario.source].url}" target="_blank" rel="noopener noreferrer">${esc(REAR_SOURCES[scenario.source].label)} ↗︎</a>`;
+  root.querySelector('.rd-feature-controls').innerHTML=controls(state);root.querySelector('[data-rd-index]').textContent=String(REAR_DISPLAY_SCENARIOS.indexOf(scenario)+1).padStart(2,'0')+' / 08';
+  const auto=root.querySelector('[data-rd-action=auto]');auto.setAttribute('aria-pressed',String(state.auto));auto.textContent=state.auto?'Остановить показ':'Автопоказ';const anim=root.querySelector('[data-rd-action=motion]');anim.setAttribute('aria-pressed',String(state.motion));anim.textContent=state.motion?'Пауза анимации':'Запустить анимацию';
+  const phone=root.querySelector('.rd-phone');phone.classList.toggle('rd-zoomed',zoom);const photo=root.querySelector('.rd-phone-photo');if(photo.getAttribute('src')!==(zoom?DETAIL:FULL))photo.src=zoom?DETAIL:FULL;root.querySelector('[data-rd-action=zoom]').textContent=zoom?'Показать весь телефон':'Увеличить экран';updateClock();startTicker();
+ }
+ function selectScenario(id,scroll=false){tick();state=rearAction(rearAction(state,'suspend'),'scenario',id);tourElapsed=0;render();if(scroll)root.querySelector('.rd-workspace').scrollIntoView({behavior:motion.matches?'instant':'smooth',block:'start'});}
+ function click(event){const b=event.target.closest('button');if(!b||!root.contains(b))return;
+  if(b.dataset.rdScenario){selectScenario(b.dataset.rdScenario);return;}const action=b.dataset.rdAction;if(!action)return;
+  tick();if(action!=='auto')state={...state,auto:false};if(action==='zoom')zoom=!zoom;else state=rearAction(action==='next'?rearAction(state,'suspend'):state,action,b.dataset.value);if(action==='auto'||action==='next')tourElapsed=0;
+  const inControls=b.closest('.rd-feature-controls')||b.closest('.rd-display');render();if(inControls){const replacement=[...root.querySelectorAll('[data-rd-action]')].find(el=>el.dataset.rdAction===action&&el.dataset.value===b.dataset.value);replacement?.focus({preventScroll:true});}
+ }
+ function input(event){if(event.target.matches('[data-rd-note]')){state=rearAction(state,'note',event.target.value);root.querySelector('[data-note-body]').textContent=state.note;}}
+ function submit(event){if(!event.target.matches('.rd-ai-form'))return;event.preventDefault();state={...rearAction(state,'generate',new FormData(event.target).get('prompt')),auto:false};render();}
+ function deactivate(){tick();active=false;state=rearAction(state,'suspend');root.dataset.active='false';clearInterval(interval);interval=null;screen.getAnimations?.().forEach(a=>a.cancel());media.close();}
+ function pause(){allowed=false;deactivate();}
+ function resume(){if(destroyed)return;allowed=true;if(document.hidden)return;active=true;lastTick=Date.now();render();}
+ function visibility(){if(document.hidden)deactivate();else if(allowed&&!root.closest('[hidden]'))resume();}
+ function pagehide(){deactivate();}function pageshow(){if(allowed&&!root.closest('[hidden]'))resume();}
+ function reduced(){if(motion.matches)state={...state,motion:false,auto:false};render();}
+ root.addEventListener('click',click);root.addEventListener('input',input);root.addEventListener('submit',submit);document.addEventListener('visibilitychange',visibility);window.addEventListener('pagehide',pagehide);window.addEventListener('pageshow',pageshow);motion.addEventListener?.('change',reduced);render();
+ return {pause,resume,destroy(){pause();destroyed=true;media.destroy();root.removeEventListener('click',click);root.removeEventListener('input',input);root.removeEventListener('submit',submit);document.removeEventListener('visibilitychange',visibility);window.removeEventListener('pagehide',pagehide);window.removeEventListener('pageshow',pageshow);motion.removeEventListener?.('change',reduced);}};
 }

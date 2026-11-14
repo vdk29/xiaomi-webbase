@@ -1,6 +1,6 @@
 import { preorderPrice, formatPreorderPrice } from './preorder-prices.js?v=20261107-22';
-import { rearDisplayMarkup, mountRearDisplay } from './rear-display.js?v=20261107-24';
-import { PREORDER_MODELS, PREORDER_VERIFIED_AT } from './preorder-data.js?v=20261107-22';
+import { rearDisplayMarkup, mountRearDisplay } from './rear-display.js?v=20261114-1';
+import { PREORDER_MODELS, PREORDER_VERIFIED_AT } from './preorder-data.js?v=20261114-1';
 import { escapeHtml as esc } from './utils.js?v=20261023-4';
 const A = 'assets/preorder/20261106/';
 const photo = (src, alt, cls = '', eager = false) => `<img src="${esc(src)}" alt="${esc(alt)}" class="${cls}" width="900" height="900" loading="${eager ? 'eager' : 'lazy'}" decoding="async">`;
@@ -13,7 +13,7 @@ export function preorderSelection(params = new URLSearchParams()) {
 }
 
 export function preorderVariants(model, color) {
-  return color.variants || (color.id === 'transparent' ? model.variants.slice(-1) : model.variants);
+  return color.variants || model.variants;
 }
 
 export function preorderRequest(selection) {
@@ -32,7 +32,7 @@ export function preorderSpecGroups(m) {
     ['Производительность и память',[['Процессор',m.chip],['Техпроцесс',m.process],['CPU',m.cpu],['Оперативная память',m.ram],['Накопитель',m.storage],['Конфигурации',m.variants.join(' · ')]]],
     ['Камеры и видео',cameras],
     ['Аккумулятор и зарядка',[['Ёмкость',`${m.battery} мА·ч, типичная${m.minimum ? `; ${m.minimum} мА·ч минимальная` : ''}`],['Проводная зарядка',`До ${m.wired} Вт`],['Беспроводная зарядка',m.wireless ? `До ${m.wireless} Вт` : 'Не заявлена'],['Обратная зарядка',m.reverse],['Условия быстрой зарядки','Нужен совместимый адаптер; для беспроводной зарядки — совместимая зарядная станция']]],
-    ['Корпус и защита',[['Размеры',m.dimensions],['Масса',m.weight],['Цвета и исполнения',m.colors.filter(c=>!c.retailOnly).map(c=>c.label).join(' · ')],['Защита',m.protection],['Разблокировка',m.fingerprint],['О защите от воды','Лабораторный рейтинг; защита не постоянна. Повреждение жидкостью не означает гарантийный случай.']]],
+    ['Корпус и защита',[['Размеры',m.dimensions],['Масса',m.weight],['Цвета и исполнения',m.colors.map(c=>c.label).join(' · ')],['Защита',m.protection],['Разблокировка',m.fingerprint],['О защите от воды','Лабораторный рейтинг; защита не постоянна. Повреждение жидкостью не означает гарантийный случай.']]],
     ['Связь, звук и датчики',[['Wi-Fi',m.wifi],['Bluetooth',m.bluetooth],['USB',m.usb],['SIM','Две nano-SIM; перечень услуг зависит от оператора'],['Диапазоны 5G',m.bands5g],['Диапазоны 4G',m.bands4g],['NFC','Есть; платёжные и транспортные сервисы зависят от региона'],['Навигация','GPS, BeiDou, GLONASS, Galileo, QZSS, NavIC; подробные частоты — в спецификации'],['Звук',m.speakers],['Подключение наушников','USB Type-C; Bluetooth'],['Датчики','Освещение, приближение, акселерометр, гироскоп, компас; ИК-передатчик и линейная вибрация']]],
     ['Система, версия и комплект',[['Операционная система',m.os],['Регион данных',`${m.region}, официальная региональная спецификация`],['Комплект по данным производителя','Смартфон, адаптер питания, USB-C кабель, чехол, заводская защитная плёнка, инструмент SIM, документация; состав поставки уточняется'],['Что уточнить до заказа','Прошивка, языки, Google-сервисы, региональные AI-функции, гарантия, наличие цвета и памяти'],['Проверено',PREORDER_VERIFIED_AT]]],
   ];
@@ -51,7 +51,7 @@ export async function mountPreorder(root) {
   let selection=preorderSelection(new URLSearchParams(location.search));
   let shot='portrait';
   root.innerHTML=`<div class="po-shell">
-    <section id="po-rear" class="po-section po-dark"><div class="po-section-heading"><div><p class="po-kicker">01 / XIAOMI 18 PRO MAX</p><h1>Маленький экран.<br><em>Много возможностей.</em></h1></div><p>Посмотри, как меняются часы, фон, музыка и другие сценарии на заднем экране Pro Max.</p></div>${rearDisplayMarkup()}<div class="po-film"><video id="po-film" controls playsinline preload="none" poster="${A}rear-screen-story.webp" aria-label="Официальный ролик Xiaomi о заднем экране"></video><button class="po-film-play" data-po-play><span>▶︎</span><b>Посмотреть официальный ролик</b><small>Ролик Xiaomi · воспроизведение по нажатию</small></button></div></section>
+    <section id="po-rear" class="po-section po-dark"><div class="po-section-heading"><div><p class="po-kicker">XIAOMI 18 PRO MAX / BACK DISPLAY</p><h1>Больше, чем<br><em>второй экран.</em></h1></div><p>Выбери функцию. Попробуй её на телефоне. Покажи, как это удобно.</p></div>${rearDisplayMarkup()}</section>
     <nav class="po-chapters" aria-label="Разделы презентации"><a href="#po-rear">01 · Задний экран</a><a href="#po-config">02 · Модели и цвета</a><a href="#po-specs">03 · Характеристики</a><a href="#po-camera">04 · Камеры Leica</a></nav>
     <section id="po-config" class="po-section"><div class="po-section-heading"><div><p class="po-kicker">02 / НАЙДИ СВОЙ ХАРАКТЕР</p><h2>Твой цвет.<br>Твой флагман.</h2></div><p>Два флагмана. Выбери Pro или Pro Max — ниже будут только его цвета, конфигурации и характеристики.</p></div><div class="po-model-tabs" role="group" aria-label="Выберите модель">${PREORDER_MODELS.map(m=>`<button type="button" data-po-model="${m.id}" aria-pressed="${m.id===selection.model.id}">${esc(m.name.replace('Xiaomi ',''))}${m.id.includes('18-')?'<small>НОВИНКА</small>':''}</button>`).join('')}</div><div id="po-model-panel"></div>
       <section id="po-specs" class="po-model-specs" aria-labelledby="po-spec-name"><div class="po-details-heading"><p class="po-kicker">ХАРАКТЕРИСТИКИ ВЫБРАННОЙ МОДЕЛИ</p><h3 id="po-spec-name"></h3><p>Официальные характеристики китайской версии. Выбери нужный раздел или читай всё по порядку — параметры уже открыты.</p></div><nav id="po-spec-links" class="po-spec-links" aria-label="Перейти к группе характеристик"></nav><div id="po-spec-groups" class="po-spec-grid"></div></section></section>
@@ -69,7 +69,7 @@ export async function mountPreorder(root) {
     const image=root.querySelector('#po-device-image');image.src=c.image;image.alt=`${m.name}, ${c.label}`;
     root.querySelector('#po-color-name').textContent=c.label;
     root.querySelector('.po-product').style.setProperty('--po-device-accent',c.hex);
-    root.querySelector('#po-color-edition').textContent=c.id==='transparent'?'Специальное исполнение · только 16 ГБ / 1 ТБ':c.retailOnly?'Red из 1С · отдельно от прозрачного Special Edition':'Стандартное исполнение';
+    root.querySelector('#po-color-edition').textContent=c.retailOnly?'Обычный непрозрачный Red из прайса 1С':'Стандартное исполнение';
     root.querySelectorAll('[data-po-color]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.poColor===c.id)));
     const variants=preorderVariants(m,c);
     if(!variants.includes(capacity))selection.capacity=variants[0];
@@ -85,7 +85,7 @@ export async function mountPreorder(root) {
   function renderModel() {
     const {model:m,color:c}=selection;
     root.querySelectorAll('[data-po-model]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.poModel===m.id)));
-    root.querySelector('#po-model-panel').innerHTML=`<article class="po-product" style="--po-device-accent:${c.hex}"><div class="po-product-stage"><span class="po-stage-halo"></span><span class="po-product-badge">${esc(m.tag)}</span><img id="po-device-image" src="${c.image}" alt="${esc(m.name+', '+c.label)}" width="360" height="700" decoding="async"><span class="po-stage-label">XIAOMI 18 PRO SERIES</span></div><div class="po-product-copy"><p class="po-kicker">${esc(m.name)}</p><h3>${esc(m.line)}</h3><p class="po-description">${esc(m.description)}</p><dl class="po-key-facts"><div><dt>Экран</dt><dd>${esc(m.display)}<small>${m.hz} Гц</small></dd></div><div><dt>Батарея</dt><dd>${m.battery}<small>мА·ч</small></dd></div><div><dt>Камера</dt><dd>${esc(m.cameras[0][0])}<small>Leica</small></dd></div></dl><p class="po-chip">${esc(m.chip)}</p><div class="po-color-heading">Твой цвет: <strong id="po-color-name">${esc(c.label)}</strong></div><div class="po-swatches" role="group" aria-label="Цвет ${esc(m.name)}">${m.colors.map(v=>`<button type="button" data-po-color="${v.id}" style="--po-swatch:${v.hex}" aria-label="${esc(v.label)}" aria-pressed="${v.id===c.id}"><span aria-hidden="true"></span><small>${esc(v.id==='transparent'?'Прозрачный красный':v.label)}</small></button>`).join('')}</div><p id="po-color-edition" class="po-color-hint"></p><p class="po-field-heading">Оперативная память / накопитель</p><div id="po-capacities" class="po-capacities" role="group" aria-label="Оперативная память и накопитель"></div><div id="po-price" class="po-price"><span>Цена из 1С</span><strong id="po-price-amount" aria-live="polite"></strong><p id="po-price-note"></p></div><button class="po-button po-primary po-copy-button" data-po-copy>Скопировать конфигурацию <span aria-hidden="true">↗︎</span></button><p id="po-selection-summary" class="po-selection-summary"></p><p id="po-copy-status" class="po-copy-status" role="status"></p><a class="po-spec-shortcut" href="#po-specs">Все характеристики ${esc(m.name)} ↓</a></div></article>`;
+    root.querySelector('#po-model-panel').innerHTML=`<article class="po-product" style="--po-device-accent:${c.hex}"><div class="po-product-stage"><span class="po-stage-halo"></span><span class="po-product-badge">${esc(m.tag)}</span><img id="po-device-image" src="${c.image}" alt="${esc(m.name+', '+c.label)}" width="360" height="700" decoding="async"><span class="po-stage-label">XIAOMI 18 PRO SERIES</span></div><div class="po-product-copy"><p class="po-kicker">${esc(m.name)}</p><h3>${esc(m.line)}</h3><p class="po-description">${esc(m.description)}</p><dl class="po-key-facts"><div><dt>Экран</dt><dd>${esc(m.display)}<small>${m.hz} Гц</small></dd></div><div><dt>Батарея</dt><dd>${m.battery}<small>мА·ч</small></dd></div><div><dt>Камера</dt><dd>${esc(m.cameras[0][0])}<small>Leica</small></dd></div></dl><p class="po-chip">${esc(m.chip)}</p><div class="po-color-heading">Твой цвет: <strong id="po-color-name">${esc(c.label)}</strong></div><div class="po-swatches" role="group" aria-label="Цвет ${esc(m.name)}">${m.colors.map(v=>`<button type="button" data-po-color="${v.id}" style="--po-swatch:${v.hex}" aria-label="${esc(v.label)}" aria-pressed="${v.id===c.id}"><span aria-hidden="true"></span><small>${esc(v.label)}</small></button>`).join('')}</div><p id="po-color-edition" class="po-color-hint"></p><p class="po-field-heading">Оперативная память / накопитель</p><div id="po-capacities" class="po-capacities" role="group" aria-label="Оперативная память и накопитель"></div><div id="po-price" class="po-price"><span>Цена из 1С</span><strong id="po-price-amount" aria-live="polite"></strong><p id="po-price-note"></p></div><button class="po-button po-primary po-copy-button" data-po-copy>Скопировать конфигурацию <span aria-hidden="true">↗︎</span></button><p id="po-selection-summary" class="po-selection-summary"></p><p id="po-copy-status" class="po-copy-status" role="status"></p><a class="po-spec-shortcut" href="#po-specs">Все характеристики ${esc(m.name)} ↓</a></div></article>`;
     root.querySelector('#po-spec-name').textContent=m.name+' · Китай';
     root.querySelector('#po-spec-links').innerHTML=preorderSpecGroups(m).map(([title],i)=>`<a href="#po-spec-${i}">${esc(title)}</a>`).join('');
     root.querySelector('#po-spec-groups').innerHTML=specMarkup(m);
@@ -103,7 +103,6 @@ export async function mountPreorder(root) {
     if(b.dataset.poColor){selection.color=selection.model.colors.find(c=>c.id===b.dataset.poColor)||selection.color;updateColor();}
     if(b.dataset.poCapacity){selection.capacity=b.dataset.poCapacity;updateColor();}
     if(b.dataset.poShot){shot=b.dataset.poShot;root.querySelector('#po-sample').src=A+'camera-'+shot+'.webp';root.querySelector('#po-sample').alt={portrait:'Портрет из галереи Xiaomi 18 Pro',night:'Вечерняя фотография из галереи Xiaomi 18 Pro',detail:'Пример деталей из галереи Xiaomi 18 Pro'}[shot];root.querySelectorAll('[data-po-shot]').forEach(v=>v.setAttribute('aria-pressed',String(v.dataset.poShot===shot)));}
-    if(b.hasAttribute('data-po-play')){const v=root.querySelector('#po-film');v.src=A+'rear-display-film.mp4';b.hidden=true;try{await v.play()}catch{v.controls=true;}}
     if(b.hasAttribute('data-po-copy')){
       const text=preorderRequest(selection);const status=root.querySelector('#po-copy-status');
       try{if(!navigator.clipboard?.writeText)throw Error('Clipboard unavailable');await navigator.clipboard.writeText(text);status.textContent='Конфигурация скопирована. Передай её сотруднику магазина.';}
@@ -112,5 +111,5 @@ export async function mountPreorder(root) {
   });
   const rear=mountRearDisplay(root.querySelector('[data-rear-demo]'));
   renderModel();root.dataset.mounted='true';
-  return { pause(){root.querySelector('#po-film')?.pause();rear.pause();}, resume(){rear.resume();} };
+  return { pause(){rear.pause();}, resume(){rear.resume();}, destroy(){rear.destroy();} };
 }

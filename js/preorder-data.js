@@ -30,7 +30,7 @@ export const PREORDER_MODELS = [
       "16 ГБ / 1 ТБ"
     ],
     "dimensions": "151,8 × 72 × 8,46–8,56 мм",
-    "weight": "203 г; синий и прозрачный — 208 г",
+    "weight": "203 г; синий — 208 г",
     "protection": "IP68",
     "os": "Xiaomi HyperOS 4",
     "bluetooth": "6.0",
@@ -54,26 +54,14 @@ export const PREORDER_MODELS = [
         "image": "assets/preorder/20261106/xiaomi-18-pro-white.webp"
       },
       {
-        "id": "pink",
-        "label": "Ледяной персик",
-        "hex": "#e7b6c5",
-        "image": "assets/preorder/20261106/xiaomi-18-pro-pink.webp"
-      },
-      {
         "id": "blue",
-        "label": "Звёздный синий",
+        "label": "Синий",
         "hex": "#3c42ad",
         "image": "assets/preorder/20261106/xiaomi-18-pro-blue.webp"
       },
       {
-        "id": "transparent",
-        "label": "Прозрачный красный · Special Edition",
-        "hex": "#b32631",
-        "image": "assets/preorder/20261106/xiaomi-18-pro-transparent.webp"
-      },
-      {
         "id": "red",
-        "label": "Красный · Red",
+        "label": "Красный",
         "hex": "#a62d48",
         "image": "assets/preorder/20261107/xiaomi-18-pro-red.webp",
         "retailOnly": true,
@@ -141,7 +129,7 @@ export const PREORDER_MODELS = [
       "16 ГБ / 1 ТБ"
     ],
     "dimensions": "163,39 × 77,6 × 8,39–8,47 мм",
-    "weight": "235 г; синий и прозрачный — 240 г",
+    "weight": "235 г; синий — 240 г",
     "protection": "IP68",
     "os": "Xiaomi HyperOS 4",
     "bluetooth": "6.0",
@@ -165,26 +153,14 @@ export const PREORDER_MODELS = [
         "image": "assets/preorder/20261106/xiaomi-18-pro-max-white.webp"
       },
       {
-        "id": "pink",
-        "label": "Ледяной персик",
-        "hex": "#e7b6c5",
-        "image": "assets/preorder/20261106/xiaomi-18-pro-max-pink.webp"
-      },
-      {
         "id": "blue",
-        "label": "Звёздный синий",
+        "label": "Синий",
         "hex": "#3c42ad",
         "image": "assets/preorder/20261106/xiaomi-18-pro-max-blue.webp"
       },
       {
-        "id": "transparent",
-        "label": "Прозрачный красный · Special Edition",
-        "hex": "#b32631",
-        "image": "assets/preorder/20261106/xiaomi-18-pro-max-transparent.webp"
-      },
-      {
         "id": "red",
-        "label": "Красный · Red",
+        "label": "Красный",
         "hex": "#a62d48",
         "image": "assets/preorder/20261107/xiaomi-18-pro-max-red.webp",
         "retailOnly": true,
