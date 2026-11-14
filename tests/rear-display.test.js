@@ -11,7 +11,7 @@ test('media sources are explicit: local teaser stays local; third-party reviews 
  const code=readFileSync(new URL('../js/rear-display-media.js',import.meta.url),'utf8');assert.match(code,/autoplay=0/);assert.match(code,/youtube-nocookie/);assert.match(code,/fallback/);assert.match(code,/removeAttribute\('src'\)/);
 });
 
-import {wrapAngle,viewAngle,privacyOpacity,fitModel} from '../js/rear-display-3d.js';
+import {wrapAngle,viewAngle,privacyOpacity,fitModel,PHONE_DIMENSIONS,nearestAngle} from '../js/rear-display-3d.js';
 test('3D angles wrap across full revolutions, fit narrow viewports and shade only oblique protected views',()=>{
  assert.equal(wrapAngle(725),5);assert.equal(wrapAngle(-725),-5);assert.equal(wrapAngle(Infinity),0);
  assert.equal(viewAngle({yaw:180,pitch:0}),0);assert.ok(viewAngle({yaw:235,pitch:0})>54);
@@ -20,3 +20,5 @@ test('3D angles wrap across full revolutions, fit narrow viewports and shade onl
  for(const yaw of [-180,-90,0,45,180])for(const pitch of [-180,-90,0,90,180])for(const roll of [-180,-90,0,90,180]){const scale=fitModel({yaw,pitch,roll},260,538,270);assert.ok(scale>0&&scale<=1);}
  assert.ok(fitModel({yaw:0,pitch:0,roll:90},260,538,270)<.5);
 });
+
+test('desktop rotations use nearest equivalent angle and model thickness follows real Pro Max dimensions',()=>{assert.equal(nearestAngle(170,-170),190);assert.equal(nearestAngle(350,0),360);assert.equal(nearestAngle(15,180),180);assert.equal(PHONE_DIMENSIONS.width,77.6);assert.equal(PHONE_DIMENSIONS.height,163.39);assert.equal(PHONE_DIMENSIONS.depth,8.39);assert.ok(320*PHONE_DIMENSIONS.depth/PHONE_DIMENSIONS.width>34);});

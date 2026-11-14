@@ -1,9 +1,9 @@
-import {modelFacesMarkup,orbitControlsMarkup,privacyControlsMarkup,mountPhone3D} from './rear-display-3d.js?v=20261114-2';
+import {modelFacesMarkup,orbitPadMarkup,orbitControlsMarkup,privacyControlsMarkup,mountPhone3D} from './rear-display-3d.js?v=20261114-3';
 import {escapeHtml as esc} from './utils.js?v=20261023-4';
-import {REAR_DISPLAY_SCENARIOS,REAR_SOURCES,REAR_TRACKS,REAR_ROUTE,REAR_VERIFIED_AT} from './rear-display-data.js?v=20261114-2';
-import {initialRearState,rearAction,rearTick,rearSeconds} from './rear-display-state.js?v=20261114-2';
-import {rearMediaMarkup,mountRearMedia} from './rear-display-media.js?v=20261114-2';
-export {REAR_DISPLAY_SCENARIOS} from './rear-display-data.js?v=20261114-2';
+import {REAR_DISPLAY_SCENARIOS,REAR_SOURCES,REAR_TRACKS,REAR_ROUTE,REAR_VERIFIED_AT} from './rear-display-data.js?v=20261114-3';
+import {initialRearState,rearAction,rearTick,rearSeconds} from './rear-display-state.js?v=20261114-3';
+import {rearMediaMarkup,mountRearMedia} from './rear-display-media.js?v=20261114-3';
+export {REAR_DISPLAY_SCENARIOS} from './rear-display-data.js?v=20261114-3';
 const FULL='assets/preorder/20261106/xiaomi-18-pro-max-black.webp';
 const A='assets/preorder/20261114/';
 const button=(action,label,value='',pressed=null)=>`<button type="button" data-rd-action="${action}" data-value="${esc(value)}" ${pressed===null?'':`aria-pressed="${pressed}"`}>${label}</button>`;
@@ -55,7 +55,7 @@ function controls(s){
 }
 export function rearDisplayMarkup(){return `<div data-rear-demo class="rd-studio" data-motion="on">
  <div class="rd-scene-tabs" role="group" aria-label="Возможности заднего экрана">${REAR_DISPLAY_SCENARIOS.map((s,i)=>`<button type="button" data-rd-scenario="${s.id}" aria-pressed="${i===0}"><span aria-hidden="true">${s.icon}</span>${s.label}</button>`).join('')}</div>
- <div class="rd-workspace"><figure class="rd-photo-stage"><div class="rd-device-light" aria-hidden="true"></div><div class="rd-orbit-viewport" tabindex="0" role="group" aria-label="3D-модель телефона. Перетаскивайте для вращения, используйте стрелки или настройки ракурса."><div class="rd-phone"><div class="rd-device3d"><div class="rd-phone-back"><img class="rd-phone-photo" src="${FULL}" width="163" height="337" alt="Настоящее изображение задней панели Xiaomi 18 Pro Max" fetchpriority="high"><div class="rd-display"><div id="po-demo-screen" class="rd-display-inner" role="group" aria-label="Интерактивный пример заднего экрана"></div></div></div>${modelFacesMarkup()}</div></div></div><figcaption><strong>Xiaomi 18 Pro Max</strong><span>3D-презентация. Интерфейсы показаны схематично.</span></figcaption>${button('zoom','Увеличить телефон')}${orbitControlsMarkup()}</figure>
+ <div class="rd-workspace"><figure class="rd-photo-stage"><div class="rd-device-light" aria-hidden="true"></div>${orbitPadMarkup()}<div class="rd-orbit-viewport" tabindex="0" role="group" aria-label="3D-модель телефона. Перетаскивайте для вращения, используйте стрелки или настройки ракурса."><div class="rd-phone"><div class="rd-device3d"><div class="rd-phone-back"><img class="rd-phone-photo" draggable="false" src="${FULL}" width="163" height="337" alt="Настоящее изображение задней панели Xiaomi 18 Pro Max" fetchpriority="high"><div class="rd-camera-island"><img class="rd-island-texture" src="${FULL}" draggable="false" alt="" aria-hidden="true"><div class="rd-display"><div id="po-demo-screen" class="rd-display-inner" role="group" aria-label="Интерактивный пример заднего экрана"></div></div></div></div>${modelFacesMarkup()}</div></div></div><figcaption><strong>Xiaomi 18 Pro Max</strong><span>3D-презентация. Интерфейсы показаны схематично.</span></figcaption>${button('zoom','Увеличить телефон')}${orbitControlsMarkup()}</figure>
  <div class="rd-control-panel"><p class="rd-scenario-index" data-rd-index>01 / 09</p><div class="rd-copy" id="rd-copy" aria-live="polite"></div><div class="rd-feature-controls"></div><div class="rd-tour-controls">${button('next','Следующая функция ↗︎')}${button('auto','Автопоказ','',false)}${button('motion','Анимация','',true)}</div><p class="rd-caption">Все действия происходят в веб-симуляторе. Это не запись HyperOS и не подключение к телефону.</p><details class="rd-guide"><summary>Доступность и источники</summary><p>Китайская и Global-прошивки могут отличаться. Анонс приложения не подтверждает его работу в конкретной поставке. Сверяйте регион и версию системы.</p>${Object.values(REAR_SOURCES).map(s=>`<a href="${s.url}" target="_blank" rel="noopener noreferrer">${esc(s.label)} ↗︎</a>`).join('')}<p>Проверено ${REAR_VERIFIED_AT}. AI-обои Global заявлены через OTA с декабря 2026.</p></details></div></div>
  ${rearMediaMarkup()}</div>`;}
 export function mountRearDisplay(root){
