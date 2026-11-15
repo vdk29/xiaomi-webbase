@@ -2,6 +2,7 @@
 export const REAR_VERIFIED_AT='2026-11-15';
 export const REAR_SOURCES={
  china:{label:'Xiaomi · Pro Max (Китай)',url:'https://www.mi.com/prod/xiaomi-18-pro-max'},
+ hyperos:{label:'Xiaomi · HyperOS 4',url:'https://os.mi.com/'},
  global:{label:'Xiaomi · анонс Global',url:'https://www.mi.com/global/launch/xiaomi-launch-november-2026/'},
  appcards:{label:'Xiaomi · официальный каталог карточек',url:'https://m.mi.com/appcard'},
  community:{label:'Xiaomi Community · карточки',url:'https://new.c.mi.com/global/post/2366059'},
@@ -18,6 +19,7 @@ export const REAR_DISPLAY_SCENARIOS=[
  {id:'navigation',label:'Маршрут',icon:'↱',title:'Следующий поворот — на виду.',text:'Проверь направление и расстояние на небольшом экране. Пройди маршрут по шагам.',status:'Google Maps · анонс Global',note:'Схематичный маршрут без GPS. Работа на конкретной прошивке и в регионе поставки требует проверки.',source:'maps'},
  {id:'cards',label:'Полезное',icon:'▦',title:'Маленькие карточки большого дня.',text:'Погода, покупки, заметки, рейсы, коды получения и календарь — всё под рукой.',status:'Карточки и закреплённая информация',note:'Данные условные. Trip.com — демонстрация анонсированного сценария Global, не отслеживание настоящего рейса.',source:'global'},
  {id:'ai',label:'AI-карточки',icon:'✦',title:'Идея. Запрос. Своя карточка.',text:'Питьевой режим, изучение слов, расчёт на компанию и закреплённая заметка — попробуй повседневные сценарии.',status:'AI-приложения для повседневных задач',note:'Примеры по официальному каталогу приложений Xiaomi. Это веб-демонстрация; состав карточек и языки зависят от прошивки.',source:'appcards'},
+ {id:'hyperos',label:'HyperOS',icon:'▦',title:'Знакомый рабочий стол. Живой HyperOS.',text:'Открой приложение, опусти шторку или поменяй настройки. Нажимай прямо на экран телефона.',status:'Xiaomi HyperOS 4 · интерактивный интерфейс',note:'Локализованная веб-реконструкция по презентации Xiaomi. Штатные обои и иконки; приложения демонстрационные, прошивка в браузере не запускается.',source:'hyperos'},
  {id:'privacy',label:'Антишпион',icon:'◈',title:'Твой экран. Только для тебя.',text:'Поверни основной экран и сравни видимость с защитой и без неё.',status:'Xiaomi Privacy Display · основной экран',note:'Схема принципа работы, не измерение панели. Реальная видимость зависит от угла, освещения, настроек и прошивки. Выборочная защита показана по материалам китайской версии; Global требует проверки.',source:'china'},
 ];
 export const REAR_TRACKS=[{title:'Ночной город',artist:'Демо-микс',art:'night',color:'#6e90d7',duration:180},{title:'Мягкий свет',artist:'Демо-микс',art:'portrait',color:'#cc926f',duration:164},{title:'У моря',artist:'Демо-микс',art:'seaside',color:'#53a3bd',duration:196}];

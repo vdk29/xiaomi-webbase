@@ -1,4 +1,4 @@
-import {REAR_DISPLAY_SCENARIOS,REAR_TRACKS,REAR_ROUTE,aiTemplate} from './rear-display-data.js?v=20261115-1';
+import {REAR_DISPLAY_SCENARIOS,REAR_TRACKS,REAR_ROUTE,aiTemplate} from './rear-display-data.js?v=20261115-2';
 export function initialRearState(){return {scenario:'personal',wallpaper:'clock',theme:'blue',motion:true,camera:'photo',recording:false,recordSeconds:0,shot:false,notification:'call',call:'incoming',callSeconds:0,messageRead:false,alarmSnoozed:false,reminderDone:false,track:0,playing:false,progress:0,player:'Spotify',route:0,navElapsed:0,cardElapsed:0,weatherIndex:0,pickupIndex:0,calendarDone:false,splitAmount:2400,splitPeople:4,card:'weather',rain:false,shopping:[false,false,false],note:'Купить кофе по дороге домой',flight:0,ai:'water',water:0,waterPrevious:0,word:0,wordBack:false,generated:false,prompt:''};}
 export function rearAction(state,action,value){
  const s={...state};

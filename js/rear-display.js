@@ -1,13 +1,13 @@
-import {navigationMarkup,cardsMarkup,dailyControls,syncDaily} from './rear-display-daily.js?v=20261115-1';
-import {aiScreenMarkup,aiPanelMarkup} from './rear-display-ai.js?v=20261115-1';
-import {rearGeometryStyle,rearGlassMask,rearTextureMask} from './rear-display-geometry.js?v=20261115-1';
-import {artMarkup,REAR_WALLPAPERS,officialGalleryMarkup} from './rear-display-art.js?v=20261115-1';
-import {modelFacesMarkup,orbitPadMarkup,orbitControlsMarkup,privacyControlsMarkup,mountPhone3D} from './rear-display-3d.js?v=20261115-1';
+import {navigationMarkup,cardsMarkup,dailyControls,syncDaily} from './rear-display-daily.js?v=20261115-2';
+import {aiScreenMarkup,aiPanelMarkup} from './rear-display-ai.js?v=20261115-2';
+import {rearGeometryStyle,rearGlassMask,rearTextureMask} from './rear-display-geometry.js?v=20261115-2';
+import {artMarkup,REAR_WALLPAPERS,officialGalleryMarkup} from './rear-display-art.js?v=20261115-2';
+import {modelFacesMarkup,orbitPadMarkup,orbitControlsMarkup,privacyControlsMarkup,mountPhone3D} from './rear-display-3d.js?v=20261115-2';
 import {escapeHtml as esc} from './utils.js?v=20261023-4';
-import {REAR_DISPLAY_SCENARIOS,REAR_SOURCES,REAR_TRACKS,REAR_ROUTE,REAR_VERIFIED_AT} from './rear-display-data.js?v=20261115-1';
-import {initialRearState,rearAction,rearTick,rearSeconds} from './rear-display-state.js?v=20261115-1';
-import {rearMediaMarkup,mountRearMedia} from './rear-display-media.js?v=20261115-1';
-export {REAR_DISPLAY_SCENARIOS} from './rear-display-data.js?v=20261115-1';
+import {REAR_DISPLAY_SCENARIOS,REAR_SOURCES,REAR_TRACKS,REAR_ROUTE,REAR_VERIFIED_AT} from './rear-display-data.js?v=20261115-2';
+import {initialRearState,rearAction,rearTick,rearSeconds} from './rear-display-state.js?v=20261115-2';
+import {rearMediaMarkup,mountRearMedia} from './rear-display-media.js?v=20261115-2';
+export {REAR_DISPLAY_SCENARIOS} from './rear-display-data.js?v=20261115-2';
 const FULL='assets/preorder/20261106/xiaomi-18-pro-max-black.webp';
 const A='assets/preorder/20261114/';
 const button=(action,label,value='',pressed=null)=>`<button type="button" data-rd-action="${action}" data-value="${esc(value)}" ${pressed===null?'':`aria-pressed="${pressed}"`}>${label}</button>`;
@@ -29,6 +29,7 @@ const navigationScreen=navigationMarkup;
 const cardsScreen=cardsMarkup;
 function aiScreen(s){return aiScreenMarkup(s,'phone');}
 function controls(s){
+ if(s.scenario==='hyperos')return `<div class="rd-choices">${[['home','Рабочий стол'],['controls','Центр управления'],['notifications','Уведомления'],['lock','Экран блокировки']].map(([id,label])=>`<button type="button" data-hs-open="${id}">${label}</button>`).join('')}</div><p class="rd-feedback">Потяните сверху вниз для шторки. Полоска внизу возвращает на рабочий стол.</p>`;
  if(s.scenario==='privacy')return privacyControlsMarkup();
  if(s.scenario==='personal')return `<h4>Оформление</h4><div class="rd-wallpaper-picker" role="group" aria-label="Оформление дисплея">${REAR_WALLPAPERS.map(w=>`<button type="button" data-rd-action="wallpaper" data-value="${w.id}" aria-pressed="${w.id===s.wallpaper}">${artMarkup(w.art)}<span>${w.label}</span></button>`).join('')}</div><h4>Цвет чехла</h4>${choices('theme',[['black','Чёрный'],['white','Белый'],['blue','Синий'],['red','Красный']],s.theme)}`;
  if(s.scenario==='camera')return `${choices('camera',[['photo','Фото'],['portrait','Портрет'],['video','Видео'],['group','Группа']],s.camera)}<div class="rd-action-row">${button('capture',s.camera==='video'?(s.recording?'Остановить запись':'Запустить демо записи'):'Сделать демо-снимок')}</div><p class="rd-feedback" role="status">${s.shot?'Кадр готов. Это демонстрация, файл не сохраняется.':s.recording?'Идёт демонстрационный отсчёт. Камера не включена.':'Сравни кадрирование и попробуй спуск.'}</p>`;
@@ -39,9 +40,9 @@ function controls(s){
  return aiPanelMarkup(s);
 }
 export function rearDisplayMarkup(){return `<div data-rear-demo class="rd-studio" data-motion="on" style='${rearGeometryStyle()}'>
- <div class="rd-scene-tabs" role="group" aria-label="Возможности заднего экрана">${REAR_DISPLAY_SCENARIOS.map((s,i)=>`<button type="button" data-rd-scenario="${s.id}" aria-pressed="${i===0}"><span aria-hidden="true">${s.icon}</span>${s.label}</button>`).join('')}</div>
+ <div class="rd-scene-tabs" role="group" aria-label="Экраны и возможности телефона">${REAR_DISPLAY_SCENARIOS.map((s,i)=>`<button type="button" data-rd-scenario="${s.id}" aria-pressed="${i===0}"><span aria-hidden="true">${s.icon}</span>${s.label}</button>`).join('')}</div>
  <div class="rd-workspace"><figure class="rd-photo-stage"><div class="rd-device-light" aria-hidden="true"></div>${orbitPadMarkup()}<div class="rd-orbit-viewport" tabindex="0" role="group" aria-label="3D-модель телефона. Перетаскивайте для вращения, используйте стрелки или настройки ракурса."><div class="rd-phone"><div class="rd-device3d"><div class="rd-phone-back"><img class="rd-phone-photo" draggable="false" src="${FULL}" width="163" height="337" alt="Настоящее изображение задней панели Xiaomi 18 Pro Max" fetchpriority="high"><div class="rd-camera-island"><img class="rd-island-texture" src="${FULL}" draggable="false" alt="" aria-hidden="true"><div class="rd-display"><div id="po-demo-screen" class="rd-display-inner" role="group" aria-label="Интерактивный пример заднего экрана"></div></div></div></div>${modelFacesMarkup()}</div></div></div><figcaption><strong>Xiaomi 18 Pro Max</strong><span class="rd-model-status">3D-реконструкция по материалам Xiaomi</span></figcaption>${button('zoom','Увеличить телефон')}${orbitControlsMarkup()}</figure>
- <div class="rd-control-panel"><p class="rd-scenario-index" data-rd-index>01 / 08</p><div class="rd-copy" id="rd-copy" aria-live="polite"></div><div class="rd-feature-controls"></div><p class="rd-caption">Интерактивная презентация. Региональные функции и прошивка требуют проверки.</p><details class="rd-guide"><summary>Доступность и источники</summary><p>Китайская и Global-прошивки могут отличаться. Анонс приложения не подтверждает его работу в конкретной поставке. Сверяйте регион и версию системы.</p>${Object.values(REAR_SOURCES).map(s=>`<a href="${s.url}" target="_blank" rel="noopener noreferrer">${esc(s.label)} ↗︎</a>`).join('')}<p>Проверено ${REAR_VERIFIED_AT}. AI-обои Global заявлены через OTA с декабря 2026.</p></details></div></div>
+ <div class="rd-control-panel"><p class="rd-scenario-index" data-rd-index>01 / 09</p><div class="rd-copy" id="rd-copy" aria-live="polite"></div><div class="rd-feature-controls"></div><p class="rd-caption">Интерактивная презентация. Региональные функции и прошивка требуют проверки.</p><details class="rd-guide"><summary>Доступность и источники</summary><p>Китайская и Global-прошивки могут отличаться. Анонс приложения не подтверждает его работу в конкретной поставке. Сверяйте регион и версию системы.</p>${Object.values(REAR_SOURCES).map(s=>`<a href="${s.url}" target="_blank" rel="noopener noreferrer">${esc(s.label)} ↗︎</a>`).join('')}<p>Проверено ${REAR_VERIFIED_AT}. AI-обои Global заявлены через OTA с декабря 2026.</p></details></div></div>
  ${officialGalleryMarkup()}${rearMediaMarkup()}</div>`;}
 export function mountRearDisplay(root){
  const motion=matchMedia('(prefers-reduced-motion: reduce)');let state=initialRearState();state.motion=!motion.matches;
@@ -50,7 +51,7 @@ export function mountRearDisplay(root){
  const media=mountRearMedia(root,id=>selectScenario(id,true));
  const orbit=mountPhone3D(root);root.querySelector('.rd-display').style.setProperty('--glass-mask',rearGlassMask());root.querySelector('.rd-island-texture').style.setProperty('--texture-mask',rearTextureMask());
  const current=()=>REAR_DISPLAY_SCENARIOS.find(x=>x.id===state.scenario);
- function updateClock(){const now=new Date();root.querySelectorAll('[data-front-clock]').forEach(e=>e.textContent=now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}));root.querySelectorAll('[data-front-date]').forEach(e=>e.textContent=now.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'}));root.querySelectorAll('[data-rd-time]').forEach(e=>e.textContent=new Intl.DateTimeFormat('ru-RU',{hour:'2-digit',minute:'2-digit'}).format(now));root.querySelectorAll('[data-rd-date]').forEach(e=>e.textContent=new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'short'}).format(now));}
+ function updateClock(){const now=new Date();orbit.tick(now);root.querySelectorAll('[data-rd-time]').forEach(e=>e.textContent=new Intl.DateTimeFormat('ru-RU',{hour:'2-digit',minute:'2-digit'}).format(now));root.querySelectorAll('[data-rd-date]').forEach(e=>e.textContent=new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'short'}).format(now));}
  function tick(){if(!active||document.hidden)return;const seconds=Math.floor((Date.now()-lastTick)/1000);if(seconds<1)return;lastTick+=seconds*1000;const old=state;state=rearTick(state,seconds);updateClock();syncDaily(root,state);if(old.route!==state.route||old.weatherIndex!==state.weatherIndex)render(false);
   root.querySelectorAll('[data-rd-elapsed]').forEach(e=>e.textContent=rearSeconds(state.progress));root.querySelectorAll('[data-rd-record]').forEach(e=>e.textContent=rearSeconds(state.recordSeconds));root.querySelectorAll('[data-rd-call]').forEach(e=>e.textContent=rearSeconds(state.callSeconds));root.querySelectorAll('[data-rd-progress]').forEach(e=>e.value=state.progress);
   if(old.playing&&!state.playing){state={...state,track:(state.track+1)%REAR_TRACKS.length,progress:0,playing:true};render(false);}
@@ -58,14 +59,14 @@ export function mountRearDisplay(root){
  function startTicker(){clearInterval(interval);interval=null;if(active&&!document.hidden)interval=setInterval(tick,1000);}
  function render(animate=true){if(destroyed)return;const scenario=current();root.dataset.scenario=state.scenario;root.dataset.motion=state.motion?'on':'off';root.dataset.active=String(active);root.dataset.theme=state.theme;
   root.querySelectorAll('[data-rd-scenario]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.rdScenario===state.scenario)));
-  const bodies={personal:personalScreen,camera:cameraScreen,notifications:notificationScreen,music:musicScreen,navigation:navigationScreen,cards:cardsScreen,ai:aiScreen};
+  const bodies={personal:personalScreen,camera:cameraScreen,notifications:notificationScreen,music:musicScreen,navigation:navigationScreen,cards:cardsScreen,ai:aiScreen,hyperos:personalScreen};
   screen.getAnimations?.().forEach(a=>a.cancel());if(state.scenario!=='privacy')screen.innerHTML=bodies[state.scenario](state);screen.dataset.scenario=state.scenario;screen.setAttribute('aria-label',scenario.label+' — интерактивный пример');
   if(animate&&active&&state.motion&&!motion.matches)screen.animate?.([{opacity:.3,filter:'blur(1px)'},{opacity:1,filter:'blur(0)'}],{duration:260,easing:'ease-out'});
   copy.innerHTML=`<span class="rd-feature-status">${esc(scenario.status)}</span><h3>${esc(scenario.title)}</h3><p>${esc(scenario.text)}</p><details><summary>Доступность и источник</summary><p class="rd-region-note">${esc(scenario.note)}</p><a class="rd-evidence" href="${REAR_SOURCES[scenario.source].url}" target="_blank" rel="noopener noreferrer">${esc(REAR_SOURCES[scenario.source].label)} ↗︎</a></details>`;
   root.querySelector('.rd-feature-controls').innerHTML=controls(state);root.querySelector('[data-rd-index]').textContent=String(REAR_DISPLAY_SCENARIOS.indexOf(scenario)+1).padStart(2,'0')+' / '+String(REAR_DISPLAY_SCENARIOS.length).padStart(2,'0');
   const phone=root.querySelector('.rd-phone');phone.classList.toggle('rd-zoomed',zoom);const photo=root.querySelector('.rd-phone-photo');if(photo.getAttribute('src')!==FULL)photo.src=FULL;root.querySelector('[data-rd-action=zoom]').textContent=zoom?'Обычный размер':'Увеличить телефон';orbit.sync();updateClock();syncDaily(root,state);startTicker();
  }
- function selectScenario(id,scroll=false){tick();state=rearAction(rearAction(state,'suspend'),'scenario',id);if(id==='privacy')orbit.privacy();else if(root.dataset.scenario==='privacy')orbit.back();render();if(scroll)root.querySelector('.rd-workspace').scrollIntoView({behavior:motion.matches?'instant':'smooth',block:'start'});}
+ function selectScenario(id,scroll=false){tick();state=rearAction(rearAction(state,'suspend'),'scenario',id);if(id==='privacy')orbit.privacy();else if(id==='hyperos')orbit.front();else if(['privacy','hyperos'].includes(root.dataset.scenario))orbit.back();render();if(scroll)root.querySelector('.rd-workspace').scrollIntoView({behavior:motion.matches?'instant':'smooth',block:'start'});}
  function click(event){const b=event.target.closest('button');if(!b||!root.contains(b))return;
   if(b.dataset.rdScenario){selectScenario(b.dataset.rdScenario);return;}const action=b.dataset.rdAction;if(!action)return;if(action==='suggest'){const input=root.querySelector('.rd-ai-form input');input.value=b.dataset.value;input.focus({preventScroll:true});return;}
   tick();if(action==='zoom')zoom=!zoom;else state=rearAction(state,action,b.dataset.value);

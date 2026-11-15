@@ -1,3 +1,4 @@
+@import url('hyperos.css?v=20261115-2');
 /* Preorder styles are scoped and loaded only when the tab opens. */
 .po-shell{--po-ink:#18213b;--po-muted:#526079;--po-line:#e3e7f1;--po-orange:#ed5700;color:var(--po-ink);line-height:1.65;padding-bottom:24px;overflow:clip}
 .po-shell h1,.po-shell h2,.po-shell h3,.po-shell h4,.po-shell p,.po-shell figure{margin:0}

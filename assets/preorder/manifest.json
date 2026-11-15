@@ -728,5 +728,44 @@
     "note": "Official preview, optimized without changing composition. Original Chinese interface; the Russian interactive example is an authored reconstruction.",
     "width": 976,
     "height": 596
+  },
+  {
+    "model": "xiaomi-18-pro-max",
+    "name": "wallpaper-amber",
+    "kind": "hyperos_reference",
+    "path": "assets/preorder/20261115-hyperos/wallpaper-amber.webp",
+    "source_url": "https://www.gizdev.com/xiaomi-18-pro-max-stock-wallpapers-and-live-wallpapers/",
+    "image_url": "https://www.gizdev.com/wp-content/uploads/2026/09/Xiaomi-18-Pro-Wallpaper-1-scaled.webp",
+    "byte_size": 48082,
+    "sha256": "f4aa718beb6bbde3a22c1a0b45c12666615e69d514ac50c01d0cb0c4f92057a0",
+    "width": 750,
+    "height": 1628,
+    "note": "Reference imagery for an interactive, localized HyperOS reconstruction. Wallpaper publisher attributes the set to device firmware; not a factory OS emulator."
+  },
+  {
+    "model": "xiaomi-18-pro-max",
+    "name": "wallpaper-blue",
+    "kind": "hyperos_reference",
+    "path": "assets/preorder/20261115-hyperos/wallpaper-blue.webp",
+    "source_url": "https://www.gizdev.com/xiaomi-18-pro-max-stock-wallpapers-and-live-wallpapers/",
+    "image_url": "https://www.gizdev.com/wp-content/uploads/2026/09/Xiaomi-18-Pro-Wallpaper-9.webp",
+    "byte_size": 47106,
+    "sha256": "503dd30a1176b9e49706634d63cfb65f79758653881aef2ac6c23a04135e529d",
+    "width": 749,
+    "height": 1630,
+    "note": "Reference imagery for an interactive, localized HyperOS reconstruction. Wallpaper publisher attributes the set to device firmware; not a factory OS emulator."
+  },
+  {
+    "model": "xiaomi-18-pro-max",
+    "name": "hyperos-icons",
+    "kind": "hyperos_reference",
+    "path": "assets/preorder/20261115-hyperos/hyperos-icons.webp",
+    "source_url": "https://os.mi.com/",
+    "image_url": "https://cia.hyperos.mi.com/hyperos4homepage/aesthetics_folderSwitch_2-poster.jpg",
+    "byte_size": 127404,
+    "sha256": "71109fa768eb6b50fb4f77308c4a0470770c6e0e3e4177f281ce969aa30e1f1d",
+    "width": 1200,
+    "height": 2608,
+    "note": "Reference imagery for an interactive, localized HyperOS reconstruction. Wallpaper publisher attributes the set to device firmware; not a factory OS emulator."
   }
 ]

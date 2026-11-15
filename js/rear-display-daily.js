@@ -1,5 +1,5 @@
 import {escapeHtml as esc} from './utils.js?v=20261023-4';
-import {REAR_ROUTE} from './rear-display-data.js?v=20261115-1';
+import {REAR_ROUTE} from './rear-display-data.js?v=20261115-2';
 const b=(id,text,value='')=>`<button type="button" data-rd-action="${id}" data-value="${esc(value)}">${text}</button>`;
 export const DAILY_CARDS=[['weather','Погода'],['shopping','Покупки'],['note','Заметка'],['flight','Рейс'],['pickup','Код получения'],['calendar','Календарь']];
 const forecasts=[{name:'Солнечно',temp:'22°',kind:'sun'},{name:'Небольшой дождь',temp:'16°',kind:'rain'},{name:'Снег',temp:'−2°',kind:'snow'},{name:'Ветрено',temp:'18°',kind:'wind'}];
