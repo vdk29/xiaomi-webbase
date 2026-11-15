@@ -1,26 +1,27 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {AI_CARDS,aiScreenMarkup,aiPanelMarkup,breathPhase} from '../js/rear-display-ai.js';
+import {AI_CARDS,aiScreenMarkup,aiPanelMarkup,splitResult} from '../js/rear-display-ai.js';
 import {initialRearState,rearAction,rearTick} from '../js/rear-display-state.js';
-test('six AI cards select distinct scenes; character imagery is the visual starting point',()=>{
- let s=initialRearState();assert.equal(s.ai,'character');assert.equal(AI_CARDS.length,6);
+import {DAILY_CARDS,cardsMarkup,navDistance} from '../js/rear-display-daily.js';
+test('four practical AI cards select independent scenes without retired games or timer UI',()=>{
+ let s=initialRearState();assert.equal(s.ai,'water');assert.deepEqual(AI_CARDS.map(c=>c.id),['water','words','split','note']);
  for(const c of AI_CARDS){s=rearAction(s,'ai',c.id);assert.equal(s.ai,c.id);assert.match(aiScreenMarkup(s),new RegExp(`data-ai-kind="${c.id}"`));}
- assert.equal(rearAction(s,'ai','invalid').ai,s.ai);
+ assert.equal(rearAction(s,'ai','game').ai,s.ai);assert.doesNotMatch(aiPanelMarkup(s),/data-rd-action="(hit|timer|breath|greet)"/);
 });
-test('AI focus preserves its chosen duration, completes, and stops when another card is selected',()=>{
- let s=rearAction(initialRearState(),'preset','300');s=rearAction(s,'timer');s=rearTick(s,2);assert.equal(s.remaining,298);s=rearAction(s,'ai','character');assert.equal(rearTick(s,20).remaining,298);
- s=rearAction(s,'timer');s=rearTick(s,400);assert.equal(s.remaining,0);assert.equal(s.timerRunning,false);s=rearAction(s,'timer');assert.equal(s.remaining,300);assert.equal(s.timerDuration,300);
+test('AI examples update water, translation and split calculation without network calls',()=>{
+ let s=initialRearState();for(let i=0;i<8;i++)s=rearAction(s,'water');assert.equal(s.water,8);s=rearAction(s,'water');assert.equal(s.water,0);
+ s=rearAction(s,'flip');assert.equal(s.wordBack,true);s=rearAction(s,'word');assert.equal(s.word,1);assert.equal(s.wordBack,false);
+ s=rearAction(s,'splitAmount','3600');s=rearAction(s,'splitPeople','6');assert.equal(splitResult(s),'600 ₽');assert.equal(rearAction(s,'splitPeople','0').splitPeople,1);assert.equal(rearAction(s,'splitPeople','100').splitPeople,50);assert.equal(rearAction(s,'splitAmount','bad').splitAmount,3600);
 });
-test('breathing phases are deterministic; switching cards or submitting a template pauses ongoing activities',()=>{
- assert.equal(breathPhase(0),'Вдох');assert.equal(breathPhase(3),'Вдох');assert.equal(breathPhase(4),'Выдох');assert.equal(breathPhase(8),'Вдох');
- let s=rearAction(initialRearState(),'breath');s=rearTick(s,5);assert.equal(s.breathSeconds,5);s=rearAction(s,'ai','words');assert.equal(s.breathing,false);s={...s,timerRunning:true,breathing:true};s=rearAction(s,'generate','Персонаж панда');assert.equal(s.ai,'character');assert.equal(s.avatar,'panda');assert.equal(s.timerRunning,false);assert.equal(s.breathing,false);
+test('official previews are sourced, IDs unique, editable text escaped and persisted in both cards',()=>{
+ let s=initialRearState();const html=aiScreenMarkup(s,'phone')+aiPanelMarkup(s);const ids=[...html.matchAll(/\sid="([^"]+)"/g)].map(m=>m[1]);assert.equal(new Set(ids).size,ids.length);assert.match(html,/Без подключения к AI-сервису/);assert.match(html,/hyperos.mi.com\/ai-app-fe\/apps\/1.html/);
+ s=rearAction(s,'generate','<img src=x onerror=alert(1)>');assert.ok(!aiScreenMarkup(s).includes('<img src=x'));assert.match(aiScreenMarkup(s),/&lt;img/);s=rearAction(s,'note','Новая заметка');assert.equal(s.generated,false);assert.match(aiScreenMarkup(s),/Новая заметка/);
 });
-test('water achievements reset deliberately, star scores and avatar greetings preserve their own state',()=>{
- let s=initialRearState();for(let i=0;i<8;i++)s=rearAction(s,'water');assert.equal(s.water,8);s=rearAction(s,'ai','water');assert.match(aiScreenMarkup(s),/rd-ai-celebrate/);s=rearAction(s,'water');assert.equal(s.water,0);
- s=rearAction(s,'greet');assert.equal(s.greetings,1);s=rearAction(s,'avatar','panda');assert.equal(s.avatar,'panda');assert.equal(s.greetings,0);assert.equal(rearAction(s,'avatar','invalid').avatar,'panda');
- for(let i=0;i<5;i++)s=rearAction(s,'hit');assert.equal(s.hits,5);s=rearAction(s,'ai','game');assert.match(aiScreenMarkup(s),/rd-ai-celebrate/);
+test('navigation and weather start progressing on entry, independent of animation switches',()=>{
+ let s=rearAction(initialRearState(),'scenario','navigation');assert.equal(navDistance(s),'180 м');s=rearTick(s,3);assert.equal(navDistance(s),'90 м');s=rearTick(s,3);assert.equal(s.route,1);assert.equal(s.navElapsed,0);s=rearAction(s,'route');assert.equal(s.route,2);
+ s=rearAction(s,'scenario','cards');assert.equal(s.weatherIndex,0);s=rearTick(s,8);assert.equal(s.weatherIndex,1);assert.match(cardsMarkup(s),/rd-daily-rain/);s=rearAction(s,'card','shopping');s=rearTick(s,80);assert.equal(s.weatherIndex,1);
+ s=rearAction(s,'scenario','music');assert.equal(s.playing,true);s=rearAction(s,'suspend');assert.equal(s.playing,false);
 });
-test('illustration IDs are unique across the phone, enlarged card and selector; text prompts stay escaped',()=>{
- const s=initialRearState();s.ai='water';const html=aiScreenMarkup(s,'phone')+aiPanelMarkup(s);const ids=[...html.matchAll(/\sid="([^"]+)"/g)].map(m=>m[1]);assert.equal(new Set(ids).size,ids.length);assert.match(html,/Без подключения к AI-сервису/);
- s.ai='note';s.prompt='<img src=x onerror=alert(1)>';assert.ok(!aiScreenMarkup(s).includes('<img src=x'));assert.match(aiScreenMarkup(s),/&lt;img/);
+test('six useful cards maintain checklist, pickup and calendar state; invalid cards are ignored',()=>{
+ let s=initialRearState();assert.equal(DAILY_CARDS.length,6);for(const [id]of DAILY_CARDS){s=rearAction(s,'card',id);assert.match(cardsMarkup(s),new RegExp(`rd-daily-${id}`));}assert.equal(rearAction(s,'card','invalid').card,s.card);s=rearAction(s,'pickup');assert.equal(s.pickupIndex,1);s=rearAction(s,'calendar');assert.equal(s.calendarDone,true);s=rearAction(s,'check','1');assert.deepEqual(s.shopping,[false,true,false]);
 });

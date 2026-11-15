@@ -702,5 +702,31 @@
     "note": "Official Xiaomi source; format optimized, original composition preserved.",
     "width": 1181,
     "height": 541
+  },
+  {
+    "model": "xiaomi-18-pro-max",
+    "name": "official-appcard-water",
+    "kind": "official_appcard_preview",
+    "path": "assets/preorder/20261115/xiaomi-card-water.webp",
+    "source_url": "https://m.mi.com/appcard",
+    "image_url": "https://ai-app-fe-cdn.hyperos.mi.com/ai-app-fe/appCovers/1.png",
+    "byte_size": 10400,
+    "sha256": "06704f19c6fcab1c59a93744b400ac072011593382370337e2bd137a994e0741",
+    "note": "Official preview, optimized without changing composition. Original Chinese interface; the Russian interactive example is an authored reconstruction.",
+    "width": 976,
+    "height": 596
+  },
+  {
+    "model": "xiaomi-18-pro-max",
+    "name": "official-appcard-words",
+    "kind": "official_appcard_preview",
+    "path": "assets/preorder/20261115/xiaomi-card-words.webp",
+    "source_url": "https://m.mi.com/appcard",
+    "image_url": "https://ai-app-fe-cdn.hyperos.mi.com/ai-app-fe/appCovers/3.png",
+    "byte_size": 13654,
+    "sha256": "7913752a186acaee2c3945f222e1ef811cc4379910e2abb40c1efc3cca8ada65",
+    "note": "Official preview, optimized without changing composition. Original Chinese interface; the Russian interactive example is an authored reconstruction.",
+    "width": 976,
+    "height": 596
   }
 ]
