@@ -2,7 +2,7 @@ import {navigationMarkup,cardsMarkup,dailyControls,syncDaily} from './rear-displ
 import {aiScreenMarkup,aiPanelMarkup} from './rear-display-ai.js?v=20261115-2';
 import {rearGeometryStyle,rearGlassMask,rearTextureMask} from './rear-display-geometry.js?v=20261115-2';
 import {artMarkup,REAR_WALLPAPERS,officialGalleryMarkup} from './rear-display-art.js?v=20261115-2';
-import {modelFacesMarkup,orbitPadMarkup,orbitControlsMarkup,privacyControlsMarkup,mountPhone3D} from './rear-display-3d.js?v=20261115-2';
+import {modelFacesMarkup,orbitPadMarkup,orbitControlsMarkup,privacyControlsMarkup,mountPhone3D} from './rear-display-3d.js?v=20261117-1';
 import {escapeHtml as esc} from './utils.js?v=20261023-4';
 import {REAR_DISPLAY_SCENARIOS,REAR_SOURCES,REAR_TRACKS,REAR_ROUTE,REAR_VERIFIED_AT} from './rear-display-data.js?v=20261115-2';
 import {initialRearState,rearAction,rearTick,rearSeconds} from './rear-display-state.js?v=20261115-2';
@@ -29,7 +29,7 @@ const navigationScreen=navigationMarkup;
 const cardsScreen=cardsMarkup;
 function aiScreen(s){return aiScreenMarkup(s,'phone');}
 function controls(s){
- if(s.scenario==='hyperos')return `<div class="rd-choices">${[['home','Рабочий стол'],['controls','Центр управления'],['notifications','Уведомления'],['lock','Экран блокировки']].map(([id,label])=>`<button type="button" data-hs-open="${id}">${label}</button>`).join('')}</div><p class="rd-feedback">Потяните сверху вниз для шторки. Полоска внизу возвращает на рабочий стол.</p>`;
+ if(s.scenario==='hyperos')return `<div class="rd-choices">${[['home','Рабочий стол'],['controls','Центр управления'],['notifications','Уведомления'],['lock','Экран блокировки']].map(([id,label])=>`<button type="button" data-hs-open="${id}">${label}</button>`).join('')}</div><p class="rd-feedback">Кнопки в строке статуса открывают шторки. Полоска внизу возвращает на рабочий стол.</p>`;
  if(s.scenario==='privacy')return privacyControlsMarkup();
  if(s.scenario==='personal')return `<h4>Оформление</h4><div class="rd-wallpaper-picker" role="group" aria-label="Оформление дисплея">${REAR_WALLPAPERS.map(w=>`<button type="button" data-rd-action="wallpaper" data-value="${w.id}" aria-pressed="${w.id===s.wallpaper}">${artMarkup(w.art)}<span>${w.label}</span></button>`).join('')}</div><h4>Цвет чехла</h4>${choices('theme',[['black','Чёрный'],['white','Белый'],['blue','Синий'],['red','Красный']],s.theme)}`;
  if(s.scenario==='camera')return `${choices('camera',[['photo','Фото'],['portrait','Портрет'],['video','Видео'],['group','Группа']],s.camera)}<div class="rd-action-row">${button('capture',s.camera==='video'?(s.recording?'Остановить запись':'Запустить демо записи'):'Сделать демо-снимок')}</div><p class="rd-feedback" role="status">${s.shot?'Кадр готов. Это демонстрация, файл не сохраняется.':s.recording?'Идёт демонстрационный отсчёт. Камера не включена.':'Сравни кадрирование и попробуй спуск.'}</p>`;

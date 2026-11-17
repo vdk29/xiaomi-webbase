@@ -1,5 +1,5 @@
 import { preorderPrice, formatPreorderPrice } from './preorder-prices.js?v=20261107-22';
-import { rearDisplayMarkup, mountRearDisplay } from './rear-display.js?v=20261115-2';
+import { rearDisplayMarkup, mountRearDisplay } from './rear-display.js?v=20261117-1';
 import { PREORDER_MODELS, PREORDER_VERIFIED_AT } from './preorder-data.js?v=20261115-2';
 import { escapeHtml as esc } from './utils.js?v=20261023-4';
 const A = 'assets/preorder/20261106/';
