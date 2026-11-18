@@ -53,6 +53,25 @@ test('available products sort before zero stock across categories and within a c
   assert.deepEqual(rows.map(r=>r.name),['Z phone','A phone','Demo counter only','Z TV']);
 });
 
+test('in-stock view puts 18 Pro Max, 18 Pro, 17T, 17T Pro, other 17, Redmi Note and Redmi in the requested order',()=>{
+  const names=['REDMI 17','Xiaomi 17T Pro','Xiaomi 18 Pro','POCO F9','Redmi Note 17 Pro','Xiaomi 17 Ultra','Xiaomi 17T','Xiaomi 18 Pro Max'];
+  const rows=names.map(model=>({name:`Смартфон ${model} 12GB+256GB Black, шт`,category:'Смартфоны',stock:{warehouse:1}}));
+  const before=rows.map(row=>row.name);
+  assert.deepEqual([...rows].sort((a,b)=>compareCatalogProducts(a,b,true)).map(row=>row.name),
+    [7,2,6,1,5,4,0,3].map(i=>before[i]));
+  assert.deepEqual([...rows].sort(compareCatalogProducts).map(row=>row.name),[...before].sort((a,b)=>a.localeCompare(b,'ru')));
+  assert.deepEqual(rows.map(row=>row.name),before);
+});
+
+test('model priority respects full family names, category boundaries and sellable stock',()=>{
+  const phone=name=>({name,category:'Смартфоны',stock:{warehouse:1}});
+  const rows=[phone('Смартфон Xiaomi 180 Pro'),phone('Смартфон Xiaomi Redmi Note 17 8/256 ГБ Blue'),phone('Смартфон xiaomi\u00a018 pro max 12/512 ГБ White'),phone('Смартфон REDMI 17 8/128 ГБ Black'),
+    {...phone('Смартфон Xiaomi 18 Pro Max 12/256 ГБ Black'),stock:{warehouse:0,display:1,ldu:1}},
+    {name:'Смартфон Xiaomi 18 Pro Max',category:'Аксессуары и другое',stock:{warehouse:1}}];
+  const sorted=[...rows].sort((a,b)=>compareCatalogProducts(a,b,true));
+  assert.deepEqual(sorted.map(row=>row.name),[2,1,3,0,5,4].map(i=>rows[i].name));
+});
+
 test('sale stock shows only the main warehouse and never labels display/demo as sellable',async()=>{
  const {saleStockMarkup,renderProductCard}=await import('../js/catalog.js');
  const available=saleStockMarkup({warehouse:3,display:10,ldu:5});

@@ -9,11 +9,26 @@ function categoryRank(category) {
   return index === -1 ? CATEGORY_ORDER.length : index;
 }
 
-export function compareCatalogProducts(a, b) {
+function phoneFamilyRank(row) {
+  const name = normalizeText(row.name || row.model).normalize('NFKC')
+    .replace(/^смартфон\s+/, '').replace(/^xiaomi\s+(?=redmi\b)/, '');
+  if (/^xiaomi\s+18\s*pro\s+max\b/.test(name)) return 0;
+  if (/^xiaomi\s+18\s*pro\b/.test(name)) return 1;
+  if (/^xiaomi\s+18(?:t)?\b/.test(name)) return 2;
+  if (/^xiaomi\s+17\s*t\s*pro\b/.test(name)) return 4;
+  if (/^xiaomi\s+17\s*t\b/.test(name)) return 3;
+  if (/^xiaomi\s+17\b/.test(name)) return 5;
+  if (/^redmi\s+note\b/.test(name)) return 6;
+  if (/^redmi\b/.test(name)) return 7;
+  return 8;
+}
+
+export function compareCatalogProducts(a, b, prioritizePhoneFamilies = false) {
   const available = row => Number(row.stock?.warehouse || 0) > 0;
   return Number(available(b)) - Number(available(a))
     || categoryRank(a.category) - categoryRank(b.category)
     || String(a.category || "").localeCompare(String(b.category || ""), "ru")
+    || (prioritizePhoneFamilies && a.category === 'Смартфоны' ? phoneFamilyRank(a) - phoneFamilyRank(b) : 0)
     || a.name.localeCompare(b.name, "ru");
 }
 
@@ -70,7 +85,7 @@ function filterRows(rows) {
     if (availability === "without-photo" && row.images.length > 0) return false;
     return matchesProductSearch(row, search);
   });
-  return filtered.sort((a, b) => Number(matchesSkuSuffix(b, search)) - Number(matchesSkuSuffix(a, search)) || compareCatalogProducts(a, b));
+  return filtered.sort((a, b) => Number(matchesSkuSuffix(b, search)) - Number(matchesSkuSuffix(a, search)) || compareCatalogProducts(a, b, availability === 'available'));
 }
 
 export function renderCatalog(db, state) {
