@@ -1,5 +1,6 @@
-import {REAR_DISPLAY_SCENARIOS,REAR_TRACKS,REAR_ROUTE,aiTemplate} from './rear-display-data.js?v=20261115-2';
-export function initialRearState(){return {scenario:'personal',wallpaper:'clock',theme:'blue',motion:true,camera:'photo',recording:false,recordSeconds:0,shot:false,notification:'call',call:'incoming',callSeconds:0,messageRead:false,alarmSnoozed:false,reminderDone:false,track:0,playing:false,progress:0,player:'Spotify',route:0,navElapsed:0,cardElapsed:0,weatherIndex:0,pickupIndex:0,calendarDone:false,splitAmount:2400,splitPeople:4,card:'weather',rain:false,shopping:[false,false,false],note:'Купить кофе по дороге домой',flight:0,ai:'water',water:0,waterPrevious:0,word:0,wordBack:false,generated:false,prompt:''};}
+import {REAR_DISPLAY_SCENARIOS,REAR_TRACKS,REAR_ROUTE} from './rear-display-data.js?v=20261118-1';
+import {AI_CARDS,aiTemplate,mazeStep} from './rear-display-games.js?v=20261118-1';
+export function initialRearState(){return {scenario:'personal',wallpaper:'clock',theme:'black',motion:true,camera:'photo',recording:false,recordSeconds:0,shot:false,notification:'call',call:'incoming',callSeconds:0,messageRead:false,alarmSnoozed:false,reminderDone:false,track:0,playing:false,progress:0,player:'Spotify',route:0,navElapsed:0,cardElapsed:0,weatherIndex:0,pickupIndex:0,calendarDone:false,card:'weather',rain:false,shopping:[false,false,false],note:'Купить кофе по дороге домой',flight:0,ai:'coin',coin:null,throws:0,reaction:'idle',reactionMs:0,fortune:-1,compliment:0,fruit:0,maze:{x:1,y:1},generated:false,prompt:''};}
 export function rearAction(state,action,value){
  const s={...state};
  switch(action){
@@ -25,16 +26,20 @@ export function rearAction(state,action,value){
   case 'check':{const n=Number(value);if(n>=0&&n<3){s.shopping=[...s.shopping];s.shopping[n]=!s.shopping[n];}break;}
   case 'note':s.note=String(value).slice(0,60);s.generated=false;break;
   case 'flight':s.flight=(s.flight+1)%3;break;
-  case 'ai':if(['water','words','split','note'].includes(value))s.ai=value;s.generated=false;break;
-  case 'generate':s.prompt=String(value).slice(0,80);s.ai=aiTemplate(s.prompt);if(s.ai==='note')s.note=s.prompt.slice(0,60);s.generated=true;break;
-  case 'splitAmount':if(Number.isFinite(Number(value)))s.splitAmount=Math.min(1000000,Math.max(0,Number(value)));break;
-  case 'splitPeople':if(Number.isFinite(Number(value)))s.splitPeople=Math.min(50,Math.max(1,Math.floor(Number(value))));break;
+  case 'ai':if(AI_CARDS.some(c=>c.id===value)){s.ai=value;s.reaction='idle';}s.generated=false;break;
+  case 'generate':s.prompt=String(value).slice(0,80);s.ai=aiTemplate(s.prompt);s.generated=true;s.reaction='idle';break;
+  case 'coin':s.coin=Number(value)===1?'Орёл':'Решка';s.throws++;break;
+  case 'reactionStart':s.reaction='waiting';s.reactionMs=0;break;
+  case 'reactionGo':if(s.reaction==='waiting')s.reaction='go';break;
+  case 'reactionTap':if(s.reaction==='waiting')s.reaction='early';else if(s.reaction==='go'&&Number.isFinite(Number(value))){s.reaction='done';s.reactionMs=Math.max(0,Math.round(Number(value)));}break;
+  case 'fortune':s.fortune=(s.fortune+1)%4;break;
+  case 'compliment':s.compliment=(s.compliment+1)%4;break;
+  case 'fruit':s.fruit=Math.min(999,s.fruit+1);break;
+  case 'maze':s.maze=mazeStep(s.maze,value);break;
+  case 'gameReset':s.fruit=0;s.maze={x:1,y:1};s.reaction='idle';s.fortune=-1;s.coin=null;break;
   case 'pickup':s.pickupIndex=(s.pickupIndex+1)%3;break;
   case 'calendar':s.calendarDone=!s.calendarDone;break;
-  case 'water':s.waterPrevious=s.water;s.water=(s.water+1)%9;break;
-  case 'word':s.word=(s.word+1)%3;s.wordBack=false;break;
-  case 'flip':s.wordBack=!s.wordBack;break;
-  case 'suspend':if(s.call==='active')s.call='ended';s.playing=false;s.recording=false;break;
+  case 'suspend':if(['waiting','go'].includes(s.reaction))s.reaction='idle';if(s.call==='active')s.call='ended';s.playing=false;s.recording=false;break;
  }
  return s;
 }

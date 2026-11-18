@@ -31,11 +31,5 @@ export function hyperOSAction(state,action,value){const s={...state};
  else if(action==='calc')s.calc=calculatorKey(s.calc,value);
  return s;
 }
-// A short tap keeps click semantics; vertical screen gestures never rotate the body.
-export function hyperOSGesture({dx,dy,startY,startX,width,height,view}){
- if(Math.abs(dy)<36||Math.abs(dy)<Math.abs(dx)*1.25)return null;
- if(dy>0&&startY<height*.22)return startX>width*.5?'controls':'notifications';
- if(dy<0&&(view==='lock'||startY>height*.72))return 'home';
- if(dy<0&&['controls','notifications'].includes(view))return 'home';
- return null;
-}
+// Always leave the local demonstration readable, even with the range at zero.
+export function hyperOSBrightness(value){const n=Number(value);return .6+Math.max(0,Math.min(100,Number.isFinite(n)?n:100))*.004;}

@@ -26,3 +26,5 @@
 @media(prefers-reduced-motion:reduce){.hs-root *{animation:none!important;transition:none!important}}
 /* Keep the privacy example focused and avoid a nested scroll area on short screens. */
 .rd-studio[data-scenario=privacy] .hs-music-notification,.rd-studio[data-scenario=privacy] .hs-clear-notifications{display:none}
+/* Slider gestures are captured only by the input, never by the whole phone. */
+.hs-root input[data-hs-range]{touch-action:none;min-height:36px;cursor:ew-resize;accent-color:#ff6900;pointer-events:auto;position:relative;z-index:5}.hs-root .hs-settings-brightness input{min-height:44px}.hs-root .hs-sliders label{min-height:38px}

@@ -1,0 +1,17 @@
+const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('node:fs');
+const base=process.env.WEBBASE_TEST_URL||'http://127.0.0.1:4173/';
+const mock=fs.readFileSync(new URL('./verify-preorder-ui.cjs','file://'+__filename),'utf8').match(/const mock=`([\s\S]*?)`;/)[1];
+(async()=>{const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader'],...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{})});try{
+ const p=await browser.newPage({viewport:{width:390,height:844},hasTouch:true,isMobile:true,deviceScaleFactor:3}),errors=[],requests=[];p.on('pageerror',e=>errors.push(e.message));p.on('request',r=>requests.push(r.url()));await p.route('**/supabase-client.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));
+ await p.addInitScript(()=>{window.glDraws=0;for(const ctor of [window.WebGLRenderingContext,window.WebGL2RenderingContext]){if(!ctor)continue;const draw=ctor.prototype.drawElements;ctor.prototype.drawElements=function(...args){window.glDraws++;return draw.apply(this,args)}}});
+ const cdp=await p.context().newCDPSession(p);await cdp.send('Network.enable');await cdp.send('Network.emulateNetworkConditions',{offline:false,latency:80,downloadThroughput:20*1024*1024/8,uploadThroughput:10*1024*1024/8});
+ await p.goto(base+'index.html?section=preorder');await p.waitForFunction(()=>document.querySelector('.rd-studio')?.dataset.finishReady==='black');await p.waitForTimeout(300);
+ // Once textures settle, clocks and CSS screens must not cause GPU work.
+ let before=await p.evaluate(()=>glDraws);await p.waitForTimeout(1600);assert.equal(await p.evaluate(()=>glDraws),before,'idle WebGL must not repaint');
+ assert.ok(await p.locator('.rd-solid-canvas').evaluate(c=>c.width/parseFloat(c.style.width)<=1.251),'mobile GPU resolution is capped even at DPR 3');assert.equal(await p.evaluate(()=>preorderQA.reads),0);assert.equal(requests.some(u=>/\.mp4|youtube/.test(u)),false);
+ await p.locator('[data-rd-action=theme][data-value=blue]').click();await p.waitForFunction(()=>document.querySelector('.rd-studio').dataset.finishReady==='blue');assert.ok(await p.evaluate(()=>glDraws)>before,'changing finish must render it');
+ await p.locator('#po-specs').evaluate(e=>e.scrollIntoView({block:'start',behavior:'instant'}));await p.waitForFunction(()=>document.querySelector('.rd-studio').dataset.active==='false');before=await p.evaluate(()=>glDraws);await p.waitForTimeout(1200);assert.equal(await p.evaluate(()=>glDraws),before,'offscreen must not repaint');
+ await p.locator('[data-rd-scenario=personal]').click();await p.locator('.rd-workspace').scrollIntoViewIfNeeded();await p.waitForFunction(()=>document.querySelector('.rd-studio').dataset.active==='true');
+ await p.locator('.rd-solid-canvas').evaluate(c=>{window.testGL=c.getContext('webgl2')||c.getContext('webgl');window.loseGL=window.testGL.getExtension('WEBGL_lose_context');window.loseGL.loseContext()});await p.waitForFunction(()=>document.querySelector('.rd-studio').dataset.renderer==='photo');await p.waitForTimeout(150);await p.evaluate(()=>window.loseGL.restoreContext());await p.waitForFunction(()=>document.querySelector('.rd-studio').dataset.renderer==='webgl');assert.deepEqual(errors,[]);
+ console.log('PASS simulated 20 Mbps / 80 ms, mobile DPR cap, no idle/offscreen GPU draws, colour renders, context loss/restoration, no catalogue/video requests');
+}finally{await browser.close()}})().catch(e=>{console.error(e);process.exitCode=1});

@@ -1,27 +1,30 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {AI_CARDS,aiScreenMarkup,aiPanelMarkup,splitResult} from '../js/rear-display-ai.js';
+import {AI_CARDS,aiScreenMarkup,aiPanelMarkup} from '../js/rear-display-ai.js';
 import {initialRearState,rearAction,rearTick} from '../js/rear-display-state.js';
+import {MAZE,mazeStep} from '../js/rear-display-games.js';
 import {DAILY_CARDS,cardsMarkup,navDistance} from '../js/rear-display-daily.js';
-test('four practical AI cards select independent scenes without retired games or timer UI',()=>{
- let s=initialRearState();assert.equal(s.ai,'water');assert.deepEqual(AI_CARDS.map(c=>c.id),['water','words','split','note']);
+test('six independently playable Global templates replace retired water and vocabulary cards',()=>{
+ let s=initialRearState();assert.equal(s.ai,'coin');assert.deepEqual(AI_CARDS.map(c=>c.id),['coin','reaction','fortune','compliment','fruit','maze']);
  for(const c of AI_CARDS){s=rearAction(s,'ai',c.id);assert.equal(s.ai,c.id);assert.match(aiScreenMarkup(s),new RegExp(`data-ai-kind="${c.id}"`));}
- assert.equal(rearAction(s,'ai','game').ai,s.ai);assert.doesNotMatch(aiPanelMarkup(s),/data-rd-action="(hit|timer|breath|greet)"/);
+ for(const old of ['water','words','split','note'])assert.equal(rearAction(s,'ai',old).ai,s.ai);
+ assert.doesNotMatch(aiPanelMarkup(s),/water|созвезди|data-rd-action="motion"/);
 });
-test('AI examples update water, translation and split calculation without network calls',()=>{
- let s=initialRearState();for(let i=0;i<8;i++)s=rearAction(s,'water');assert.equal(s.water,8);s=rearAction(s,'water');assert.equal(s.water,0);
- s=rearAction(s,'flip');assert.equal(s.wordBack,true);s=rearAction(s,'word');assert.equal(s.word,1);assert.equal(s.wordBack,false);
- s=rearAction(s,'splitAmount','3600');s=rearAction(s,'splitPeople','6');assert.equal(splitResult(s),'600 ₽');assert.equal(rearAction(s,'splitPeople','0').splitPeople,1);assert.equal(rearAction(s,'splitPeople','100').splitPeople,50);assert.equal(rearAction(s,'splitAmount','bad').splitAmount,3600);
+test('reaction requires a ready phase and finite elapsed time; early taps and suspension recover',()=>{
+ let s=initialRearState();assert.equal(rearAction(s,'reactionTap',100).reaction,'idle');s=rearAction(s,'reactionStart');assert.equal(rearAction(s,'reactionTap',100).reaction,'early');s=rearAction(s,'reactionGo');assert.equal(s.reaction,'go');assert.equal(rearAction(s,'reactionTap','bad').reaction,'go');s=rearAction(s,'reactionTap',231.7);assert.equal(s.reaction,'done');assert.equal(s.reactionMs,232);s=rearAction(s,'reactionStart');assert.equal(rearAction(s,'suspend').reaction,'idle');
 });
-test('official previews are sourced, IDs unique, editable text escaped and persisted in both cards',()=>{
- let s=initialRearState();const html=aiScreenMarkup(s,'phone')+aiPanelMarkup(s);const ids=[...html.matchAll(/\sid="([^"]+)"/g)].map(m=>m[1]);assert.equal(new Set(ids).size,ids.length);assert.match(html,/Без подключения к AI-сервису/);assert.match(html,/hyperos.mi.com\/ai-app-fe\/apps\/1.html/);
- s=rearAction(s,'generate','<img src=x onerror=alert(1)>');assert.ok(!aiScreenMarkup(s).includes('<img src=x'));assert.match(aiScreenMarkup(s),/&lt;img/);s=rearAction(s,'note','Новая заметка');assert.equal(s.generated,false);assert.match(aiScreenMarkup(s),/Новая заметка/);
+test('maze blocks walls and boundaries but has a traversable path to the goal; reset is safe',()=>{
+ const start={x:1,y:1};assert.deepEqual(mazeStep(start,'up'),start);assert.deepEqual(mazeStep(start,'left'),start);assert.deepEqual(mazeStep(start,'bogus'),start);
+ let s=rearAction(initialRearState(),'ai','maze');for(const d of ['right','right','right','right','down','down','down','down'])s=rearAction(s,'maze',d);assert.deepEqual(s.maze,{x:5,y:5});assert.match(aiScreenMarkup(s),/Получилось/);assert.deepEqual(rearAction(s,'gameReset').maze,start);assert.equal(MAZE[5][5],'.');
 });
-test('navigation and weather start progressing on entry, independent of animation switches',()=>{
- let s=rearAction(initialRearState(),'scenario','navigation');assert.equal(navDistance(s),'180 м');s=rearTick(s,3);assert.equal(navDistance(s),'90 м');s=rearTick(s,3);assert.equal(s.route,1);assert.equal(s.navElapsed,0);s=rearAction(s,'route');assert.equal(s.route,2);
- s=rearAction(s,'scenario','cards');assert.equal(s.weatherIndex,0);s=rearTick(s,8);assert.equal(s.weatherIndex,1);assert.match(cardsMarkup(s),/rd-daily-rain/);s=rearAction(s,'card','shopping');s=rearTick(s,80);assert.equal(s.weatherIndex,1);
- s=rearAction(s,'scenario','music');assert.equal(s.playing,true);s=rearAction(s,'suspend');assert.equal(s.playing,false);
+test('coin, fortune and fruit controls progress independently and illustrations have unique IDs',()=>{
+ let s=initialRearState();s=rearAction(s,'coin',1);assert.equal(s.coin,'Орёл');s=rearAction(s,'coin',0);assert.equal(s.coin,'Решка');assert.equal(s.throws,2);s=rearAction(s,'fortune');assert.equal(s.fortune,0);for(let i=0;i<4;i++)s=rearAction(s,'fortune');assert.equal(s.fortune,0);for(let i=0;i<1005;i++)s=rearAction(s,'fruit');assert.equal(s.fruit,999);
+ for(const c of AI_CARDS){s=rearAction(s,'ai',c.id);const html=aiScreenMarkup(s,'phone')+aiPanelMarkup(s),ids=[...html.matchAll(/\sid="([^"]+)"/g)].map(m=>m[1]);assert.equal(new Set(ids).size,ids.length);assert.match(html,/AI-сервис не подключен/);}
+ s=rearAction(s,'generate','<img src=x onerror=alert(1)>');assert.ok(!aiPanelMarkup(s).includes('<img src=x'));assert.match(aiPanelMarkup(s),/&lt;img/);
 });
-test('six useful cards maintain checklist, pickup and calendar state; invalid cards are ignored',()=>{
- let s=initialRearState();assert.equal(DAILY_CARDS.length,6);for(const [id]of DAILY_CARDS){s=rearAction(s,'card',id);assert.match(cardsMarkup(s),new RegExp(`rd-daily-${id}`));}assert.equal(rearAction(s,'card','invalid').card,s.card);s=rearAction(s,'pickup');assert.equal(s.pickupIndex,1);s=rearAction(s,'calendar');assert.equal(s.calendarDone,true);s=rearAction(s,'check','1');assert.deepEqual(s.shopping,[false,true,false]);
+test('navigation and weather advance automatically; suspend stops music',()=>{
+ let s=rearAction(initialRearState(),'scenario','navigation');assert.equal(navDistance(s),'180 м');s=rearTick(s,3);assert.equal(navDistance(s),'90 м');s=rearTick(s,3);assert.equal(s.route,1);s=rearAction(s,'scenario','cards');s=rearTick(s,8);assert.equal(s.weatherIndex,1);assert.match(cardsMarkup(s),/rd-daily-rain/);s=rearAction(s,'card','shopping');s=rearTick(s,80);assert.equal(s.weatherIndex,1);s=rearAction(s,'scenario','music');assert.equal(s.playing,true);assert.equal(rearAction(s,'suspend').playing,false);
+});
+test('six useful cards preserve checklist, pickup and calendar across AI interactions',()=>{
+ let s=initialRearState();assert.equal(DAILY_CARDS.length,6);for(const [id]of DAILY_CARDS){s=rearAction(s,'card',id);assert.match(cardsMarkup(s),new RegExp(`rd-daily-${id}`));}assert.equal(rearAction(s,'card','invalid').card,s.card);s=rearAction(s,'pickup');s=rearAction(s,'calendar');s=rearAction(s,'check','1');s=rearAction(s,'ai','fortune');assert.equal(s.pickupIndex,1);assert.equal(s.calendarDone,true);assert.deepEqual(s.shopping,[false,true,false]);
 });
