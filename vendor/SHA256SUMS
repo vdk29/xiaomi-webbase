@@ -1,3 +1,6 @@
 2f4fcf606b2c664487f2aaa754b9d114c4e21dd0e9b80acdca947c0ff6e715a5  supabase-2.95.0.min.js
 c9506197caf809a075b6dee1da0d36fb19da7158ffe8a88e7b0c96c5d8623c99  xlsx-0.18.5.full.min.js
 3e690ac7d180b0aadf0891bea39eec643e29e2d3e75c99b18689518665f69ba6  three-0.160.1.module.min.js
+edcb7447b93565a0404b6d13180d52e06f283d701b82f55a8e0d2c8250655a9f  three-addons-0.160.1/GLTFLoader.js
+b5e8c014cb944b32f514170d7e06ac89efa69a55e86fc3bca1fa70c4897394d0  three-addons-0.160.1/BufferGeometryUtils.js
+576674e53a0a442ce3863479a4d7de0ad7dcfd874285c752e1fd0e02af373b58  three-addons-0.160.1/RGBELoader.js

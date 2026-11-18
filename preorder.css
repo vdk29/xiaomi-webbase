@@ -372,3 +372,11 @@
 .po-workbench .po-product-stage{background:#030303}.po-workbench .po-product-badge{background:#202124;color:#d6d9df;border-color:#ffffff16}.po-workbench .po-product-stage>img{filter:none}
 /* Compact controls keep the device and its finish choices together on one screen. */
 .po-workbench .rd-photo-stage figcaption{margin:12px 0 10px;gap:3px}.po-workbench .rd-orbit-viewport{padding:12px 0 8px}.rd-phone-toolbar{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:360px;margin:auto}.rd-phone-toolbar .rd-orbit-controls,.rd-phone-toolbar .rd-orbit-presets{display:contents}.rd-phone-toolbar button{flex:1 1 auto;min-height:44px;border:1px solid #dce2e8;border-radius:10px;background:#fff;padding:8px 10px;font-size:11px;color:#526170}.rd-phone-toolbar .rd-orbit-controls>p{order:2;width:100%;font-size:9px!important;margin-top:6px!important}.rd-phone-toolbar .rd-demo-reset{margin-top:0!important}.rd-studio[data-scenario=privacy] .rd-phone-toolbar{display:none}
+/* The real mesh and both live glass surfaces share the selected physical body. */
+.po-workbench .rd-orbit-viewport .rd-phone,.po-workbench .rd-orbit-viewport .rd-phone.rd-zoomed{aspect-ratio:var(--phone-aspect,72/151.8)}
+.rd-studio[data-renderer=webgl] .rd-solid-canvas{filter:drop-shadow(10px 20px 15px #17233520)}
+.rd-studio[data-model-loading=true] .rd-solid-canvas{visibility:hidden}
+.rd-model-front{padding:calc(var(--body-depth)*.125)}
+.rd-studio[data-renderer=webgl] .rd-front-glass:after{content:'';position:absolute;inset:0;pointer-events:none;z-index:7;background:linear-gradient(120deg,#fff1,transparent 38%,transparent 76%,#fff1);border-radius:inherit}
+.rd-wallpaper-clock .rd-living-art{filter:none!important}.rd-wallpaper-clock .rd-living-art img{object-position:center 43%}.rd-wallpaper-clock .rd-wallpaper-shade{background:linear-gradient(90deg,#0002,#0000 40%,#0002)}
+.po-workbench .rd-model-front{transform:rotateY(180deg) translateZ(calc(var(--half-depth) + var(--front-glass-rise,0px)))}

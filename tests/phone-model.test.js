@@ -1,0 +1,19 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {PHONE_MODELS,phoneModel} from '../js/phone-model-data.js';
+import {REAR_GEOMETRY as G} from '../js/rear-display-geometry.js';
+const manifest=JSON.parse(readFileSync(new URL('../assets/preorder/models/manifest.json',import.meta.url)));
+function glb(path){const b=readFileSync(new URL('../'+path,import.meta.url));assert.equal(b.readUInt32LE(0),0x46546c67);assert.equal(b.readUInt32LE(4),2);assert.equal(b.readUInt32LE(8),b.length);const n=b.readUInt32LE(12);assert.equal(b.readUInt32LE(16),0x4e4f534a);return {b,json:JSON.parse(b.subarray(20,20+n).toString()),binary:b.subarray(28+n)};}
+function values(file,index){const a=file.json.accessors[index],v=file.json.bufferViews[a.bufferView],components={SCALAR:1,VEC2:2,VEC3:3,VEC4:4}[a.type],bytes={5120:1,5121:1,5122:2,5123:2,5125:4,5126:4}[a.componentType],stride=v.byteStride||components*bytes,start=(v.byteOffset||0)+(a.byteOffset||0);const reader={5120:'readInt8',5121:'readUInt8',5122:'readInt16LE',5123:'readUInt16LE',5125:'readUInt32LE',5126:'readFloatLE'}[a.componentType];const divisor=a.normalized?{5120:127,5121:255,5122:32767,5123:65535}[a.componentType]:1;return Array.from({length:a.count},(_,i)=>Array.from({length:components},(_,k)=>file.binary[reader](start+i*stride+k*bytes)/divisor));}
+test('two bounded, self-contained original GLBs match their provenance hashes and physical models',()=>{
+ assert.deepEqual(Object.keys(PHONE_MODELS),['xiaomi-18-pro','xiaomi-18-pro-max']);assert.equal(phoneModel('old-fold').id,'xiaomi-18-pro');
+ for(const entry of manifest.models){const f=glb(entry.path),model=phoneModel(entry.id),meta=f.json.scenes[0].extras;assert.equal(f.b.length,entry.bytes);assert.equal(createHash('sha256').update(f.b).digest('hex'),entry.sha256);assert.ok(entry.bytes<500000,'mobile asset budget');assert.equal(meta.independentlyAuthored,true);assert.equal(meta.model,model.id);assert.equal(meta.width_mm,model.width);assert.equal(meta.height_mm,model.height);assert.equal(meta.depth_mm,model.depth);assert.ok(f.json.extensionsRequired.includes('KHR_mesh_quantization'));assert.ok(f.json.buffers.every(b=>!b.uri));assert.ok(f.json.images.every(i=>!i.uri&&i.bufferView>=0),'textures must remain inside the GLB');const roles=f.json.nodes.map(n=>n.extras?.materialRole);for(const role of ['finish_frame','finish_back','camera_glass','optical_photo_main','optical_photo_tele','wordmark','engraving'])assert.ok(roles.includes(role),role);assert.ok(f.json.meshes.length<=18,'small draw-call budget');}
+});
+test('both glTF display anchors agree with the live rear-screen mask and physical glass depths',()=>{
+ for(const entry of manifest.models){const {json}=glb(entry.path),model=phoneModel(entry.id),rear=json.nodes.find(n=>n.name==='rear_display_anchor').translation,front=json.nodes.find(n=>n.name==='front_display_anchor').translation,g=G.glass;const expected=[((g.x+g.width/2)/G.photo.width-.5)*model.width,(.5-(g.y+g.height/2)/G.photo.height)*model.height,model.depth/2+model.cameraRise];for(let i=0;i<3;i++)assert.ok(Math.abs(rear[i]*1000-expected[i])<.001);assert.ok(Math.abs(front[2]*1000+model.depth/2+.13)<.001);}
+});
+test('curved optical surfaces face outward, retain UVs and avoid invisible/back-facing lens bands',()=>{
+ for(const entry of manifest.models){const f=glb(entry.path);for(const role of ['optical_photo_main','optical_photo_tele','flash_photo']){const node=f.json.nodes.find(n=>n.extras?.materialRole===role),primitive=f.json.meshes[node.mesh].primitives[0];assert.ok('TEXCOORD_0' in primitive.attributes);const normals=values(f,primitive.attributes.NORMAL);assert.ok(normals.length>300);for(const n of normals){assert.ok(n[2]>.9,`${entry.id} ${role}: normal must face out`);assert.ok(Math.abs(Math.hypot(...n)-1)<.006);}}}
+});

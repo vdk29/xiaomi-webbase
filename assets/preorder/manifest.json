@@ -930,5 +930,21 @@
     "height": 130,
     "byte_size": 1046,
     "sha256": "a53d3d67fa71a0c9bfa3369c9c5c584fa97b05408829e0bc0bf5267a23f9ebd6"
+  },
+  {
+    "path": "assets/preorder/models/studio-small-09-512.hdr",
+    "kind": "environment",
+    "name": "Studio Small 09, mobile HDR environment",
+    "author": "Sergej Majboroda / Poly Haven",
+    "license": "CC0",
+    "source_url": "https://polyhaven.com/a/studio_small_09",
+    "image_url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr",
+    "license_url": "https://polyhaven.com/license",
+    "retrieved_at": "2026-11-18",
+    "transform": "Blender 4.3.2 linear HDR resize from 1024×512 to 512×256; original radiance retained",
+    "width": 512,
+    "height": 256,
+    "byte_size": 410568,
+    "sha256": "b16be692425d79f3e5c8833b192804bfb8ad5a87ae2452b094522772d640a48a"
   }
 ]

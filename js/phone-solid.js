@@ -1,51 +1,62 @@
-import {phoneFinish} from './phone-finishes.js?v=20261118-1';
 import * as T from '../vendor/three-0.160.1.module.min.js';
-import {REAR_GEOMETRY as G} from './rear-display-geometry.js?v=20261115-2';
-// Mesh dimensions follow the same physical/photo coordinate system as the live screens.
-function roundedShape(w,h,r){const s=new T.Shape(),x=-w/2,y=-h/2;s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);s.lineTo(x+w,y+h-r);s.quadraticCurveTo(x+w,y+h,x+w-r,y+h);s.lineTo(x+r,y+h);s.quadraticCurveTo(x,y+h,x,y+h-r);s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);return s;}
-export function mountSolidPhone(phone,root){
- const renderer=new T.WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});const constrained=matchMedia('(pointer:coarse)').matches||(navigator.hardwareConcurrency||8)<=4||navigator.connection?.saveData;renderer.setPixelRatio(Math.min(devicePixelRatio||1,constrained?1.25:1.6));renderer.setClearColor(0,0);renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.domElement.className='rd-solid-canvas';renderer.domElement.setAttribute('aria-hidden','true');phone.prepend(renderer.domElement);
- const scene=new T.Scene(),group=new T.Group();scene.add(group);const camera=new T.PerspectiveCamera(30,1,100,4000);camera.position.z=1800;
- scene.add(new T.HemisphereLight(0xe9f1ff,0x2b3039,1.45));for(const [x,y,z,intensity]of[[-800,600,1000,2.4],[650,200,700,1.6],[150,-650,-500,2]]){const l=new T.DirectionalLight(0xffffff,intensity);l.position.set(x,y,z);scene.add(l);}
- const envCanvas=document.createElement('canvas');envCanvas.width=512;envCanvas.height=256;const ctx=envCanvas.getContext('2d');ctx.fillStyle='#718092';ctx.fillRect(0,0,512,256);for(const [x,y,r]of[[110,80,100],[350,60,65],[460,200,85]]){const gr=ctx.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,'#eef2f8');gr.addColorStop(1,'#718092');ctx.fillStyle=gr;ctx.fillRect(x-r,y-r,r*2,r*2);}const texture=new T.CanvasTexture(envCanvas);texture.mapping=T.EquirectangularReflectionMapping;texture.colorSpace=T.SRGBColorSpace;const pmrem=new T.PMREMGenerator(renderer),env=pmrem.fromEquirectangular(texture);scene.environment=env.texture;texture.dispose();pmrem.dispose();
- const logoCanvas=document.createElement('canvas');logoCanvas.width=512;logoCanvas.height=128;const lc=logoCanvas.getContext('2d');lc.font='500 80px Arial';lc.fillStyle='#a7adb4';lc.textAlign='center';lc.fillText('xiaomi',256,94);const logoTexture=new T.CanvasTexture(logoCanvas);logoTexture.colorSpace=T.SRGBColorSpace;
- const brandingCanvas=document.createElement('canvas');brandingCanvas.width=256;brandingCanvas.height=64;const bc=brandingCanvas.getContext('2d');bc.font='600 42px Arial';bc.fillStyle='#171c21';bc.textAlign='center';bc.fillText('LEICA',128,47);const brandingTexture=new T.CanvasTexture(brandingCanvas);brandingTexture.colorSpace=T.SRGBColorSpace;
- const mats={body:new T.MeshPhysicalMaterial({color:0x30363d,roughness:.42,metalness:.5,clearcoat:.38,clearcoatRoughness:.32}),edge:new T.MeshPhysicalMaterial({color:0x66717d,metalness:1,roughness:.25}),dark:new T.MeshStandardMaterial({color:0x060a10,roughness:.28,metalness:.45}),glass:new T.MeshPhysicalMaterial({color:0x07121a,metalness:.22,roughness:.08,clearcoat:1}),ring:new T.MeshStandardMaterial({color:0x202b36,metalness:1,roughness:.18}),lens:new T.MeshPhysicalMaterial({color:0x10172c,metalness:.58,roughness:.08,clearcoat:1}),blue:new T.MeshBasicMaterial({color:0x617eaf,transparent:true,opacity:.55}),led:new T.MeshStandardMaterial({color:0xf1e7cd,emissive:0x7d7153,emissiveIntensity:.3,roughness:.45}),antenna:new T.MeshStandardMaterial({color:0x7b818a,roughness:.7}),logo:new T.MeshBasicMaterial({map:logoTexture,transparent:true,depthWrite:false}),branding:new T.MeshBasicMaterial({map:brandingTexture,transparent:true,depthWrite:false})};
- const finishMaps=new Map();let finish=phoneFinish('black');
- const opticalMaps=[];let size='',active=true,disposed=false,dirty=true,last={pose:{yaw:0,pitch:0,roll:0},scale:1};
- function mesh(geometry,material,x=0,y=0,z=0){const m=new T.Mesh(geometry,material);m.position.set(x,y,z);group.add(m);return m;}
- function slab(w,h,d,r,x,y,z,mat=mats.edge,bevel=.5){const geo=new T.ExtrudeGeometry(roundedShape(w-2*bevel,h-2*bevel,Math.max(1,r-bevel)),{depth:Math.max(.1,d-2*bevel),bevelEnabled:true,bevelSize:bevel,bevelThickness:bevel,bevelSegments:3,steps:1,curveSegments:12});geo.translate(0,0,-(d-2*bevel)/2);const pos=geo.attributes.position,uv=geo.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,pos.getX(i)/w+.5,pos.getY(i)/h+.5);return mesh(geo,mat,x,y,z);}
- function disk(r,d,mat,x,y,z){const g=new T.CylinderGeometry(r,r,d,48);g.rotateX(Math.PI/2);return mesh(g,mat,x,y,z);}
- function build(w,h){for(const m of [...group.children]){m.geometry.dispose();group.remove(m);}const depth=w*8.39/77.6,half=depth/2,r=Math.min(w*.14,h*.07),rise=w*.018;
-  slab(w,h,depth,r,0,0,0,[mats.body,mats.edge],w*.008);
-  slab(w*.987,h*.994,1.1,r*.97,0,0,half-.25,mats.body,.35);
-  for(const map of finishMaps.values()){map.repeat.set(map.userData.finish==='blue'?3:1,map.userData.finish==='blue'?6:1);map.offset.set(0,0);}
-  const x=n=>(n/G.photo.width-.5)*w,y=n=>(.5-n/G.photo.height)*h,H=G.housing,S=G.glass;
-  slab(H.width/G.photo.width*w,H.height/G.photo.height*h,rise+1.2,18/G.photo.width*w,x(H.x+H.width/2),y(H.y+H.height/2),half+(rise-1)/2,mats.edge,1);
-  slab(S.width/G.photo.width*w+3,S.height/G.photo.height*h+3,1.4,12/G.photo.width*w,x(S.x+S.width/2),y(S.y+S.height/2),half+rise-.8,mats.glass,.4);
-  for(const [i,l]of G.lenses.entries()){const lx=x(l.x),ly=y(l.y),rad=l.radius/G.photo.width*w,z=half+rise;
-   disk(rad,1.5,mats.ring,lx,ly,z);disk(rad*.88,1.6,mats.dark,lx,ly,z+.4);disk(rad*.69,1,mats.ring,lx,ly,z+.9);disk(rad*.61,1,mats.lens,lx,ly,z+1.4);disk(rad*.30,.4,mats.dark,lx,ly,z+2);disk(rad*.14,.5,mats.blue,lx+rad*.15,ly+rad*.12,z+2.3);const shine=disk(rad*.18,.1,mats.blue,lx-rad*.17,ly+rad*.27,z+2.4);shine.scale.y=.55;
-   if(opticalMaps[i])mesh(new T.CircleGeometry(rad*.88,64),opticalMaps[i],lx,ly,z+2.7);
-   else if(i===1){const inner=mesh(new T.BoxGeometry(rad*.55,rad*.4,.4),mats.dark,lx,ly,z+2.1);inner.rotation.z=.3;}
-  }
-  slab(w*.17,h*.027,2,h*.013,-w*.278,h*.155,half+.8,mats.dark,.3);disk(w*.022,1.2,mats.led,-w*.127,h*.155,half+1);disk(w*.014,.3,mats.led,-w*.127,h*.155,half+1.8);
-  mesh(new T.PlaneGeometry(w*.33,w*.083),mats.logo,0,-h*.345,half+.65);mesh(new T.PlaneGeometry(w*.20,w*.05),mats.branding,w*.275,h*.155,half+.65);disk(w*.026,.6,mats.lens,-w*.32,h*.155,half+2);disk(w*.008,.2,mats.blue,-w*.322,h*.158,half+2.4);
-  slab(w*.94,h*.976,1.4,r*.86,0,0,-half+.15,mats.dark,.4);
-  // Real volume for the frame buttons, antenna breaks, USB opening and speaker grilles.
-  mesh(new T.BoxGeometry(1.9,h*.084,depth*.43),mats.edge,w/2+.6,h*.23,0);mesh(new T.BoxGeometry(1.9,h*.044,depth*.43),mats.edge,w/2+.6,h*.12,0);
-  slab(1.7,h*.048,depth*.42,.7,-w/2-.55,h*.13,0,mats.edge,.2);
-  for(const side of [-1,1])for(const yy of [-.35,.35])mesh(new T.BoxGeometry(.7,1.6,depth+.3),mats.antenna,side*w*.499,h*yy,0);
-  mesh(new T.BoxGeometry(w*.145,1.1,depth*.25),mats.dark,0,-h/2-.1,0);for(const side of [-1,1])for(let i=0;i<6;i++){const hole=new T.CylinderGeometry(1,1,1.3,12);mesh(hole,mats.dark,side*w*.26+(i-2.5)*3.2,-h/2-.15,0);}
+import {RGBELoader} from '../vendor/three-addons-0.160.1/RGBELoader.js';
+import {GLTFLoader} from '../vendor/three-addons-0.160.1/GLTFLoader.js';
+import {phoneFinish} from './phone-finishes.js?v=20261118-1';
+import {phoneModel} from './phone-model-data.js?v=20261118-2';
+
+// The body is a prebuilt, continuously curved mesh. Runtime only changes pose/materials.
+export async function mountSolidPhone(phone,root,{modelId='xiaomi-18-pro'}={}){
+ const renderer=new T.WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});
+ const constrained=matchMedia('(pointer:coarse)').matches||(navigator.hardwareConcurrency||8)<=4||navigator.connection?.saveData;
+ renderer.setPixelRatio(Math.min(devicePixelRatio||1,constrained?1.25:1.6));renderer.setClearColor(0,0);renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+ renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;
+ renderer.domElement.className='rd-solid-canvas';renderer.domElement.setAttribute('aria-hidden','true');phone.prepend(renderer.domElement);
+ const scene=new T.Scene(),group=new T.Group(),camera=new T.PerspectiveCamera(30,1,100,4000);scene.add(group);camera.position.z=1800;
+ scene.add(new T.HemisphereLight(0xe9f0ff,0x29303c,.35));
+ for(const [x,y,z,power] of [[-700,750,1000,.25],[750,120,650,.15],[-100,-500,-850,.5]]){const l=new T.DirectionalLight(0xffffff,power);l.position.set(x,y,z);scene.add(l);}
+ const key=new T.SpotLight(0xf5f8ff,350000,2500,Math.PI/3,.85,2);key.position.set(-300,400,650);key.target.position.set(0,0,0);key.castShadow=true;key.shadow.mapSize.setScalar(constrained?512:1024);key.shadow.camera.near=10;key.shadow.camera.far=2000;key.shadow.bias=-.0001;key.shadow.normalBias=.45;scene.add(key,key.target);
+ // A studio softbox environment gives the curved metal continuous, moving reflections.
+ const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=512;const ctx=canvas.getContext('2d');ctx.fillStyle='#3c4554';ctx.fillRect(0,0,1024,512);
+ for(const [x,y,w,h,alpha] of [[90,60,180,390,1],[650,90,100,330,.85],[400,390,230,60,.65]]){ctx.save();ctx.filter='blur(22px)';ctx.globalAlpha=alpha;ctx.fillStyle='#f8fbff';ctx.fillRect(x,y,w,h);ctx.restore();}
+ const environmentSource=new T.CanvasTexture(canvas);environmentSource.mapping=T.EquirectangularReflectionMapping;environmentSource.colorSpace=T.SRGBColorSpace;
+ const pmrem=new T.PMREMGenerator(renderer);let environment=pmrem.fromEquirectangular(environmentSource);environmentSource.dispose();
+ root.dataset.modelLoading='true';try{const hdr=await new RGBELoader().loadAsync('assets/preorder/models/studio-small-09-512.hdr?v=20261118-2');environment.dispose();environment=pmrem.fromEquirectangular(hdr);hdr.dispose();}catch{ /* A bundled procedural studio keeps geometry usable if the HDR fails. */ }scene.environment=environment.texture;pmrem.dispose();
+ const loader=new GLTFLoader(),assets=new Map(),textures=new Set(),materials=new Set();
+ let shape=phoneModel(modelId),finish=phoneFinish('black'),current=null,disposed=false,contextLost=false,active=root.dataset.active!=='false',dirty=true,size='',revision=0;
+ let last={pose:{yaw:0,pitch:0,roll:0},scale:1},blueMap=null,bluePending=false;
+ function physical(source,options){const m=new T.MeshPhysicalMaterial(options);materials.add(m);source.dispose();return m;}
+ function prepare(asset){asset.traverse(o=>{if(!o.isMesh)return;const role=o.userData.materialRole||o.material.name;o.userData.role=role;const old=o.material;
+  if(role==='finish_back')o.material=physical(old,{color:finish.hex,metalness:.08,roughness:.34,clearcoat:.55,clearcoatRoughness:.24,ior:1.48});
+  else if(role==='finish_frame')o.material=physical(old,{color:finish.frame,metalness:1,roughness:.22,clearcoat:.45,clearcoatRoughness:.16});
+  else if(role==='flash_photo')o.material=physical(old,{map:old.map,color:'#ffffff',metalness:.02,roughness:.34,clearcoat:.3});
+  else if(role.startsWith('optical_photo'))o.material=physical(old,{map:old.map,color:'#ffffff',emissiveMap:old.map,emissive:'#52667a',emissiveIntensity:.6,metalness:.03,roughness:.16,envMapIntensity:.22,specularIntensity:.35,clearcoat:.18,clearcoatRoughness:.1,ior:1.52});
+  else if(['camera_glass','optical_glass','front_glass'].includes(role))o.material=physical(old,{color:role==='optical_glass'?'#091626':'#070b11',metalness:role==='optical_glass'?.3:.08,roughness:role==='optical_glass'?.055:.1,clearcoat:1,clearcoatRoughness:.04,ior:1.52});
+  else if(['wordmark','engraving'].includes(role)){const m=new T.MeshBasicMaterial({color:'#8a9297',map:old.map,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1,toneMapped:false});materials.add(m);o.material=m;old.dispose();}
+  o.castShadow=['finish_frame','optical_housing'].includes(role);o.receiveShadow=role==='finish_back';
+  materials.add(o.material);for(const value of Object.values(o.material))if(value?.isTexture)textures.add(value);o.frustumCulled=false;
+ });return asset;}
+ function load(id){if(!assets.has(id)){const p=loader.loadAsync(phoneModel(id).asset).then(gltf=>{if(disposed){disposeAsset(gltf.scene,true);throw Error('Phone viewer disposed');}return prepare(gltf.scene);}).catch(error=>{assets.delete(id);throw error;});assets.set(id,p);}return assets.get(id);}
+ function applyFinish(){if(!current||disposed)return;const f=finish,map=f.id==='blue'&&blueMap?.image?blueMap:null;current.traverse(o=>{if(!o.isMesh)return;const m=o.material;
+  if(o.userData.role==='finish_back'){m.color.set(map?'#ffffff':f.hex);m.map=map;m.roughness=f.id==='blue'?.18:f.id==='white'?.36:f.id==='red'?.37:.34;m.metalness=f.id==='blue'?.16:.08;m.clearcoat=f.id==='blue'?1:.55;m.clearcoatRoughness=f.id==='blue'?.12:.24;m.needsUpdate=true;}
+  else if(o.userData.role==='finish_frame'){m.color.set(f.frame);m.roughness=f.id==='blue'?.17:.23;}
+  else if(o.userData.role==='wordmark')m.color.set(f.id==='white'?'#777e82':'#9a9fa2');
+  else if(o.userData.role==='engraving')m.color.set(f.id==='white'?'#7f8589':'#626a70');
+ });root.dataset.finishReady=f.id==='blue'&&!map?'':f.id;dirty=true;render();}
+ function setFinish(id){finish=phoneFinish(id);applyFinish();if(finish.id==='blue'&&!blueMap&&!bluePending){bluePending=true;blueMap=new T.TextureLoader().load(finish.mapTexture||finish.texture,tex=>{if(disposed){tex.dispose();return;}tex.colorSpace=T.SRGBColorSpace;tex.wrapS=tex.wrapT=T.RepeatWrapping;tex.repeat.set(3,6);textures.add(tex);bluePending=false;applyFinish();},undefined,()=>{bluePending=false;blueMap=null;root.dataset.finishReady=finish.id;});}}
+ async function setModel(id){const desired=phoneModel(id);if(current&&root.dataset.modelReady===desired.id&&shape.id===desired.id&&root.dataset.modelLoading==='false')return;const token=++revision;shape=desired;root.dataset.modelLoading='true';root.dataset.renderer='photo';
+  try{const asset=await load(desired.id);if(disposed||token!==revision)return;if(current)group.remove(current);current=asset;group.add(asset);root.dataset.modelReady=desired.id;root.querySelector('.rd-model-status').textContent='3D-модель · по материалам Xiaomi';root.dataset.modelLoading='false';root.dataset.renderer=contextLost?'photo':'webgl';size='';dirty=true;applyFinish();render();}
+  catch(error){if(disposed||token!==revision)return;root.dataset.modelLoading='false';root.dataset.renderer='photo';root.querySelector('.rd-model-status').textContent='Фото устройства · 3D недоступно';console.warn('Phone model fallback:',error.message);}
  }
- function render(pose=last.pose,scale=last.scale){if(disposed)return;if(scale!==last.scale||['pitch','yaw','roll'].some(k=>pose[k]!==last.pose[k]))dirty=true;last={pose:{...pose},scale};const w=phone.offsetWidth,h=phone.offsetHeight,cw=root.querySelector('.rd-orbit-viewport').clientWidth,ch=h+80;if(w<1||h<1)return;
-  if(size!==`${w}:${h}:${cw}`){dirty=true;size=`${w}:${h}:${cw}`;renderer.setSize(cw,ch,false);renderer.domElement.style.width=cw+'px';renderer.domElement.style.height=ch+'px';camera.aspect=cw/ch;camera.fov=T.MathUtils.radToDeg(2*Math.atan(ch/(2*1800)));camera.updateProjectionMatrix();build(w,h);}
-  group.rotation.set(-T.MathUtils.degToRad(pose.pitch),T.MathUtils.degToRad(pose.yaw),-T.MathUtils.degToRad(pose.roll),'XYZ');group.scale.setScalar(scale);if(active&&dirty){renderer.render(scene,camera);dirty=false;}
+ function render(pose=last.pose,scale=last.scale){if(disposed)return;if(scale!==last.scale||['yaw','pitch','roll'].some(k=>pose[k]!==last.pose[k]))dirty=true;last={pose:{...pose},scale};
+  const w=phone.offsetWidth,h=phone.offsetHeight,cw=root.querySelector('.rd-orbit-viewport').clientWidth,ch=h+80;if(w<1||h<1||!current)return;
+  if(size!==`${w}:${h}:${cw}`){size=`${w}:${h}:${cw}`;dirty=true;renderer.setSize(cw,ch,false);renderer.domElement.style.width=cw+'px';renderer.domElement.style.height=ch+'px';camera.aspect=cw/ch;camera.fov=T.MathUtils.radToDeg(2*Math.atan(ch/(2*1800)));camera.updateProjectionMatrix();current.scale.setScalar(w/(shape.width*.001));}
+  group.rotation.set(-T.MathUtils.degToRad(pose.pitch),T.MathUtils.degToRad(pose.yaw),-T.MathUtils.degToRad(pose.roll),'XYZ');group.scale.setScalar(scale);
+  if(active&&dirty&&!contextLost){renderer.shadowMap.needsUpdate=true;renderer.render(scene,camera);dirty=false;}
  }
- function lost(e){e.preventDefault();root.dataset.renderer='photo';}function restored(){if(disposed)return;root.dataset.renderer='webgl';dirty=true;render();}renderer.domElement.addEventListener('webglcontextlost',lost);renderer.domElement.addEventListener('webglcontextrestored',restored);
- // Optics use the actual manufacturer photograph, with geometry retaining the physical rings.
- const source=new T.TextureLoader().load('assets/preorder/20261107/pro-max-rear-detail.webp',tex=>{if(disposed){tex.dispose();return;}for(const [i,cy]of [746,858].entries()){const map=tex.clone();map.colorSpace=T.SRGBColorSpace;map.repeat.set(88/2560,88/1136);map.offset.set((1154-44)/2560,1-(cy+44)/1136);map.needsUpdate=true;opticalMaps[i]=new T.MeshBasicMaterial({map});}tex.dispose();size='';render();},undefined,()=>{});
- function applyFinish(){dirty=true;const f=finish,pending=finishMaps.get(f.id),map=pending?.image?pending:null;root.dataset.finishReady=map?f.id:'';mats.body.color.set(map?'#ffffff':f.hex);mats.body.map=map||null;mats.body.roughness=f.roughness;mats.body.metalness=f.metalness;mats.body.clearcoat=f.clearcoat;mats.body.clearcoatRoughness=f.id==='blue'?.1:.3;mats.body.needsUpdate=true;mats.edge.color.set(f.frame);mats.edge.roughness=f.id==='blue'?.16:.28;mats.ring.color.set(f.id==='white'?'#4d555a':f.frame);render();}
- function setFinish(id){finish=phoneFinish(id);applyFinish();if(!finishMaps.has(finish.id)){const f=finish;const map=new T.TextureLoader().load(f.mapTexture||f.texture,tex=>{if(disposed){tex.dispose();return;}tex.colorSpace=T.SRGBColorSpace;tex.wrapS=tex.wrapT=T.RepeatWrapping;tex.userData.finish=f.id;tex.repeat.set(f.id==='blue'?3:1,f.id==='blue'?6:1);tex.offset.set(0,0);if(finish.id===f.id)applyFinish();},undefined,()=>{finishMaps.delete(f.id);});finishMaps.set(f.id,map);}}
- root.dataset.renderer='webgl';setFinish(finish.id);render();
- return {render,setFinish,pause(){active=false;},resume(){active=true;dirty=true;render();},dispose(){disposed=true;renderer.domElement.removeEventListener('webglcontextlost',lost);renderer.domElement.removeEventListener('webglcontextrestored',restored);for(const m of group.children)m.geometry.dispose();Object.values(mats).forEach(m=>m.dispose());opticalMaps.forEach(m=>{m.map.dispose();m.dispose();});source.dispose();finishMaps.forEach(m=>m.dispose());brandingTexture.dispose();logoTexture.dispose();env.dispose();renderer.dispose();renderer.forceContextLoss();renderer.domElement.remove();}};
+ function lost(e){e.preventDefault();contextLost=true;root.dataset.renderer='photo';}function restored(){if(disposed)return;contextLost=false;root.dataset.renderer=current&&root.dataset.modelReady===shape.id?'webgl':'photo';dirty=true;render();}
+ renderer.domElement.addEventListener('webglcontextlost',lost);renderer.domElement.addEventListener('webglcontextrestored',restored);
+ function disposeAsset(asset,release=false){asset.traverse(o=>{if(!o.isMesh)return;o.geometry.dispose();if(release){for(const value of Object.values(o.material))if(value?.isTexture){value.dispose();value.image?.close?.();}o.material.dispose();}});}
+ function dispose(){if(disposed)return;disposed=true;revision++;renderer.domElement.removeEventListener('webglcontextlost',lost);renderer.domElement.removeEventListener('webglcontextrestored',restored);for(const p of assets.values())p.then(disposeAsset).catch(()=>{});textures.forEach(t=>{t.dispose();t.image?.close?.();});materials.forEach(m=>m.dispose());environment.dispose();key.shadow.dispose();renderer.dispose();renderer.forceContextLoss();renderer.domElement.remove();}
+ try{await setModel(shape.id);}catch(error){dispose();throw error;}
+ return {render,setFinish,setModel,pause(){active=false;},resume(){active=true;if(!current||root.dataset.modelReady!==shape.id)setModel(shape.id);dirty=true;render();},dispose};
 }

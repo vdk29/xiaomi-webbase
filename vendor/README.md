@@ -7,4 +7,9 @@ Local copies avoid a separate CDN connection at startup.
 
 - Three.js 0.160.1: https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.min.js (MIT; THREE-LICENSE), dynamically loaded only in the preorder presentation. The mesh renders on pose/size changes, not a continuous WebGL loop.
 
-Unmodified distribution files. SHA256SUMS records the downloaded bytes.
+Three.js addons in `three-addons-0.160.1/` are pinned to the same release and covered by THREE-LICENSE:
+- https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/loaders/RGBELoader.js
+- https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/loaders/GLTFLoader.js
+- https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/utils/BufferGeometryUtils.js
+
+Only their module import paths are changed to use local files. SHA256SUMS records the checked-in bytes. Other distribution files are unmodified.

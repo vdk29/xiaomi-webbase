@@ -1,0 +1,29 @@
+{
+  "generator": "scripts/build-phone-model.py",
+  "basis": "Manufacturer dimensions and product photographs; original geometry, no third-party stock model",
+  "models": [
+    {
+      "id": "xiaomi-18-pro",
+      "path": "assets/preorder/models/xiaomi-18-pro.glb",
+      "width": 72,
+      "height": 151.8,
+      "depth": 8.46,
+      "cameraRise": 2.2,
+      "bytes": 437548,
+      "sha256": "9dc22da94fc7f5e423184ce2c119a5e58c02e4bb7c07741c26b05abadd151a50",
+      "triangles": 23648
+    },
+    {
+      "id": "xiaomi-18-pro-max",
+      "path": "assets/preorder/models/xiaomi-18-pro-max.glb",
+      "width": 77.6,
+      "height": 163.39,
+      "depth": 8.39,
+      "cameraRise": 2.2,
+      "bytes": 435460,
+      "sha256": "647c02230b113cc31629a1b2343ce0504506930e109985ca238e641273c83aee",
+      "triangles": 23648
+    }
+  ],
+  "quantization": "KHR_mesh_quantization: positions 14 bit, normals 10 bit, UV 12 bit; @gltf-transform/cli 4.1.1"
+}

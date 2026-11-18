@@ -6,7 +6,7 @@ const mock=`window.preorderQA={reads:0};window.WebBaseDB={config:{url:'https://t
 const base=process.env.WEBBASE_TEST_URL||'http://127.0.0.1:4173/';
 const out=process.env.WEBBASE_SCREENSHOT_DIR||'/tmp/webbase-preorder-qa';fs.mkdirSync(out,{recursive:true});
 async function fixture(p){await p.route('**/supabase-client.js*',r=>r.fulfill({contentType:'text/javascript',body:mock}));}
-async function load(p,params=''){await p.goto(base+'index.html?section=preorder'+params);await p.locator('.rd-studio').waitFor();await p.waitForFunction(()=>document.querySelector('.rd-studio')?.dataset.renderer);}
+async function load(p,params=''){await p.goto(base+'index.html?section=preorder'+params);await p.locator('.rd-studio').waitFor();await p.waitForFunction(()=>document.querySelector('.rd-studio')?.dataset.renderer&&document.querySelector('.rd-studio').dataset.modelLoading!=='true');}
 (async()=>{
  const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader'],...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{})});
  try{
@@ -22,7 +22,7 @@ async function load(p,params=''){await p.goto(base+'index.html?section=preorder'
    await studio.screenshot({path:`${out}/studio-${width}.png`});
    for(const color of ['black','white','blue','red']){await action('theme',color);assert.equal(await studio.getAttribute('data-finish'),color);assert.equal(await p.locator(`[data-po-color=${color}]`).getAttribute('aria-pressed'),'true');assert.equal(new URL(p.url()).searchParams.get('finish'),color);}
    for(const phone of ['xiaomi-18-pro','xiaomi-18-pro-max']){
-    await p.locator(`[data-po-model="${phone}"]`).click();assert.match(await p.locator('#po-spec-name').innerText(),/Global/);
+    await p.locator(`[data-po-model="${phone}"]`).click();await p.waitForFunction(id=>document.querySelector('.rd-studio').dataset.modelReady===id,phone);assert.match(await p.locator('#po-spec-name').innerText(),/Global/);
     for(const color of ['black','white','blue','red']){await p.locator(`[data-po-color=${color}]`).click();await p.locator('#po-device-image').evaluate(i=>i.decode());assert.equal(await studio.getAttribute('data-finish'),color);for(const capacity of ['12/256 ГБ','12/512 ГБ']){await p.locator(`[data-po-capacity="${capacity}"]`).click();assert.equal((await p.locator('#po-price-amount').innerText()).replace(/\D/g,''),String((phone.endsWith('max')?159990:139990)+(capacity.includes('512')?10000:0)));}}
    }
    await p.locator('[data-po-capacity="16 ГБ / 1 ТБ"]').click();assert.match(await p.locator('#po-price-amount').innerText(),/уточня/);await p.locator('[data-po-capacity="12/512 ГБ"]').click();await p.reload();await p.waitForFunction(()=>document.querySelector('.rd-studio')?.dataset.renderer==='webgl');assert.equal(await studio.getAttribute('data-finish'),'red');assert.equal(await p.locator('[data-po-color=red]').getAttribute('aria-pressed'),'true');assert.equal((await p.locator('#po-price-amount').innerText()).replace(/\D/g,''),'169990');
