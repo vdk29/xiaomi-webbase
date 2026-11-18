@@ -2,8 +2,8 @@ import { $, escapeHtml, errorMessage, formatDate, placeholderSvg, setBusy } from
 import { requireApprovedUser } from "./js/auth.js?v=20261024-11";
 import { compatibilityDetailsMarkup } from "./js/compatibility.js?v=20261106-19";
 import { productReturnUrl } from './js/listing-navigation.js?v=20261108-2';
-import { isSmartphone, sellerHelpMarkup, mountSellerHelp } from './js/seller-help.js?v=20261107-24';
-import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261107-25";
+import { isSmartphone, sellerHelpMarkup, mountSellerHelp } from './js/seller-help.js?v=20261118-3';
+import { archiveProduct, getProduct, readProductForm, saveProduct } from "./js/products.js?v=20261118-3";
 import {
   deleteProductImage, prepareImage, reorderImages, setPrimaryImage, setSignedImage, uploadProductImage,
 } from "./js/images.js?v=20261107-25";

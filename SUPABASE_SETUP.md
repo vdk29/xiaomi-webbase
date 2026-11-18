@@ -62,3 +62,7 @@ Applied additive `20261107*_network_*` migrations add the separate network store
 The live private report was imported and verified; baseline local stock, original product records and original photo records retained identical hashes. See [NETWORK_STOCK.md](NETWORK_STOCK.md) for first-import counts, deployment files, jobs, source rules, test commands and known data gaps. Re-run Security and Performance Advisors after changes; the pre-existing Auth leaked-password-protection advisory is outside this expansion.
 
 Единый импорт: миграции `*_unified_*.sql` добавляют поля аудита локальной синхронизации и RPC `webbase_unified_commit(uuid)`. Вызов доступен только администратору и использует invoker/RLS. Он атомарно обновляет сетевой снимок и локальный срез Европолиса Smart Orange; сетевой брак сохраняется, в локальные остатки не включается. Миграции применены к текущему проекту.
+
+## Обновление каталога Xiaomi 18 Pro / Pro Max
+
+18.11.2026 в действующем проекте применены глобальные характеристики и три фотографии для каждой существующей модификации. Миграция `20261118132808_photo_gallery_1c_unit_suffix.sql` исправляет наследование галереи для названий 1С с окончанием «, шт». Остатки и роли не изменены. Источники, повторяемый seed и проверки описаны в [docs/XIAOMI_18_CATALOG.md](docs/XIAOMI_18_CATALOG.md).

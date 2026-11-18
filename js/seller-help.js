@@ -1,4 +1,4 @@
-import { SELLER_PROFILES, SELLER_REVIEWED_AT } from './seller-help-data.js?v=20261107-23';
+import { SELLER_PROFILES, SELLER_REVIEWED_AT } from './seller-help-data.js?v=20261118-3';
 
 const escape = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[character]));
 const clean = value => String(value || '').normalize('NFKC').replace(/\s+/g, ' ').trim();
@@ -67,7 +67,7 @@ export function sellerHelpMarkup(product) {
     ${profile ? '' : '<p class="seller-empty">Для этой модели ещё нет проверенного сценария. Сверьте характеристики поставки.</p>'}
     <div class="seller-tabs" role="tablist" aria-label="Подсказки продавцу">${cards.map((card,index)=>`<button type="button" role="tab" id="seller-tab-${card.id}" aria-controls="seller-${card.id}" aria-selected="${index===0}" tabindex="${index===0?'0':'-1'}" data-seller-tab="${card.id}">${escape(card.label)}</button>`).join('')}</div>
     ${cards.map((card,index)=>`<div id="seller-${card.id}" class="seller-tip" role="tabpanel" aria-labelledby="seller-tab-${card.id}" tabindex="0" ${index===0?'':'hidden'}><p class="seller-fact">${escape(card.fact)}</p><p class="seller-say"><span>Что сказать клиенту</span>«${escape(card.say)}»</p></div>`).join('')}
-    ${sourceLinks.length ? `<details class="seller-sources"><summary>Источники · ${SELLER_REVIEWED_AT.split('-').reverse().join('.')}</summary>${sourceLinks.map(item=>`<a href="${escape(item.url)}" target="_blank" rel="noopener noreferrer">${escape(item.label)} ↗</a>`).join('')}</details>` : ''}
+    ${sourceLinks.length ? `<details class="seller-sources"><summary>Источники · ${(profile?.verifiedAt || SELLER_REVIEWED_AT).split('-').reverse().join('.')}</summary>${sourceLinks.map(item=>`<a href="${escape(item.url)}" target="_blank" rel="noopener noreferrer">${escape(item.label)} ↗</a>`).join('')}</details>` : ''}
   </div>`;
 }
 

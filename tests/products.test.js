@@ -34,6 +34,15 @@ test('own galleries need no shared lookup; lookup errors are reported', async ()
   await assert.rejects(fillSharedImages(db, [normalizeProduct({ id: 'missing' })]), error);
 });
 
+test('a network thumbnail expands to the full shared gallery without changing demo identity or stock',async()=>{
+ const p=normalizeProduct({id:'ldu',name:'(LDU) Смартфон Xiaomi 18 Pro 12GB+256GB Black, шт',network_origin:true,is_demo:true,image_path:'rear',sku:'LDU-SKU',webbase_stock:{warehouse:0,display:0,ldu:1}});
+ assert.equal(p.images.length,1);
+ const db={client:{rpc:async(_,args)=>{assert.deepEqual(args.p_product_ids,['ldu']);return{data:[0,1,2].map(i=>({target_product_id:'ldu',image:{id:'angle-'+i,storage_path:'angle-'+i,sort_order:i,is_primary:i===0}}))}}}};
+ await fillSharedImages(db,[p]);
+ assert.equal(p.images.length,3);assert.ok(p.images.every(i=>i.inherited));
+ assert.equal(p.is_demo,true);assert.equal(p.sku,'LDU-SKU');assert.equal(p.stock.warehouse,0);assert.equal(p.stock.ldu,1);
+});
+
 test('shared lookup batches large catalogs below the Data API row limit', async () => {
   const sizes = [];
   const db = { client: { rpc: async (_, { p_product_ids }) => {

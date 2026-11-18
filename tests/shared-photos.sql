@@ -4,6 +4,10 @@ do $$
 declare donor uuid; target uuid; other uuid; photo uuid; own_photo uuid; result jsonb; count_images integer;
 begin
  perform set_config('request.jwt.claim.sub',(select user_id::text from public.webbase_staff where active and role='admin' limit 1),true);
+ if private.webbase_photo_variant_key('Смартфон Xiaomi 18 Pro 12GB+256GB Black, шт') is distinct from
+    private.webbase_photo_variant_key('Смартфон Xiaomi 18 Pro 12/512 ГБ Black') then raise exception '1C unit suffix blocked gallery';end if;
+ if private.webbase_photo_variant_key('(LDU) Смартфон Xiaomi 18 Pro 12GB+256GB Black, шт.') is distinct from
+    private.webbase_photo_variant_key('Смартфон Xiaomi 18 Pro 12GB+256GB Black') then raise exception 'LDU physical gallery missing';end if;
  if private.webbase_photo_variant_key('Смартфон Xiaomi 17T Pro 12GB+256GB Black') is distinct from
     private.webbase_photo_variant_key('Смартфон Xiaomi 17T Pro Black 16/1024 GB') then raise exception 'Memory format mismatch'; end if;
  if private.webbase_photo_variant_key('Смартфон Xiaomi 17T Pro 1ТБ Black') is distinct from
@@ -27,6 +31,10 @@ begin
  if not exists(select 1 from public.webbase_shared_product_images(array[target]) where image->>'id'=photo::text) then raise exception 'Wrong gallery'; end if;
  if exists(select 1 from public.webbase_product_images where product_id=target) then raise exception 'Unnecessary duplicate photo records'; end if;
  if exists(select 1 from public.webbase_shared_product_images(array[donor])) then raise exception 'Own gallery overridden'; end if;
+ -- A demo may share pictures of the same physical device, but retains its own identity.
+ insert into public.webbase_products(name,sku,is_demo) values('(LDU) Смартфон Xiaomi __GalleryQA__17T Pro 12GB+256GB Black, шт','__GALLERY_LDU__',true) returning id into other;
+ if (select count(*) from public.webbase_shared_product_images(array[other]))<>3 then raise exception 'Demo missing shared angles';end if;
+ if not exists(select 1 from public.webbase_products where id=other and is_demo and sku='__GALLERY_LDU__') then raise exception 'Demo identity changed';end if;
  -- Different color, model, brand, network version and color modifier must not match.
  for result in select jsonb_build_object('name',n) from unnest(array[
   'Смартфон Xiaomi __GalleryQA__17T Pro 256GB White',

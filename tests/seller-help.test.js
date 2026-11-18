@@ -27,11 +27,25 @@ test('all 62 current variants map to eight distinct reviewed families and retain
 });
 
 test('family matching cannot conflate brands, Pro/Max/Ultra, 4G/5G or future names', () => {
-  for (const name of ['Xiaomi 17', 'REDMI 17 Pro', 'REDMI Note 17 5G', 'REDMI Note 17 Pro', 'Xiaomi 17T Ultra', 'POCO F9', 'Xiaomi 18 Pro', '17']) {
+  for (const name of ['Xiaomi 17', 'REDMI 17 Pro', 'REDMI Note 17 5G', 'REDMI Note 17 Pro', 'Xiaomi 17T Ultra', 'POCO F9', 'Xiaomi 18 Pro Ultra', '17']) {
     assert.equal(sellerProfile(phone(`Смартфон ${name} 12GB+256GB Black`)), null, name);
   }
   assert.equal(sellerProfile(phone('Смартфон Xiaomi 17T Pro 12GB+256GB Black')).id, 'xiaomi-17t-pro');
   assert.equal(sellerProfile(phone('Смартфон REDMI 17 4/128GB синий', {model:'17'})).id, 'redmi-17');
+});
+
+test('18 Pro and Pro Max use separate Global facts for every 1C memory/colour variant', () => {
+  for (const model of ['Xiaomi 18 Pro','Xiaomi 18 Pro Max']) for (const memory of [256,512]) for (const color of ['Black','White','Blue','Red']) {
+    const p=phone(`Смартфон ${model} 12GB+${memory}GB ${color}, шт`);
+    const max=model.endsWith('Max'), help=buildSellerHelp(p);
+    assert.equal(help.profile.id,max?'xiaomi-18-pro-max':'xiaomi-18-pro');
+    assert.equal(help.cards.length,6);
+    assert.match(help.cards[0].fact,max?/7050.*100 Вт/:/6000.*90 Вт/);
+    assert.match(help.cards[3].fact,max?/Extreme Gen 6/:/Elite Gen 6/);
+    if(!max)assert.doesNotMatch(help.cards[3].fact,/Extreme/);
+    assert.deepEqual(help.memory,{ram:12,storage:memory});
+    assert.match(sellerHelpMarkup(p),/18\.11\.2026/);
+  }
 });
 
 test('variant memory uses SKU name before stale family fields and supports Cyrillic and TB', () => {

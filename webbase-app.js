@@ -1,7 +1,7 @@
 import { catalogDiagnostic, downloadCatalogDiagnostic } from './js/catalog-diagnostics.js?v=20261025-15';
 import { $, errorMessage, setBusy } from "./js/utils.js?v=20261024-8";
 import { getAccessContext, safeNextUrl, signIn } from "./js/auth.js?v=20261024-11";
-import { listProducts } from "./js/products.js?v=20261107-25";
+import { listProducts } from "./js/products.js?v=20261118-3";
 import { initializeCatalog, populateCategories, renderCatalog } from "./js/catalog.js?v=20261107-25";
 import { initializeCompatibility, renderCompatibility } from "./js/compatibility.js?v=20261106-19";
 import { initializeEmployees, refreshEmployees } from "./js/employees.js?v=20261023-4";

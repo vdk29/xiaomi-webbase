@@ -2,6 +2,14 @@
 const source = (slug, region = 'global') => `https://www.mi.com/${region}/product/${slug}/specs/`;
 export const SELLER_REVIEWED_AT = '2026-11-07';
 export const SELLER_PROFILES = [
+  { id: 'xiaomi-18-pro', match: /^xiaomi 18 pro$/, name: 'Xiaomi 18 Pro', source: source('xiaomi-18-pro'), verifiedAt: '2026-11-18',
+    battery: '6000 мА·ч (Global)', charge: 'до 90 Вт по кабелю · до 50 Вт без проводов', screen: '6,4″ AMOLED, 2436 × 1120, LTPO 1–120 Гц · Privacy Display',
+    camera: 'Leica: 200 Мп с OIS + 200 Мп телефото 75 мм с OIS + 50 Мп сверхширокоугольная', processor: 'Snapdragon 8 Elite Gen 6, 2 нм', protection: 'IP68',
+    cameraBenefit: 'Отдельная телефотокамера помогает снимать портреты и детали издалека. Задний экран позволяет видеть себя при селфи на основные камеры.' },
+  { id: 'xiaomi-18-pro-max', match: /^xiaomi 18 pro max$/, name: 'Xiaomi 18 Pro Max', source: source('xiaomi-18-pro-max'), verifiedAt: '2026-11-18',
+    battery: '7050 мА·ч (Global)', charge: 'до 100 Вт по кабелю · до 50 Вт без проводов', screen: '6,9″ AMOLED, 2624 × 1208, LTPO 1–120 Гц · Privacy Display',
+    camera: 'Leica: 200 Мп Light Fusion 960L с LOFIC и OIS + 200 Мп телефото с OIS + 50 Мп сверхширокоугольная', processor: 'Snapdragon 8 Elite Extreme Gen 6, 2 нм', protection: 'IP68',
+    cameraBenefit: 'Основная камера с LOFIC помогает сохранить яркие участки и тени. Для портретов есть отдельный телеобъектив, а для селфи на основные камеры — задний экран.' },
   { id: 'redmi-17', match: /^redmi 17$/, name: 'REDMI 17', source: source('redmi-17'),
     fit: 'Для звонков, мессенджеров, навигации и большого экрана без переплаты за флагманские возможности.',
     pitch: 'Если важнее большой экран и запас заряда для повседневных дел, чем тяжёлые игры, начните с этой модели.',

@@ -16,7 +16,8 @@ export const PRODUCT_SELECT = `
   webbase_product_images(id,storage_path,sort_order,is_primary,mime_type,byte_size,width,height,created_at,original_name,source_url)
 `;
 
-const canSharePhotos = row => !row.images.length && /^(смартфон|планшет)\s/i.test(row.name || '') && /\d+\s*(gb|гб|tb|тб)/i.test(row.name || '');
+const needsSharedGallery = row => !row.images.length || row.images.every(image => image.id === 'network-' + row.id);
+const canSharePhotos = row => needsSharedGallery(row) && /^(?:\(LDU\)\s*)?(смартфон|планшет)\s/i.test(row.name || '') && /\d+\s*(gb|гб|tb|тб)/i.test(row.name || '');
 
 export function normalizeProduct(row) {
   const stock = Array.isArray(row.webbase_stock) ? row.webbase_stock[0] : row.webbase_stock;
@@ -40,7 +41,8 @@ export function normalizeProduct(row) {
 }
 
 export async function fillSharedImages(db, products) {
-  const missing = products.filter(product => !product.images.length);
+  // A network thumbnail is a fallback, not an own gallery: expand it to all angles.
+  const missing = products.filter(needsSharedGallery);
   // At most 600 image rows per response, below the Data API's 1000-row limit.
   for (let offset = 0; offset < missing.length; offset += 200) {
     const batch = missing.slice(offset, offset + 200);
